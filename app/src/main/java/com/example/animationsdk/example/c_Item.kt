@@ -10,358 +10,352 @@
  * is_... - булевая функция
  * fs_ - публичная статичная функция
  * gs - гетер статичный */
+package com.example.animationsdk.example
 
+import java.util.*
 
-package com.example.animationsdk.example;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-
-public class c_Item {
+open class c_Item {
     //region Переменные _...
-    private c_map _map; // ссылка на карту которой принадлежит обьект
-    private c_coord _coord; // координаты в UDM
-    c_backgroundEngine _background;
-    private byte _floor; //нахождение на каком уровне эл.
+    private val _map // ссылка на карту которой принадлежит обьект
+            : c_map? = null
+    private val _coord // координаты в UDM
+            : c_coord
+    var _background: c_backgroundEngine? = null
+    private val _floor //нахождение на каком уровне эл.
+            : Byte = 0
+
     //endregion
     //region Аксессоры
-
     //region g_...
-    public c_backgroundType g_backgroundLink() {
-        return _background._linkOnUnitBackground;
-    }
-    //endregion
-
-    //region s_...
-    //endregion
-
-    //endregion
-    //region Конструкторы
-    public c_Item() {
-        _coord = new c_coord();
-        //_background = new c_background();
+    fun g_backgroundLink(): c_backgroundType {
+        return _background!!._linkOnUnitBackground
     }
 
     //endregion
     //region Функции
-    public void _moveItem() //движение обьекта, просчет координат
+    fun _moveItem() //движение обьекта, просчет координат
     {
-
     }
 
-    public void f_takeABlow(int value/*сила удара */)/*Принять удар // */ {
-
-    }
-
+    fun f_takeABlow(value: Int /*сила удара */) /*Принять удар // */ {} //endregion
 
     //endregion
+    //region s_...
+    //endregion
+    //endregion
+    //region Конструкторы
+    init {
+        _coord = c_coord()
+        //_background = new c_background();
+    }
 }
 
-class c_map {
-
-    public static float _sizeOneItemMapPx;
-
+object c_map {
+    var _sizeOneItemMapPx = 0f
 }
 
-class c_troop {
+class c_troop  //endregion
+//region constructor
+{
     //region properties _...
     //short _id;// идентификатор отряда (забыли зачем, но походу дурости ради )
-    c_player _player;//идентификатор команды (игрока) к которой принадлежит этот отряд
-    c_unit _typeUnit; // вид(тип) юнитов этого отряда
-    short _countLiveUnits;// количество живых юнитов в отряде
-    c_coord _centralCoord;// Центральные координаты отряда
-
-    //endregion
-    //region constructor
-    public c_troop() {
-
-    }
+    var _player //идентификатор команды (игрока) к которой принадлежит этот отряд
+            : c_player? = null
+    var _typeUnit // вид(тип) юнитов этого отряда
+            : c_unit? = null
+    var _countLiveUnits // количество живых юнитов в отряде
+            : Short = 0
+    var _centralCoord // Центральные координаты отряда
+            : c_coord? = null
 
     //endregion
     //region function
     //region public
-    public boolean is_haveLifeUnit() {
-        return false;///!!!
+    fun is_haveLifeUnit(): Boolean {
+        return false ///!!!
     }
 
-    public boolean is_haveUnitInRadius() {
-        return false;//!!!
+    fun is_haveUnitInRadius(): Boolean {
+        return false //!!!
     }
 
     //Получить новые центральные координаты для группы
-    public c_coord s_centralCoord() {
+    fun s_centralCoord(): c_coord? {
         //!!!
         //проверяем жива ли группа
         //получаю новые координаты отправки
         //проверяю доступны ли эти координаты
         //устанавливаем ей следующие центральные координаты
-        return null;
-    }
-    //endregion
+        return null
+    } //endregion
     //endregion
     //region accessors
-
     //endregion
-
 }
 
-class c_ground extends c_Item {
-    byte _typeOfSurface;
-    private byte _countOfSeats;
-    List<c_unit> c_unitsOn = new ArrayList<c_unit>();
-
-    boolean f_addUnit(c_unit addedUnit) {
+class c_ground : c_Item() {
+    var _typeOfSurface: Byte = 0
+    private val _countOfSeats: Byte = 0
+    var c_unitsOn: List<c_unit> = ArrayList()
+    fun f_addUnit(addedUnit: c_unit?): Boolean {
         //!!! Добавление (посадка) на эту клетку если это возможно в зависимости от количества занимаемы и оставшихся свободных мест
-        return false;
+        return false
     }
 
-    void g_countOfFreeSeats() {
+    fun g_countOfFreeSeats() {
         //!!! пройтись циклом по добавленым юнитам и узнать сколько кто занимает места (то есть узнать его fat) и отнять после от вместимости эти занимаемые места
     }
 
     //region Enum ground types
-    public static class e_types {
-        public static final byte grees = 0;
-        public static final byte woter = 1;
-        public static final byte rock = 2;
-        public static final byte wood = 3;
-    }
-    //endregion
+    object e_types {
+        const val grees: Byte = 0
+        const val woter: Byte = 1
+        const val rock: Byte = 2
+        const val wood: Byte = 3
+    } //endregion
+} //endregion
 
-}
-
-//endregion
-class c_coord extends c_twinFloat {
+open class c_coord : c_twinFloat {
     //region constructors
-    public c_coord() {
-        _XorLeft = 0;
-        _YorTop = 0;
+    constructor() {
+        _XorLeft = 0f
+        _YorTop = 0f
     }
 
-    public c_coord(float XorLeft, float YorTop) {
-        _XorLeft = XorLeft;
-        _YorTop = YorTop;
+    constructor(XorLeft: Float, YorTop: Float) {
+        _XorLeft = XorLeft
+        _YorTop = YorTop
     }
 
-    public c_coord(c_coord coord) {
-        _XorLeft = coord._XorLeft;
-        _YorTop = coord._YorTop;
+    constructor(coord: c_coord) {
+        _XorLeft = coord._XorLeft
+        _YorTop = coord._YorTop
     }
 
     //endregion
     //region func
     //region math func  + - / *
-    public c_coord f_plus(float XorLeft, float YorTop)/*возвращает сумму координат этого обьекта и принимаемых
+    fun f_plus(XorLeft: Float, YorTop: Float): c_coord /*возвращает сумму координат этого обьекта и принимаемых
     (обьект класса не меняет)*/ {
-        return new c_coord(this._XorLeft + XorLeft, this._YorTop + YorTop);
+        return c_coord(_XorLeft + XorLeft, _YorTop + YorTop)
     }
 
-    public c_coord f_plus(c_coord coord) {
-        return f_plus(coord._XorLeft, coord._YorTop);
+    fun f_plus(coord: c_coord): c_coord {
+        return f_plus(coord._XorLeft, coord._YorTop)
     }
 
-    public c_coord f_division(float value)/*деление */ {
-        return f_division(value, value);
+    fun f_division(value: Float): c_coord /*деление */ {
+        return f_division(value, value)
     }
 
-    public c_coord f_division(c_coord value)/*деление */ {
-        return f_division(value._XorLeft, value._YorTop);
+    fun f_division(value: c_coord): c_coord /*деление */ {
+        return f_division(value._XorLeft, value._YorTop)
     }
 
-    public c_coord f_division(float XorLeft, float YorTop)/*деление */ {
-        return new c_coord(this._XorLeft / XorLeft, this._YorTop / YorTop);
+    fun f_division(XorLeft: Float, YorTop: Float): c_coord /*деление */ {
+        return c_coord(_XorLeft / XorLeft, _YorTop / YorTop)
     }
 
-    public c_coord f_multiply(float multipler)/* умножение */ {
-        return f_multiply(multipler, multipler);
+    fun f_multiply(multipler: Float): c_coord /* умножение */ {
+        return f_multiply(multipler, multipler)
     }
 
-    public c_coord f_multiply(c_coord multipler) {
-        return f_multiply(multipler._XorLeft, multipler._YorTop);
+    fun f_multiply(multipler: c_coord): c_coord {
+        return f_multiply(multipler._XorLeft, multipler._YorTop)
     }
 
-    public c_coord f_multiply(float XorLeft, float YorTop) {
-        return new c_coord(this._XorLeft * XorLeft, this._YorTop * YorTop);
+    fun f_multiply(XorLeft: Float, YorTop: Float): c_coord {
+        return c_coord(_XorLeft * XorLeft, _YorTop * YorTop)
     }
 
-    public c_coord f_minus(float XorLeft, float YorTop) {
-        return new c_coord(this._XorLeft - XorLeft, this._YorTop - YorTop);
+    fun f_minus(XorLeft: Float, YorTop: Float): c_coord {
+        return c_coord(_XorLeft - XorLeft, _YorTop - YorTop)
     }
 
-    public c_coord f_minus(c_coord coord) {
-        return f_minus(coord._XorLeft, coord._YorTop);
+    fun f_minus(coord: c_coord): c_coord {
+        return f_minus(coord._XorLeft, coord._YorTop)
     }
 
-    //endregion
-    public static float f_distance(c_coord t1, c_coord t2) /*просчитывает растояние от точки 1 до точки 2*/ {
-        c_coord a = t1.f_minus(t2);
-        if (a._YorTop < 0) a._YorTop = a._YorTop * -1;
-        if (a._XorLeft < 0) a._XorLeft = a._XorLeft * -1;
-        return (float) Math.sqrt(a._XorLeft * a._XorLeft + a._YorTop * a._YorTop);
+    fun f_distance(coord: c_coord): Float {
+        return f_distance(coord, this)
     }
 
-    public float f_distance(c_coord coord) {
-        return f_distance(coord, this);
+    fun f_distance(XorLeft: Float, YorTop: Float): Float {
+        return f_distance(c_coord(XorLeft, YorTop), this)
     }
 
-    public float f_distance(float XorLeft, float YorTop) {
-        return f_distance(new c_coord(XorLeft, YorTop), this);
+    fun is_coordInRadius(_Coord: c_coord, _Radius: Float): Boolean {
+        return f_distance(_Coord) <= _Radius
     }
 
-    public boolean is_coordInRadius(c_coord _Coord, float _Radius) {
-        return f_distance(_Coord) <= _Radius;
-    }
-
-    public static float f_angel(c_coord firstPoint, c_coord secondPoint) {
-        c_coord dist = secondPoint.f_minus(firstPoint);
-        double teta = Math.atan2(dist._YorTop, dist._XorLeft);
-        double angel = teta * (180 / Math.PI);//3.14);//
-        return (float) angel + 90;
-    }
-
-    public float f_angel(c_coord secondPoint) {
-        return f_angel(this, secondPoint);
-    }
-
-    public static float fs_calcDistPath(c_coord startPoint, c_coord endPoint, c_map map) {
-
-        //!!! возращаем ОГРОМНУЮ функцию просчета пути
-
-        //
-
-        return 0;
-    }
-
-    private static ArrayList<c_coord> gs_passablePointsList(c_coord startPoint, c_coord endPoint) {
-        float t_disstance = c_coord.f_distance(startPoint, endPoint);
-        float t_countSteps = t_disstance / c_map._sizeOneItemMapPx;
-        c_coord t_difference = endPoint.f_minus(startPoint);
-        c_coord t_oneStep = t_difference.f_division(t_countSteps);
-        ArrayList<c_coord> returnedList = new ArrayList<c_coord>();
-        c_coord t_currentPoint = startPoint;
-        for (int i = 0; i < t_countSteps; i++) {
-            t_currentPoint.f_plus(t_oneStep);
-            returnedList.add(t_currentPoint);
-        }
-        return returnedList;
-    }
-
-    //region конверторы UDM, PX, Position
-    public static float f_pxToUDM(float px) {
-        return px / g_oneUDMInPx();
-    }
-
-    public static float f_UDMToPx(float UDM) {
-        return UDM * g_oneUDMInPx();
-    }
-
-    public static int f_UDMToPosition(float UDM)/*+++*/ {
-        float t_floatResult = UDM / g_onePositionInUDM();//
-        int t_returned = (int) t_floatResult;
-        if (t_floatResult > t_returned) {
-            t_returned += 1;
-        }
-        return t_returned;
-    }
-
-    public static float f_PositionToUDM(float position)/*преобразовывает позицию в UDM позицию*/ {
-        float t_floatResult = (position * g_onePositionInUDM() + (g_onePositionInUDM() / 2));
-        return t_floatResult;
-    }
-
-    static public float g_oneUDMInPx() /*количество пикселей в одном UDM*/ {
-        return c_map._sizeOneItemMapPx / g_onePositionInUDM();
-    }
-
-    public static float g_onePositionInUDM()/*количество UDM в одном эл. позиции*/ {
-        return 100;
+    fun f_angel(secondPoint: c_coord): Float {
+        return f_angel(this, secondPoint)
     }
 
     //endregion
     //endregion
     //region Accessor
     //region s_... Seter
-    public void s_coordUDM(c_twinFloat coord)/*+++*/ {
-        _XorLeft = coord._XorLeft;
-        _YorTop = coord._YorTop;
+    fun s_coordUDM(coord: c_twinFloat) /*+++*/ {
+        _XorLeft = coord._XorLeft
+        _YorTop = coord._YorTop
     }
 
-    public void s_coordUDM(float XorLeft, float YorTop)/*+++*/ {
-        _XorLeft = XorLeft;
-        _YorTop = YorTop;
+    fun s_coordUDM(XorLeft: Float, YorTop: Float) /*+++*/ {
+        _XorLeft = XorLeft
+        _YorTop = YorTop
     }
 
-    public void s_coordPos(c_twinFloat coord)/*+++*/ {
-        _XorLeft = f_PositionToUDM(coord._XorLeft);
-        _YorTop = f_PositionToUDM(coord._YorTop);
+    fun s_coordPos(coord: c_twinFloat) /*+++*/ {
+        _XorLeft = f_PositionToUDM(coord._XorLeft)
+        _YorTop = f_PositionToUDM(coord._YorTop)
     }
 
-    public void s_coordPos(float XorLeft, float YorTop)/*+++*/ {
-        _XorLeft = f_PositionToUDM(XorLeft);
-        _YorTop = f_PositionToUDM(YorTop);
+    fun s_coordPos(XorLeft: Float, YorTop: Float) /*+++*/ {
+        _XorLeft = f_PositionToUDM(XorLeft)
+        _YorTop = f_PositionToUDM(YorTop)
     }
 
-    public void s_coordPx(c_twinFloat coord)/*+++*/ {
-        _XorLeft = f_pxToUDM(coord._XorLeft);
-        _YorTop = f_pxToUDM(coord._YorTop);
+    fun s_coordPx(coord: c_twinFloat) /*+++*/ {
+        _XorLeft = f_pxToUDM(coord._XorLeft)
+        _YorTop = f_pxToUDM(coord._YorTop)
     }
 
-    public void s_coordPx(float XorLeft, float YorTop)/*+++*/ {
-        _XorLeft = f_pxToUDM(XorLeft);
-        _YorTop = f_pxToUDM(YorTop);
+    fun s_coordPx(XorLeft: Float, YorTop: Float) /*+++*/ {
+        _XorLeft = f_pxToUDM(XorLeft)
+        _YorTop = f_pxToUDM(YorTop)
     }
 
     //endregion
     //region g_.... Geter
-    public c_twinFloat g_Px()/*+++*/ {
-        return new c_twinFloat(f_UDMToPx(this._XorLeft), f_UDMToPx(this._YorTop));
+    fun g_Px(): c_twinFloat /*+++*/ {
+        return c_twinFloat(
+            f_UDMToPx(_XorLeft), f_UDMToPx(
+                _YorTop
+            )
+        )
     }
 
-    public c_twinFloat g_position()/*+++*/ {
-        return new c_twinFloat(f_UDMToPosition(this._XorLeft), f_UDMToPosition(this._YorTop));
+    fun g_position(): c_twinFloat /*+++*/ {
+        return c_twinFloat(
+            f_UDMToPosition(_XorLeft).toFloat(), f_UDMToPosition(
+                _YorTop
+            )
+                .toFloat()
+        )
     }
 
-    public c_coord g_clone() {
-        return new c_coord(this);
+    fun g_clone(): c_coord {
+        return c_coord(this)
+    } //endregion
+
+    //endregion
+    companion object {
+        //endregion
+        fun f_distance(
+            t1: c_coord,
+            t2: c_coord
+        ): Float /*просчитывает растояние от точки 1 до точки 2*/ {
+            val a = t1.f_minus(t2)
+            if (a._YorTop < 0) a._YorTop = a._YorTop * -1
+            if (a._XorLeft < 0) a._XorLeft = a._XorLeft * -1
+            return Math.sqrt((a._XorLeft * a._XorLeft + a._YorTop * a._YorTop).toDouble()).toFloat()
+        }
+
+        fun f_angel(firstPoint: c_coord, secondPoint: c_coord): Float {
+            val dist = secondPoint.f_minus(firstPoint)
+            val teta = Math.atan2(dist._YorTop.toDouble(), dist._XorLeft.toDouble())
+            val angel = teta * (180 / Math.PI) //3.14);//
+            return angel.toFloat() + 90
+        }
+
+        fun fs_calcDistPath(startPoint: c_coord?, endPoint: c_coord?, map: c_map?): Float {
+
+            //!!! возращаем ОГРОМНУЮ функцию просчета пути
+
+            //
+            return 0f
+        }
+
+        private fun gs_passablePointsList(
+            startPoint: c_coord,
+            endPoint: c_coord
+        ): ArrayList<c_coord> {
+            val t_disstance = f_distance(startPoint, endPoint)
+            val t_countSteps = t_disstance / c_map._sizeOneItemMapPx
+            val t_difference = endPoint.f_minus(startPoint)
+            val t_oneStep = t_difference.f_division(t_countSteps)
+            val returnedList = ArrayList<c_coord>()
+            var i = 0
+            while (i < t_countSteps) {
+                startPoint.f_plus(t_oneStep)
+                returnedList.add(startPoint)
+                i++
+            }
+            return returnedList
+        }
+
+        //region конверторы UDM, PX, Position
+        fun f_pxToUDM(px: Float): Float {
+            return px / g_oneUDMInPx()
+        }
+
+        fun f_UDMToPx(UDM: Float): Float {
+            return UDM * g_oneUDMInPx()
+        }
+
+        fun f_UDMToPosition(UDM: Float): Int /*+++*/ {
+            val t_floatResult = UDM / g_onePositionInUDM() //
+            var t_returned = t_floatResult.toInt()
+            if (t_floatResult > t_returned) {
+                t_returned += 1
+            }
+            return t_returned
+        }
+
+        fun f_PositionToUDM(position: Float): Float /*преобразовывает позицию в UDM позицию*/ {
+            return position * g_onePositionInUDM() + g_onePositionInUDM() / 2
+        }
+
+        fun g_oneUDMInPx(): Float /*количество пикселей в одном UDM*/ {
+            return c_map._sizeOneItemMapPx / g_onePositionInUDM()
+        }
+
+        fun g_onePositionInUDM(): Float /*количество UDM в одном эл. позиции*/ {
+            return 100f
+        }
     }
-    //endregion
-    //endregion
 }
 
-class c_twinFloat {
+open class c_twinFloat {
     //region properties .....
-    public float _XorLeft = 0;
-    public float _YorTop = 0;
+    var _XorLeft = 0f
+    var _YorTop = 0f
 
     // endregion
     //region constructors
-    public c_twinFloat() {
-        _XorLeft = 0;
-        _YorTop = 0;
+    constructor() {
+        _XorLeft = 0f
+        _YorTop = 0f
     }
 
-    public c_twinFloat(float XorLeft, float YorTop) {
-        _XorLeft = XorLeft;
-        _YorTop = YorTop;
+    constructor(XorLeft: Float, YorTop: Float) {
+        _XorLeft = XorLeft
+        _YorTop = YorTop
     }
 
-    public c_twinFloat(c_twinFloat coord) {
-        _XorLeft = coord._XorLeft;
-        _YorTop = coord._YorTop;
-    }
-    //endregion
+    constructor(coord: c_twinFloat) {
+        _XorLeft = coord._XorLeft
+        _YorTop = coord._YorTop
+    } //endregion
 }
 
-class c_enum /* public static*/ {
-    public static final byte e_Exception = -128;
+object c_enum /* public static*/ {
+    const val e_Exception: Byte = -128
 }
 
-class c_paint {
-    //region Конструкторы
-    public c_paint() {
-    }
-
+class c_paint  //region Конструкторы
+{
     //endregion
     //region Переменные, свойства, объекты, ...
     //endregion
@@ -372,125 +366,98 @@ class c_paint {
     //endregion
     //endregion
     //region Функции (f_...)
-    public void f_start() {
-    }
-
-    public void f_pause() {
-    }
-    //endregion
-
+    fun f_start() {}
+    fun f_pause() {} //endregion
 }
 
-class c_activityTasck {
-    //region Constructors
-    public c_activityTasck() {
-        _path = null;
-
-    }
-
+class c_activityTasck     //region Constructors
+{
     //endregion
     //region _...  properties
-    private c_path _path;
-    c_troop _ownerTroop; // отряд владелец этим заданием
-    c_coord _targetCoord; // инициализируется если цель только дойти до клетки на карте
-    c_troop _targetTroop; // цель. отряд = null если заполнена цель клетка на карте
+    private val _path: c_path? = null
+    var _ownerTroop // отряд владелец этим заданием
+            : c_troop? = null
+    var _targetCoord // инициализируется если цель только дойти до клетки на карте
+            : c_coord? = null
+    var _targetTroop // цель. отряд = null если заполнена цель клетка на карте
+            : c_troop? = null
 
     //endregion
     //region f_ ... Function
-    boolean is_NeedAtack() {
-        if (_targetTroop == null) return false;
-        if (!_targetTroop.is_haveLifeUnit()) return false;
-        if (is_NeedMove()) return false;
-        return true;
+    fun is_NeedAtack(): Boolean {
+        if (_targetTroop == null) return false
+        if (!_targetTroop!!.is_haveLifeUnit()) return false
+        return if (is_NeedMove()) false else true
     }
 
-    boolean is_NeedMove() {
-        if (_targetCoord != null) return true;
-        else {
-            if (_targetTroop == null) return false;
-            if (!_targetTroop.is_haveLifeUnit()) return false;
-            if (_targetTroop.is_haveUnitInRadius()) return false;
+    fun is_NeedMove(): Boolean {
+        if (_targetCoord != null) return true else {
+            if (_targetTroop == null) return false
+            if (!_targetTroop!!.is_haveLifeUnit()) return false
+            if (_targetTroop!!.is_haveUnitInRadius()) return false
         }
-        return true;
+        return true
     }
 
     //region Public
-    public boolean f_Tick() {
-        if (_ownerTroop == null) return false;
-        if (!_ownerTroop.is_haveLifeUnit())
-            return false;// проверка если в отряде нет живых юнитов преждевременное завершение функции
-        if (_targetTroop == null) return false;
-        return false;//!!!
+    fun f_Tick(): Boolean {
+        if (_ownerTroop == null) return false
+        if (!_ownerTroop!!.is_haveLifeUnit()) return false // проверка если в отряде нет живых юнитов преждевременное завершение функции
+        return if (_targetTroop == null) false else false
+        //!!!
     }
-    //endregion
-    //endregion
 
-    void f_atack(int idUnitGroupToAttack, c_path pathToAtack, int idEnemyGroup) {
+    //endregion
+    //endregion
+    fun f_atack(idUnitGroupToAttack: Int, pathToAtack: c_path?, idEnemyGroup: Int) {
         //!!! заставляет атаковать вражескую групу определив их по идентификатору
     }
-
 }
 
-class c_path {
-    public c_path(c_coord startPoint, c_coord endPoint) {
-
+class c_path(startPoint: c_coord?, endPoint: c_coord?) {
+    private val _pointsArray: List<c_pathPoint> = ArrayList()
+    fun g_actualNextPoint(): c_coord? {
+        return null //!!!
     }
 
-    private List<c_pathPoint> _pointsArray = new ArrayList<c_pathPoint>();
-
-    public c_coord g_actualNextPoint() {
-        return null;//!!!
+    fun g_lengthPath(): Float {
+        return 0f //!!!
     }
 
-    public float g_lengthPath() {
-        return 0;//!!!
-    }
-
-    private float g_lengthPartPath() {
+    private fun g_lengthPartPath(): Float {
         //!!!
-        return 0;
+        return 0f
     }
 
-    class c_pathPoint extends c_coord {
-        public short _index;
+    inner class c_pathPoint : c_coord() {
+        var _index: Short = 0
     }
 }
 
-class c_player {
+class c_player  //endregion
+//region constructor
+//endregion
+//region accessors
+//endregion
+{
     //region Поля класса
-    public String _nickName;
-    private int _gold;
-    ArrayList<c_unit> _unitsTypesDifferences;
-
-
-    //endregion
-    //region constructor
-    public c_player() {
-        //_unitsTypesDifferences.add(new c_unit(true,c_unit.e_types.archer));
-    }
-    //endregion
-    //region accessors
-    //endregion
+    var _nickName: String? = null
+    private val _gold = 0
+    var _unitsTypesDifferences: ArrayList<c_unit>? = null
 }
 
-class c_play {
-    //класс хранящий параметры игры пренадлежащему конкретному играку
-    //region constructor
-    public c_play() {
-    }
-
+class c_play  //класс хранящий параметры игры пренадлежащему конкретному играку
+//region constructor
+{
     //endregion
     //region properties
-    c_map _map;
-    ArrayList<c_unit> _typesOfUnits;
-    ArrayList<c_player> _players;
-    ArrayList<c_unit> _lifeUnits;
-    ArrayList<c_troop> _troops;
-    ArrayList<c_backgroundType> _backgroundTypes;
-    private byte _counterOfFreeSeats;
-    Timer _timer;
-    long _startTime;
-//endregion
-
+    var _map: c_map? = null
+    var _typesOfUnits: ArrayList<c_unit>? = null
+    var _players: ArrayList<c_player>? = null
+    var _lifeUnits: ArrayList<c_unit>? = null
+    var _troops: ArrayList<c_troop>? = null
+    var _backgroundTypes: ArrayList<c_backgroundType>? = null
+    private val _counterOfFreeSeats: Byte = 0
+    var _timer: Timer? = null
+    var _startTime: Long = 0 //endregion
 }
-
