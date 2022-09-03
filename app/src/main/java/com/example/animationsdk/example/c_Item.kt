@@ -12,46 +12,20 @@
  * gs - гетер статичный */
 package com.example.animationsdk.example
 
-import java.util.*
-
 open class c_Item {
     //region Переменные _...
-    private val _map // ссылка на карту которой принадлежит обьект
-            : c_map? = null
-    private val _coord // координаты в UDM
-            : c_coord
+    private val _map: c_map? = null // ссылка на карту которой принадлежит обьект
+    private val _coord: c_coord =c_coord()// координаты в UDM
     var _background: c_backgroundEngine? = null
-    private val _floor //нахождение на каком уровне эл.
-            : Byte = 0
+    private val _floor: Byte = 0 //нахождение на каком уровне эл.
 
     //endregion
-    //region Аксессоры
-    //region g_...
     fun g_backgroundLink(): c_backgroundType {
         return _background!!._linkOnUnitBackground
     }
 
-    //endregion
-    //region Функции
-    fun _moveItem() //движение обьекта, просчет координат
-    {
-    }
-
     fun f_takeABlow(value: Int /*сила удара */) /*Принять удар // */ {} //endregion
 
-    //endregion
-    //region s_...
-    //endregion
-    //endregion
-    //region Конструкторы
-    init {
-        _coord = c_coord()
-        //_background = new c_background();
-    }
-}
-
-object c_map {
-    var _sizeOneItemMapPx = 0f
 }
 
 class c_troop  //endregion
@@ -327,93 +301,6 @@ open class c_coord : c_twinFloat {
     }
 }
 
-open class c_twinFloat {
-    //region properties .....
-    var _XorLeft = 0f
-    var _YorTop = 0f
-
-    // endregion
-    //region constructors
-    constructor() {
-        _XorLeft = 0f
-        _YorTop = 0f
-    }
-
-    constructor(XorLeft: Float, YorTop: Float) {
-        _XorLeft = XorLeft
-        _YorTop = YorTop
-    }
-
-    constructor(coord: c_twinFloat) {
-        _XorLeft = coord._XorLeft
-        _YorTop = coord._YorTop
-    } //endregion
-}
-
-object c_enum /* public static*/ {
-    const val e_Exception: Byte = -128
-}
-
-class c_paint  //region Конструкторы
-{
-    //endregion
-    //region Переменные, свойства, объекты, ...
-    //endregion
-    //region Аксессоры
-    //region Get(g_...)
-    //endregion
-    //region Set (s_...)
-    //endregion
-    //endregion
-    //region Функции (f_...)
-    fun f_start() {}
-    fun f_pause() {} //endregion
-}
-
-class c_activityTasck     //region Constructors
-{
-    //endregion
-    //region _...  properties
-    private val _path: c_path? = null
-    var _ownerTroop // отряд владелец этим заданием
-            : c_troop? = null
-    var _targetCoord // инициализируется если цель только дойти до клетки на карте
-            : c_coord? = null
-    var _targetTroop // цель. отряд = null если заполнена цель клетка на карте
-            : c_troop? = null
-
-    //endregion
-    //region f_ ... Function
-    fun is_NeedAtack(): Boolean {
-        if (_targetTroop == null) return false
-        if (!_targetTroop!!.is_haveLifeUnit()) return false
-        return if (is_NeedMove()) false else true
-    }
-
-    fun is_NeedMove(): Boolean {
-        if (_targetCoord != null) return true else {
-            if (_targetTroop == null) return false
-            if (!_targetTroop!!.is_haveLifeUnit()) return false
-            if (_targetTroop!!.is_haveUnitInRadius()) return false
-        }
-        return true
-    }
-
-    //region Public
-    fun f_Tick(): Boolean {
-        if (_ownerTroop == null) return false
-        if (!_ownerTroop!!.is_haveLifeUnit()) return false // проверка если в отряде нет живых юнитов преждевременное завершение функции
-        return if (_targetTroop == null) false else false
-        //!!!
-    }
-
-    //endregion
-    //endregion
-    fun f_atack(idUnitGroupToAttack: Int, pathToAtack: c_path?, idEnemyGroup: Int) {
-        //!!! заставляет атаковать вражескую групу определив их по идентификатору
-    }
-}
-
 class c_path(startPoint: c_coord?, endPoint: c_coord?) {
     private val _pointsArray: List<c_pathPoint> = ArrayList()
     fun g_actualNextPoint(): c_coord? {
@@ -446,18 +333,3 @@ class c_player  //endregion
     var _unitsTypesDifferences: ArrayList<c_unit>? = null
 }
 
-class c_play  //класс хранящий параметры игры пренадлежащему конкретному играку
-//region constructor
-{
-    //endregion
-    //region properties
-    var _map: c_map? = null
-    var _typesOfUnits: ArrayList<c_unit>? = null
-    var _players: ArrayList<c_player>? = null
-    var _lifeUnits: ArrayList<c_unit>? = null
-    var _troops: ArrayList<c_troop>? = null
-    var _backgroundTypes: ArrayList<c_backgroundType>? = null
-    private val _counterOfFreeSeats: Byte = 0
-    var _timer: Timer? = null
-    var _startTime: Long = 0 //endregion
-}
