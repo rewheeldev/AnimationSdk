@@ -4,6 +4,7 @@ import android.opengl.GLES20
 
 object ShaderUtils {
     fun createProgram(vertexShaderId: Int, fragmentShaderId: Int): Int {
+        //done
         val programId = GLES20.glCreateProgram()
         if (programId == 0) {
             return 0
@@ -21,6 +22,7 @@ object ShaderUtils {
     }
 
     fun createShader(type: Int, shaderText: String): Int {
+        //done
         val shaderId = GLES20.glCreateShader(type)
         if (shaderId == 0) {
             return 0

@@ -30,11 +30,12 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     override fun onSurfaceCreated(arg0: GL10, arg1: EGLConfig) {
         initBitmap(context, orcBitmaps, 650, 650)
 
-
+        //region done
         GLES32.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
         GLES32.glEnable(GLES32.GL_DEPTH_TEST)
         createAndUseProgram()
         locations
+        //endregion
         orcBitmaps.forEach {
             val texture = TextureUtils.loadTexture(it)
             textureArray.add(texture)
@@ -50,6 +51,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     }
 
     private fun createAndUseProgram() {
+        //done
         val vertexShaderId: Int = ShaderUtils.createShader(GLES32.GL_VERTEX_SHADER, VERTEX_SHADER)
         val fragmentShaderId: Int =
             ShaderUtils.createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
@@ -59,6 +61,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     private val locations: Unit
         private get() {
+            //done
             aPositionLocation = GLES32.glGetAttribLocation(programId, "a_Position")
             aTextureLocation = GLES32.glGetAttribLocation(programId, "a_Texture")
             uTextureUnitLocation = GLES32.glGetUniformLocation(programId, "u_TextureUnit")
@@ -111,7 +114,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         var bottom = -1f
         var top = 1f
         val near = 2f
-        val far = 12f
+        val far = 1000f
         if (width > height) {
             ratio = width.toFloat() / height
             left *= ratio
@@ -134,7 +137,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         // точка положения камеры
         val eyeX = 0f
         val eyeY = 0f
-        val eyeZ = 13f
+        val eyeZ = 100f
 
         // точка направления камеры
         val centerX = 0f
@@ -145,6 +148,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val upX = 0f
         val upY = 1f
         val upZ = 0f
+
         Matrix.setLookAtM(
             mViewMatrix,
             0,
@@ -254,9 +258,9 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     }
 
     companion object {
-        private const val POSITION_COUNT = 3
-        private const val TEXTURE_COUNT = 2
-        private const val STRIDE = (POSITION_COUNT + TEXTURE_COUNT) * 4
+        internal const val POSITION_COUNT = 3
+        internal const val TEXTURE_COUNT = 2
+        internal const val STRIDE = (POSITION_COUNT + TEXTURE_COUNT) * 4
     }
 }
 
