@@ -15,7 +15,6 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
-    private var vertexData: FloatBuffer? = null
     private var aPositionLocation = 0
     private var aTextureLocation = 0
     private var uTextureUnitLocation = 0
@@ -30,11 +29,11 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     override fun onSurfaceCreated(arg0: GL10, arg1: EGLConfig) {
         initBitmap(context, orcBitmaps, 650, 650)
 
-        GLES20.glClearColor(0f, 0f, 0f, 1f)
+
+        GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
         GLES20.glEnable(GLES20.GL_DEPTH_TEST)
         createAndUseProgram()
         locations
-        prepareData()
         orcBitmaps.forEach {
             val texture = TextureUtils.loadTexture(it)
             textureArray.add(texture)
@@ -49,38 +48,10 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         bindMatrix()
     }
 
-    private fun prepareData() {
-//        Смотрим метод prepareData. В массиве vertices мы задаем данные о 4 вершинах, чтобы
-//        нарисовать квадрат. Для каждой вершины мы задаем 5 чисел.
-//        Первые три – это координаты вершины,
-//        а последние две – это координаты соответствующей точки текстуры.
-        val vertices = floatArrayOf(
-            -1f, 1f, 1f, 0f, 0f,
-            -1f, -1f, 1f, 0f, 1f,
-            1f, 1f, 1f, 1f, 0f,
-            1f, -1f, 1f, 1f, 1f
-        )
-        vertexData = ByteBuffer
-//Выделяет новый прямой байтовый буфер.
-//Позиция нового буфера будет нулевой, его пределом будет его емкость, его метка будет неопределенной,
-// и каждый из его элементов будет инициализирован нулем. Неизвестно, есть ли у него резервный массив.
-//Параметры:
-//емкость – Емкость нового буфера в байтах.
-//Возвращает:
-//Новый байтовый буфер
-//Броски:
-//IllegalArgumentException — если емкость является отрицательным целым числом.
-            .allocateDirect(vertices.size * 4)
-            .order(ByteOrder.nativeOrder())
-            .asFloatBuffer()
-        vertexData!!.put(vertices)
-    }
-
     private fun createAndUseProgram() {
-        val vertexShaderId: Int =
-            ShaderUtils.createShader(context, GLES20.GL_VERTEX_SHADER, R.raw.vertex_shader)
+        val vertexShaderId: Int = ShaderUtils.createShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER)
         val fragmentShaderId: Int =
-            ShaderUtils.createShader(context, GLES20.GL_FRAGMENT_SHADER, R.raw.fragment_shader)
+            ShaderUtils.createShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
         programId = ShaderUtils.createProgram(vertexShaderId, fragmentShaderId)
         GLES20.glUseProgram(programId)
     }
@@ -93,22 +64,35 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
             uMatrixLocation = GLES20.glGetUniformLocation(programId, "u_Matrix")
         }
 
-    private fun bindData(texture: Int) {
-        // координаты вершин
-        vertexData!!.position(0)
+    /**
+     * метод связывает текстуру с координатами
+     */
+    private fun drawRectTexture(texture: Int, x: Float, y: Float, width: Float, height: Float) {
+        val array = createDefaultRectangleVertices(x, y, width, height)
+        bindData(texture, array.asSortedFloatBuffer())
+        //0 это первый индекс вершины в масиве точек
+        //4 количество точек на основании которых создается прямоугольник
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+    }
+
+    private fun bindData(texture: Int, vertexData: FloatBuffer) {
+        // region координаты вершин
+        vertexData.position(0)
         GLES20.glVertexAttribPointer(
             aPositionLocation, POSITION_COUNT, GLES20.GL_FLOAT,
             false, STRIDE, vertexData
         )
         GLES20.glEnableVertexAttribArray(aPositionLocation)
+        //endregion
 
-        // координаты текстур
-        vertexData!!.position(POSITION_COUNT)
+        //region координаты текстур
+        vertexData.position(POSITION_COUNT)
         GLES20.glVertexAttribPointer(
             aTextureLocation, TEXTURE_COUNT, GLES20.GL_FLOAT,
             false, STRIDE, vertexData
         )
         GLES20.glEnableVertexAttribArray(aTextureLocation)
+        //endregion
 
         // помещаем текстуру в target 2D юнита 0
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
@@ -137,7 +121,11 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
             bottom *= ratio
             top *= ratio
         }
-        Log.i("TAG_1", "ratio: $ratio, left: $left, right: $right, bottom: $bottom, top: $top, near: $near, far: $far")
+        Log.i(
+            "TAG_1", "ratio: $ratio, " +
+                    "left: $left, right: $right, bottom: $bottom, top: $top, " +
+                    "near: $near, far: $far"
+        )
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far)
     }
 
@@ -145,7 +133,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         // точка положения камеры
         val eyeX = 0f
         val eyeY = 0f
-        val eyeZ = 7f
+        val eyeZ = 13f
 
         // точка направления камеры
         val centerX = 0f
@@ -176,16 +164,28 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         GLES20.glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0)
     }
 
+    private var currentFrame = 0
     private var orcCurrentFrame = 0
 
     override fun onDrawFrame(arg0: GL10) {
-        measureFPS{
+        measureFPS {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+            //region Включаем прозрачность
+            GLES20.glEnable(GLES20.GL_BLEND);
+            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+            //endregion
+            drawRectTexture(
+                textureArray[orcCurrentFrame % textureArray.size],
+                (currentFrame % 99).toFloat() / 50,
+                (currentFrame % 99).toFloat() / 50,
+                2f, 2f
+            )
+            drawRectTexture(textureArray[(orcCurrentFrame + 4) % textureArray.size], -1f, -1f, 6f, 6f)
 
-            bindData(textureArray[orcCurrentFrame % textureArray.size])
-
-            orcCurrentFrame += 1
+            if (currentFrame % 6 == 0) {
+                orcCurrentFrame += 1
+            }
+            currentFrame += 1
         }
 //        orcBitmaps[orcCurrentFrame % orcBitmaps.size].recycle()
     }
@@ -200,6 +200,8 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     ) {
         val orcBitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.orc_archer_0)
+        val tmpRowCount = 2//8
+        val tmpColCount = 8//32
         val partImgSizeX = orcBitmap.width / 32
         val partImgSizeY = orcBitmap.height / 8
         Log.d(
@@ -207,9 +209,9 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
             "orcBitmap.width:${orcBitmap.width}, partImgSizeX = $partImgSizeX, orcBitmap.height: ${orcBitmap.height}, partImgSizeY = $partImgSizeY"
         )
 
-        for (row in 0 until 8) {
+        for (row in 0 until tmpRowCount) {
             Log.i("TAG_1", "row: $row * partImgSizeY: $partImgSizeY = ${row * partImgSizeY}")
-            for (colm in 0 until 32) {
+            for (colm in 0 until tmpColCount) {
                 Log.i("TAG_1", "colm: $colm * partImgSizeX: $partImgSizeX = ${colm * partImgSizeX}")
                 var bitmap = Bitmap.createBitmap(
                     orcBitmap,
@@ -236,6 +238,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val startTime = System.currentTimeMillis()
         run.invoke()
         val endTime = System.currentTimeMillis() - startTime
+        if (endTime <= 0) return 0
         val fps = 1000 / endTime
 //        Log.d("TAG_1", "FPS: $fps")
         return fps
@@ -244,7 +247,70 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     companion object {
         private const val POSITION_COUNT = 3
         private const val TEXTURE_COUNT = 2
-        private const val STRIDE = (POSITION_COUNT
-                + TEXTURE_COUNT) * 4
+        private const val STRIDE = (POSITION_COUNT + TEXTURE_COUNT) * 4
     }
+}
+
+class DrawableUnit() {
+    private val vertices = createDefaultRectangleVertices(0f, 0f, 3f, 3f)
+
+    init {
+        val list = ArrayList<Float>()
+        list.addAll(vertices.toList())
+        list.addAll(vertices.toList())
+        val fa = list.toFloatArray()
+    }
+}
+
+/**
+ * взаимосвязь координат в пространстве с координатами текстуры
+ * в [textureX],[textureY] рекомендуется указывать значения 0f , 1f. другие значения могут исказить изображение
+ * не коректная связь их с пространственными координатами также может исказить изображение или перевернуть систему координат
+ */
+data class SpatialAndTextureCoordinate(
+    val x: Float, val y: Float, val z: Float,
+    val textureX: Float, val textureY: Float
+)
+
+const val startOfSide = 0f
+const val endOfSide = 1f
+const val defaultZValue = 1f
+
+fun createDefaultRectangleVertices(x: Float, y: Float, width: Float, height: Float): FloatArray {
+    val leftTopPoint = SpatialAndTextureCoordinate(
+        x, height + y, defaultZValue,
+        startOfSide, startOfSide
+    )
+    val leftBottomPoint = SpatialAndTextureCoordinate(
+        x, y, defaultZValue,
+        startOfSide, endOfSide
+    )
+    val rightTopPoint = SpatialAndTextureCoordinate(
+        width + x, height + y, defaultZValue,
+        endOfSide, startOfSide
+    )
+    val rightBottomPoint = SpatialAndTextureCoordinate(
+        width + x, y, defaultZValue,
+        endOfSide, endOfSide
+    )
+
+    return floatArrayOf(
+        leftTopPoint.x, leftTopPoint.y, leftTopPoint.z,
+        leftTopPoint.textureX, leftTopPoint.textureY,
+
+        leftBottomPoint.x, leftBottomPoint.y, leftBottomPoint.z,
+        leftBottomPoint.textureX, leftBottomPoint.textureY,
+
+        rightTopPoint.x, rightTopPoint.y, rightTopPoint.z,
+        rightTopPoint.textureX, rightTopPoint.textureY,
+
+        rightBottomPoint.x, rightBottomPoint.y, rightBottomPoint.z,
+        rightBottomPoint.textureX, rightBottomPoint.textureY
+    )
+}
+
+fun FloatArray.asSortedFloatBuffer():FloatBuffer {
+    return ByteBuffer.allocateDirect(this.size * 4)
+        .order(ByteOrder.nativeOrder())
+        .asFloatBuffer().put(this)
 }

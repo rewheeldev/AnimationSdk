@@ -1,9 +1,6 @@
 package com.example.animationsdk.ui.gl.startAndroid
 
-import android.content.Context
-import com.example.animationsdk.ui.gl.startAndroid.FileUtils.readTextFromRaw
 import android.opengl.GLES20
-import com.example.animationsdk.ui.gl.startAndroid.ShaderUtils
 
 object ShaderUtils {
     fun createProgram(vertexShaderId: Int, fragmentShaderId: Int): Int {
@@ -23,12 +20,7 @@ object ShaderUtils {
         return programId
     }
 
-    fun createShader(context: Context?, type: Int, shaderRawId: Int): Int {
-        val shaderText = readTextFromRaw(context!!, shaderRawId)
-        return createShader(type, shaderText)
-    }
-
-    fun createShader(type: Int, shaderText: String?): Int {
+    fun createShader(type: Int, shaderText: String): Int {
         val shaderId = GLES20.glCreateShader(type)
         if (shaderId == 0) {
             return 0
@@ -44,3 +36,34 @@ object ShaderUtils {
         return shaderId
     }
 }
+
+val FRAGMENT_SHADER = """precision mediump float;
+
+uniform sampler2D u_TextureUnit;
+varying vec2 v_Texture;
+
+void main()
+{
+    gl_FragColor = texture2D(u_TextureUnit, v_Texture);
+}"""
+
+val VERTEX_SHADER = """attribute vec4 a_Position;
+uniform mat4 u_Matrix;
+attribute vec2 a_Texture;
+varying vec2 v_Texture;
+
+void main()
+{
+    gl_Position = u_Matrix * a_Position;
+    v_Texture = a_Texture;
+}"""
+
+var fragmentShader = "precision mediump float;       \n" +
+        "varying vec2 v_Color;          \n" +
+        "uniform sampler2D s_baseMap;   \n" +
+        "void main()                    \n" +
+        "{                              \n" +
+        "  vec4 baseColor;              \n" +
+        "  baseColor = texture2D( s_baseMap, v_Color );   \n" +
+        "   gl_FragColor = baseColor;     \n" +
+        "}"
