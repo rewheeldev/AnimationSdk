@@ -3,13 +3,14 @@ package com.example.animationsdk.ui.gl.startAndroid
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.opengl.GLES20
+import android.opengl.GLES32
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.Log
 import com.example.animationsdk.R
 import com.example.animationsdk.ui.gl.sdk.asSortedFloatBuffer
 import com.example.animationsdk.ui.gl.sdk.createDefaultRectangleVertices
+import com.example.animationsdk.ui.gl.sdk.internal.getOpenGlInfo
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -30,8 +31,8 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         initBitmap(context, orcBitmaps, 650, 650)
 
 
-        GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+        GLES32.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
         createAndUseProgram()
         locations
         orcBitmaps.forEach {
@@ -43,25 +44,25 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(arg0: GL10, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
+        GLES32.glViewport(0, 0, width, height)
         createProjectionMatrix(width, height)
         bindMatrix()
     }
 
     private fun createAndUseProgram() {
-        val vertexShaderId: Int = ShaderUtils.createShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER)
+        val vertexShaderId: Int = ShaderUtils.createShader(GLES32.GL_VERTEX_SHADER, VERTEX_SHADER)
         val fragmentShaderId: Int =
-            ShaderUtils.createShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
+            ShaderUtils.createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
         programId = ShaderUtils.createProgram(vertexShaderId, fragmentShaderId)
-        GLES20.glUseProgram(programId)
+        GLES32.glUseProgram(programId)
     }
 
     private val locations: Unit
         private get() {
-            aPositionLocation = GLES20.glGetAttribLocation(programId, "a_Position")
-            aTextureLocation = GLES20.glGetAttribLocation(programId, "a_Texture")
-            uTextureUnitLocation = GLES20.glGetUniformLocation(programId, "u_TextureUnit")
-            uMatrixLocation = GLES20.glGetUniformLocation(programId, "u_Matrix")
+            aPositionLocation = GLES32.glGetAttribLocation(programId, "a_Position")
+            aTextureLocation = GLES32.glGetAttribLocation(programId, "a_Texture")
+            uTextureUnitLocation = GLES32.glGetUniformLocation(programId, "u_TextureUnit")
+            uMatrixLocation = GLES32.glGetUniformLocation(programId, "u_Matrix")
         }
 
     /**
@@ -72,34 +73,34 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         bindData(texture, array.asSortedFloatBuffer())
         //0 это первый индекс вершины в масиве точек
         //4 количество точек на основании которых создается прямоугольник
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_STRIP, 0, 4)
     }
 
     private fun bindData(texture: Int, vertexData: FloatBuffer) {
         // region координаты вершин
         vertexData.position(0)
-        GLES20.glVertexAttribPointer(
-            aPositionLocation, POSITION_COUNT, GLES20.GL_FLOAT,
+        GLES32.glVertexAttribPointer(
+            aPositionLocation, POSITION_COUNT, GLES32.GL_FLOAT,
             false, STRIDE, vertexData
         )
-        GLES20.glEnableVertexAttribArray(aPositionLocation)
+        GLES32.glEnableVertexAttribArray(aPositionLocation)
         //endregion
 
         //region координаты текстур
         vertexData.position(POSITION_COUNT)
-        GLES20.glVertexAttribPointer(
-            aTextureLocation, TEXTURE_COUNT, GLES20.GL_FLOAT,
+        GLES32.glVertexAttribPointer(
+            aTextureLocation, TEXTURE_COUNT, GLES32.GL_FLOAT,
             false, STRIDE, vertexData
         )
-        GLES20.glEnableVertexAttribArray(aTextureLocation)
+        GLES32.glEnableVertexAttribArray(aTextureLocation)
         //endregion
 
         // помещаем текстуру в target 2D юнита 0
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
+        GLES32.glActiveTexture(GLES32.GL_TEXTURE0)
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, texture)
 
         // юнит текстуры
-        GLES20.glUniform1i(uTextureUnitLocation, 0)
+        GLES32.glUniform1i(uTextureUnitLocation, 0)
     }
 
     private fun createProjectionMatrix(width: Int, height: Int) {
@@ -161,18 +162,19 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     private fun bindMatrix() {
         Matrix.multiplyMM(mMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
-        GLES20.glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0)
+        GLES32.glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0)
     }
 
     private var currentFrame = 0
     private var orcCurrentFrame = 0
 
+
     override fun onDrawFrame(arg0: GL10) {
         measureFPS {
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+            GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT or GLES32.GL_DEPTH_BUFFER_BIT)
             //region Включаем прозрачность
-            GLES20.glEnable(GLES20.GL_BLEND);
-            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+            GLES32.glEnable(GLES32.GL_BLEND);
+            GLES32.glBlendFunc(GLES32.GL_SRC_ALPHA, GLES32.GL_ONE_MINUS_SRC_ALPHA);
             //endregion
             drawRectTexture(
                 textureArray[orcCurrentFrame % textureArray.size],
@@ -193,6 +195,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
             }
             currentFrame += 1
         }
+        getOpenGlInfo()
 //        orcBitmaps[orcCurrentFrame % orcBitmaps.size].recycle()
     }
 
