@@ -1,10 +1,10 @@
 package com.example.animationsdk.ui.gl.sdk
 
+import android.opengl.GLES20.*
 import android.opengl.GLES32
+import android.util.Log
 import com.example.animationsdk.ui.gl.sdk.internal.NOT_INIT
-import com.example.animationsdk.ui.gl.startAndroid.FRAGMENT_SHADER
-import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
-import com.example.animationsdk.ui.gl.startAndroid.VERTEX_SHADER
+import com.example.animationsdk.ui.gl.startAndroid.*
 import java.nio.FloatBuffer
 
 class IDrawOpenGLImpl {
@@ -25,7 +25,12 @@ class IDrawOpenGLImpl {
         val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
 
         programId = createProgram(vertexShaderId, fragmentShaderId)
-
+        if (programId == NOT_INIT){
+           printErrorLog("Error creating and linking with the program.")
+            return
+        }
+        //if creating and linking with the fragments and shaders is successful
+        // end than add the program to the OpenGl' conveyor
         GLES32.glUseProgram(programId)
 
         //region регистрация и привязка переменных которые определенны в шейдерах
@@ -39,24 +44,81 @@ class IDrawOpenGLImpl {
         GLES32.glEnable(GLES32.GL_DEPTH_TEST)
     }
 
+    fun initialize2() {
+        //создание компонентов GL (Shader & fragment)
+//        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, VERTEX_SHADER)
+//        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
+        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, vertex_basic)
+        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, frag_basic)
+
+        programId = createProgram(vertexShaderId, fragmentShaderId)
+        if (programId == NOT_INIT){
+            printErrorLog("Error creating and linking with the program.")
+            return
+        }
+        //if creating and linking with the fragments and shaders is successful
+        // end than add the program to the OpenGl' conveyor
+        GLES32.glUseProgram(programId)
+
+        //region регистрация и привязка переменных которые определенны в шейдерах
+        aPositionLocation = GLES32.glGetAttribLocation(programId, "a_Position")
+        aTextureLocation = GLES32.glGetAttribLocation(programId, "a_Texture")
+        uTextureUnitLocation = GLES32.glGetUniformLocation(programId, "u_TextureUnit")
+        uMatrixLocation = GLES32.glGetUniformLocation(programId, "u_Matrix")
+        //endregion
+
+        GLES32.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
+    }
+
+
+    /**
+     * It creates a shader object, copies the shader code into it, compiles the shader and returns the
+     * shader object id
+     *
+     * @param type The type of shader to create. This can be either GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
+     * GL_GEOMETRY_SHADER, GL_TESS_EVALUATION_SHADER or GL_TESS_CONTROL_SHADER.
+     * @param shaderText The shader code.
+     * @return The shaderId is being returned.
+     */
     private fun createShader(type: Int, shaderText: String): Int {
 
-        val shaderId = GLES32.glCreateShader(type)
-        if (shaderId == 0) {
+        val shaderId = GLES32.glCreateShader(type) //if we will get an error here then return 0 (zero)
+        if (shaderId == GLES32.GL_FALSE) {
+            printErrorLog("Error creating vertex shader.")
             return NOT_INIT
         }
-
-        GLES32.glShaderSource(shaderId, shaderText)
+        //copy shader' code into shader object
+        GLES32.glShaderSource(shaderId, shaderText) //can compile shader from different source files or just strings
+        //compile shader
         GLES32.glCompileShader(shaderId)
 
-        if (checkShaderStatusCreation(shaderId)) return NOT_INIT
+        if (checkShaderCompilationStatus(shaderId)) return NOT_INIT
         return shaderId
     }
 
-    private fun checkShaderStatusCreation(shaderId: Int): Boolean {
+    fun printErrorLog(message: String) {
+        Log.e(TAG, "message: $message")
+    }
+
+    private fun checkShaderCompilationStatus(shaderId: Int): Boolean {
         val compileStatus = IntArray(1)
+        //get the compilation status of the shader
         GLES32.glGetShaderiv(shaderId, GLES32.GL_COMPILE_STATUS, compileStatus, 0)
-        if (compileStatus.first() == 0) {
+
+        if (compileStatus.first() == GLES32.GL_FALSE) {
+            printErrorLog("Vertex shader compilation failed!")
+            val logLen = IntArray(1)
+            //check length of error message
+            glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, logLen, 0)
+            if (logLen.first() > 0) {
+                val log = glGetShaderInfoLog(shaderId)
+                printErrorLog("Shader info log: $log")
+            }
+            //delete shader
+            //Note: this method can be called multiple times for deleting shaders when they don't need anymore.
+            //if the shader has already connected to the program object then deleting will be done
+            //only after disconnecting from the program object
             GLES32.glDeleteShader(shaderId)
             return true
         }
@@ -71,27 +133,46 @@ class IDrawOpenGLImpl {
 //        createProjectionMatrix(width, height)
 //        bindMatrix()
     }
-
+    //here we will create the program and make linking with shaders
+    //we can create a different number of programs and we can change these programs
+    //just call OpenGL' conveyor function glUseProgram(..)
     private fun createProgram(vertexShaderId: Int, fragmentShaderId: Int): Int {
         val programId = GLES32.glCreateProgram()
 
-        if (programId == 0) {
+        if (programId == GLES32.GL_FALSE) {
+            printErrorLog("Error creating program object.")
             return NOT_INIT
         }
-
+        //connecting the program with shaders
         GLES32.glAttachShader(programId, vertexShaderId)
         GLES32.glAttachShader(programId, fragmentShaderId)
+
+        //linking the program
         GLES32.glLinkProgram(programId)
 
-        if (checkProgramStatusCreation(programId)) return NOT_INIT
+        if (checkProgramLinkingStatus(programId)) return NOT_INIT
 
         return programId
     }
 
-    private fun checkProgramStatusCreation(programId: Int): Boolean {
+    private fun checkProgramLinkingStatus(programId: Int): Boolean {
         val linkStatus = IntArray(1)
+
         GLES32.glGetProgramiv(programId, GLES32.GL_LINK_STATUS, linkStatus, 0)
-        if (linkStatus.first() == 0) {
+
+        if (linkStatus.first() == GLES32.GL_FALSE) {
+            printErrorLog("Failed to link shader program!")
+            val logLen = IntArray(1)
+            //check length of error message
+            glGetShaderiv(programId, GL_INFO_LOG_LENGTH, logLen, 0)
+            if (logLen.first() > 0) {
+                val log = glGetProgramInfoLog(programId)
+                printErrorLog("Program log: $log")
+            }
+            //deleting shader' program. If the program is using in a moment of deleting
+            // the program will be removed only after the program will be stopped using
+            //shader' objects will be off from the program
+            //this method is not removed shaders so you need to take care about removing unused shaders
             GLES32.glDeleteProgram(programId)
             return true
         }
@@ -136,5 +217,8 @@ class IDrawOpenGLImpl {
         GLES32.glUniform1i(uTextureUnitLocation, 0)
     }
 
+    companion object {
+        private const val TAG = "DrawOpenGL"
+    }
 
 }

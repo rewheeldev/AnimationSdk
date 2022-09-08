@@ -69,3 +69,24 @@ var fragmentShader = "precision mediump float;       \n" +
         "  baseColor = texture2D( s_baseMap, v_Color );   \n" +
         "   gl_FragColor = baseColor;     \n" +
         "}"
+
+const val vertex_basic = """
+    layout (location=0) in vec3 VertexPosition;
+    layout (location=1) in vec3 VertexColor;
+
+    out vec3 Color;
+
+    void main() {
+        Color = VertexColor;
+        gl_Position = vec4(VertexPosition, 1.0);
+    }
+    """
+
+const val frag_basic = """
+in vec3 Color;
+out  vec4  FragVolor;
+
+void main(){
+    FragColor = vec4(Color, 1.0);
+}
+    """

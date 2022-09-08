@@ -3,6 +3,7 @@ package com.example.animationsdk.ui.gl.startAndroid
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.opengl.GLES20.glGenBuffers
 import android.opengl.GLES32
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
@@ -148,6 +149,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         val upX = 0f
         val upY = 1f
         val upZ = 0f
+
 
         Matrix.setLookAtM(
             mViewMatrix,
