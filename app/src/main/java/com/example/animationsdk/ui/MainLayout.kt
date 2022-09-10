@@ -5,8 +5,8 @@ import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.example.animationsdk.ui.androidDev.MyGLSurfaceView
 import com.example.animationsdk.ui.gl.ClearGLSurfaceView
+import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
 //import com.example.animationsdk.ui.gl.ClearGLSurfaceView
-import com.example.animationsdk.ui.gl.tryThree.AsteroidsView
 
 class MainLayout @JvmOverloads constructor(
     context: Context,
@@ -24,7 +24,13 @@ class MainLayout @JvmOverloads constructor(
         mainView = MyGLSurfaceView(context)
         addView(mainView)
     }
-
+    fun createViewMatrix(
+        cameraPosition: OpenGLRenderer.Position3D,
+        cameraDirectionPoint: OpenGLRenderer.Position3D,
+        upVector: OpenGLRenderer.Position3D
+    ){
+        mainView.createViewMatrix(cameraPosition, cameraDirectionPoint, upVector)
+    }
     /**
      * The function `pause()` is called when the user presses the back button on their device
      */

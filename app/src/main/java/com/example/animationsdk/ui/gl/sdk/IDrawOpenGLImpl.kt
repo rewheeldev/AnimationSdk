@@ -1,15 +1,14 @@
 package com.example.animationsdk.ui.gl.sdk
 
-import android.opengl.GLES10.glTranslatef
 import android.opengl.GLES20.*
-import android.opengl.GLES30.glBindVertexArray
-import android.opengl.GLES30.glGenVertexArrays
 import android.opengl.GLES32
+import android.opengl.Matrix
 import android.util.Log
 import com.example.animationsdk.ui.gl.sdk.internal.NOT_INIT
-import com.example.animationsdk.ui.gl.startAndroid.*
+import com.example.animationsdk.ui.gl.startAndroid.FRAGMENT_SHADER
+import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
+import com.example.animationsdk.ui.gl.startAndroid.VERTEX_SHADER
 import java.nio.FloatBuffer
-import java.nio.IntBuffer
 
 class IDrawOpenGLImpl {
 
@@ -18,6 +17,17 @@ class IDrawOpenGLImpl {
     private var uTextureUnitLocation = 0
     private var uMatrixLocation = 0
     private var programId = 0
+
+    private val mProjectionMatrix = FloatArray(16)
+    private val mViewMatrix = FloatArray(16)
+    private val mMatrix = FloatArray(16)
+
+    //        Задайте расстояния до ближней и дальней плоскостей отсечения глубины.
+//        Оба расстояния должны быть положительными.
+    //в случае присвоения новых значений переменным должен быть вызван метод Matrix.frustumM
+    //для пересоздания матрици
+    private var near: Float = 0.0f
+    private var far: Float = 14.0f
 
     /**
      *
@@ -46,117 +56,40 @@ class IDrawOpenGLImpl {
 
         GLES32.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
         GLES32.glEnable(GLES32.GL_DEPTH_TEST)
+        createViewMatrix()
     }
 
-    //will safe vertex array object descriptor
-    val vaoHandle: IntBuffer = IntBuffer.allocate(1)
+    private fun createViewMatrix() {
+        // точка положения камеры
+        val eyeX = 0f
+        val eyeY = 0f
+        val eyeZ = 100f
 
-    fun initialize2() {
-        //создание компонентов GL (Shader & fragment)
-//        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, VERTEX_SHADER)
-//        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
-        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, vertex_basic)
-        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, frag_basic)
+        // точка направления камеры
+        val centerX = 0f
+        val centerY = 0f
+        val centerZ = 0f
 
-        programId = createProgram(vertexShaderId, fragmentShaderId)
-        if (programId == NOT_INIT) {
-            printErrorLog("Error creating and linking with the program.")
-            return
-        }
-        //if creating and linking with the fragments and shaders is successful
-        // end than add the program to the OpenGl' conveyor
-        GLES32.glUseProgram(programId)
-
-        //region регистрация и привязка переменных которые определенны в шейдерах
-//        aPositionLocation = GLES32.glGetAttribLocation(programId, "a_Position")
-//        aTextureLocation = GLES32.glGetAttribLocation(programId, "a_Texture")
-//        uTextureUnitLocation = GLES32.glGetUniformLocation(programId, "u_TextureUnit")
-//        uMatrixLocation = GLES32.glGetUniformLocation(programId, "u_Matrix")
-        //endregion
+        // up-вектор
+        val upX = 0f
+        val upY = 1f
+        val upZ = 0f
 
 
-//        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
-
-        //creation and filling vertex buffer objects
-//        val positionData = floatArrayOf(
-//            0.5f, 0.5f,
-//            -0.5f, 0.5f,
-//            -0.5f, -0.5f,
-//            0.5f, -0.5f,
-//        ).asFloatBuffer()
-        val positionData = floatArrayOf(
-            0.0f, 0.0f,
-            0.5f, 0.0f,
-            0.0f, 0.5f,
-            -1.0f, 1.0f,
-        ).asFloatBuffer()
-
-        for (i in 0 until positionData.capacity()) {
-            Log.d("TAG_1", "i: $i | positionData: ${positionData.get(i)}")
-        }
-
-        val colorData = floatArrayOf(
-            1.0f, 0.0f, 0.0f,
-
-            0.0f, 1.0f, 0.0f,
-
-            0.0f, 0.0f, 1.0f,
-
-            0.5f, 0.0f, 0.5f
-        ).asFloatBuffer()
-
-        //create and fill up buffer objects
-        val vboHandles = IntArray(2)
-        GLES32.glGenBuffers(2, vboHandles, 0)
-        val positionBufferHandle = vboHandles[0]
-        val colorBufferHandle = vboHandles[1]
-
-        //fill coordinates' buffer
-        glBindBuffer(GLES32.GL_ARRAY_BUFFER, positionBufferHandle)
-        positionData.flip()
-        glBufferData(
-            GLES32.GL_ARRAY_BUFFER,
-            positionData.capacity() * 4,
-            positionData,
-            GL_STATIC_DRAW
+        Matrix.setLookAtM(
+            mViewMatrix,
+            0,
+            eyeX,
+            eyeY,
+            eyeZ,
+            centerX,
+            centerY,
+            centerZ,
+            upX,
+            upY,
+            upZ
         )
-        //fill colors' buffer
-        glBindBuffer(GLES32.GL_ARRAY_BUFFER, colorBufferHandle)
-        colorData.flip()
-        glBufferData(
-            GLES32.GL_ARRAY_BUFFER,
-            colorData.capacity() * 4,
-            colorData,
-            GL_STATIC_DRAW
-        )
-
-        //create object array vertex, that will tell us relationships between buffers and incoming attributes
-        //create object array' vertexes
-        glGenVertexArrays(1, vaoHandle)
-        glBindVertexArray(vaoHandle.get())
-
-        //activation arrays vertex' attributes
-        glEnableVertexAttribArray(0) // vertex' coordinates
-        glEnableVertexAttribArray(1) // vertex' color
-
-        //fix index 0 for buffer with coordinates
-        glBindBuffer(GLES32.GL_ARRAY_BUFFER, positionBufferHandle)
-        glVertexAttribPointer(0, 2, GLES32.GL_FLOAT, false, 0, 0)
-
-        //fix index 1 for buffer with color
-        glBindBuffer(GLES32.GL_ARRAY_BUFFER, colorBufferHandle)
-        glVertexAttribPointer(1, 3, GLES32.GL_FLOAT, false, 0, 0)
     }
-
-    fun draw() {
-        GLES32.glClearColor(0.2f, 0.2f, 0.2f, 1.0f)
-        GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT)
-
-        glBindVertexArray(vaoHandle.get(0))
-        glDrawArrays(GLES32.GL_TRIANGLE_STRIP, 0, 3)
-        glTranslatef(0.01f, 0.0f, 0.0f)
-    }
-
 
     /**
      * It creates a shader object, copies the shader code into it, compiles the shader and returns the
@@ -179,8 +112,7 @@ class IDrawOpenGLImpl {
         GLES32.glShaderSource(
             shaderId,
             shaderText
-        )
-        //can compile shader from different source files or just strings
+        ) //can compile shader from different source files or just strings
         //compile shader
         GLES32.glCompileShader(shaderId)
 
@@ -220,9 +152,42 @@ class IDrawOpenGLImpl {
         //Specify the lower left corner of the viewport rectangle, in pixels. The initial value is (0,0).
         //Specify the width and height of the viewport. When a GL context is first attached to a window, width and height are set to the dimensions of that window.
         GLES32.glViewport(x, y, width, height)
-        //todo continue here
-//        createProjectionMatrix(width, height)
-//        bindMatrix()
+        createProjectionMatrix(width, height)
+
+        Matrix.multiplyMM(mMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
+        //https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml
+        GLES32.glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0)
+
+    }
+
+    private fun createProjectionMatrix(width: Int, height: Int) {
+        Log.i("TAG_1", "width: $width, height: $height")
+        var ratio = 1f
+        var left = -1f
+        var right = 1f
+        var bottom = -1f
+        var top = 1f
+        //1500 / 800 = 1.875
+        if (width > height) {
+            ratio = width.toFloat() / height
+            left *= ratio //-1 * 1.875
+            right *= ratio
+
+        } else {
+            ratio = height.toFloat() / width
+            bottom *= ratio
+            top *= ratio
+        }
+        Log.i(
+            "TAG_1", "ratio: $ratio, " +
+                    "left: $left, right: $right, bottom: $bottom, top: $top, " +
+                    "near: $near, far: $far"
+        )
+        //Усеченная видимость — это просто визуальное представление перспективной проекции,
+        // которое используется для преобразования 3D-точки в мировом координатном
+        // пространстве в 2D-точку на экране.
+        //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml
+        Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far)
     }
 
     //here we will create the program and make linking with shaders
@@ -284,7 +249,7 @@ class IDrawOpenGLImpl {
 
     private fun bindData(texture: Int, vertexData: FloatBuffer) {
         // region координаты вершин
-        vertexData.position(0)
+        vertexData.flip()
         GLES32.glVertexAttribPointer(
             aPositionLocation, OpenGLRenderer.POSITION_COUNT, GLES32.GL_FLOAT,
             false, OpenGLRenderer.STRIDE, vertexData

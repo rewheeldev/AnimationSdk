@@ -16,4 +16,11 @@ class ClearGLSurfaceView(context: Context, attrs: AttributeSet? = null) :
         setRenderer(mRenderer)
 
     }
+    fun createViewMatrix(
+        cameraPosition: OpenGLRenderer.Position3D,
+        cameraDirectionPoint: OpenGLRenderer.Position3D,
+        upVector: OpenGLRenderer.Position3D
+    ){
+        mRenderer.createViewMatrix(cameraPosition, cameraDirectionPoint, upVector)
+    }
 }
