@@ -3,7 +3,6 @@ package com.example.animationsdk.ui.gl.startAndroid
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.opengl.GLES20.glGenBuffers
 import android.opengl.GLES32
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
@@ -12,7 +11,6 @@ import com.example.animationsdk.R
 import com.example.animationsdk.ui.gl.sdk.IDrawOpenGLImpl
 import com.example.animationsdk.ui.gl.sdk.asSortedFloatBuffer
 import com.example.animationsdk.ui.gl.sdk.createDefaultRectangleVertices
-import com.example.animationsdk.ui.gl.sdk.internal.getOpenGlInfo
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10

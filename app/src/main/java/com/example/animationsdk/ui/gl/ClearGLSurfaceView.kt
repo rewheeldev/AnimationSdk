@@ -14,5 +14,6 @@ class ClearGLSurfaceView(context: Context, attrs: AttributeSet? = null) :
     init {
         setEGLContextClientVersion(3)
         setRenderer(mRenderer)
+
     }
 }

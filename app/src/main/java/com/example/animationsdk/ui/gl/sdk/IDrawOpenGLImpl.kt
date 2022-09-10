@@ -1,5 +1,6 @@
 package com.example.animationsdk.ui.gl.sdk
 
+import android.opengl.GLES10.glTranslatef
 import android.opengl.GLES20.*
 import android.opengl.GLES30.glBindVertexArray
 import android.opengl.GLES30.glGenVertexArrays
@@ -77,14 +78,20 @@ class IDrawOpenGLImpl {
 //        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
 
         //creation and filling vertex buffer objects
+//        val positionData = floatArrayOf(
+//            0.5f, 0.5f,
+//            -0.5f, 0.5f,
+//            -0.5f, -0.5f,
+//            0.5f, -0.5f,
+//        ).asFloatBuffer()
         val positionData = floatArrayOf(
-            -1.0f, -1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f
+            0.0f, 0.0f,
+            0.5f, 0.0f,
+            0.0f, 0.5f,
+            -1.0f, 1.0f,
         ).asFloatBuffer()
 
-        for (i in 0 until 9) {
+        for (i in 0 until positionData.capacity()) {
             Log.d("TAG_1", "i: $i | positionData: ${positionData.get(i)}")
         }
 
@@ -134,7 +141,7 @@ class IDrawOpenGLImpl {
 
         //fix index 0 for buffer with coordinates
         glBindBuffer(GLES32.GL_ARRAY_BUFFER, positionBufferHandle)
-        glVertexAttribPointer(0, 4, GLES32.GL_FLOAT, false, 0, 0)
+        glVertexAttribPointer(0, 2, GLES32.GL_FLOAT, false, 0, 0)
 
         //fix index 1 for buffer with color
         glBindBuffer(GLES32.GL_ARRAY_BUFFER, colorBufferHandle)
@@ -143,8 +150,11 @@ class IDrawOpenGLImpl {
 
     fun draw() {
         GLES32.glClearColor(0.2f, 0.2f, 0.2f, 1.0f)
+        GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT)
+
         glBindVertexArray(vaoHandle.get(0))
-        glDrawArrays(GLES32.GL_TRIANGLE_STRIP, 0, 4)
+        glDrawArrays(GLES32.GL_TRIANGLE_STRIP, 0, 3)
+        glTranslatef(0.01f, 0.0f, 0.0f)
     }
 
 
