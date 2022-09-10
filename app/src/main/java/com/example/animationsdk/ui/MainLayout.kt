@@ -6,7 +6,6 @@ import android.widget.LinearLayout
 import com.example.animationsdk.ui.gl.ClearGLSurfaceView
 import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
 //import com.example.animationsdk.ui.gl.ClearGLSurfaceView
-import com.example.animationsdk.ui.gl.tryThree.AsteroidsView
 
 class MainLayout @JvmOverloads constructor(
     context: Context,
@@ -23,9 +22,9 @@ class MainLayout @JvmOverloads constructor(
         addView(mainView)
     }
     fun createViewMatrix(
-        cameraPosition: OpenGLRenderer.Position,
-        cameraDirectionPoint: OpenGLRenderer.Position,
-        upVector: OpenGLRenderer.Position
+        cameraPosition: OpenGLRenderer.Position3D,
+        cameraDirectionPoint: OpenGLRenderer.Position3D,
+        upVector: OpenGLRenderer.Position3D
     ){
         mainView.createViewMatrix(cameraPosition, cameraDirectionPoint, upVector)
     }

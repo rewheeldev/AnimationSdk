@@ -11,7 +11,6 @@ import android.util.Log
 import com.example.animationsdk.R
 import com.example.animationsdk.ui.gl.sdk.asSortedFloatBuffer
 import com.example.animationsdk.ui.gl.sdk.createDefaultRectangleVertices
-import com.example.animationsdk.ui.gl.sdk.internal.getOpenGlInfo
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -25,6 +24,19 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private val mProjectionMatrix = FloatArray(16)
     private val mViewMatrix = FloatArray(16)
     private val mMatrix = FloatArray(16)
+
+    var width = 0
+    var height = 0
+
+    var cameraPosition = Position3D(0.0f, 0.0f, 10.0f)
+    var cameraDirectionPoint = Position3D(0.0f, 0.0f, 5.0f)
+//    var upVector = Position3D(3.0f, 5f, 0.0f)
+//    var upVector = Position3D(2.0f, 5f, 0.0f)
+    var upVector = Position3D(1.0f, 5f, 0.0f)
+//    var upVector = Position3D(-0.0f, 5f, 0.0f)
+//    var upVector = Position3D(-1.0f, 5f, 0.0f)
+//    var upVector = Position3D(-2.0f, 5f, 0.0f)
+//    var upVector = Position3D(-3.0f, 5f, 0.0f)
 
     //    private var texture = 0
     private var textureArray = mutableListOf<Int>()
@@ -43,13 +55,12 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         }
         orcBitmaps.clear()
         createViewMatrix(
-            cameraPosition = Position(0.0f, 0.0f, 100.0f),
-            cameraDirectionPoint = Position(0.0f, 0.0f, 5.0f),
-            upVector = Position(0.0f, 1.0f, 0.0f)
+            cameraPosition = cameraPosition,
+            cameraDirectionPoint = cameraDirectionPoint,
+            upVector = upVector
         )
     }
-    var width = 0
-    var height = 0
+
     override fun onSurfaceChanged(arg0: GL10, width: Int, height: Int) {
         //done
         this.width = width
@@ -82,13 +93,13 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
      */
     private fun drawRectTexture(texture: Int, x: Float, y: Float, width: Float, height: Float) {
         val array = createDefaultRectangleVertices(x, y, width, height)
-        bindData(texture, array.asSortedFloatBuffer())
+        bindTextureToVertex(texture, array.asSortedFloatBuffer())
         //0 это первый индекс вершины в масиве точек
         //4 количество точек на основании которых создается прямоугольник
         GLES32.glDrawArrays(GLES32.GL_TRIANGLE_STRIP, 0, 4)
     }
 
-    private fun bindData(texture: Int, vertexData: FloatBuffer) {
+    private fun bindTextureToVertex(texture: Int, vertexData: FloatBuffer) {
         // region координаты вершин
         vertexData.flip()
         GLES32.glVertexAttribPointer(
@@ -114,9 +125,6 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         // юнит текстуры
         GLES32.glUniform1i(uTextureUnitLocation, 0)
     }
-    var cameraPosition = OpenGLRenderer.Position(0.0f, 0.0f, 10.0f)
-    var cameraDirectionPoint = OpenGLRenderer.Position(0.0f, 0.0f, 5.0f)
-    var upVector = OpenGLRenderer.Position(0.0f, 1.0f, 0.0f)
 
     private fun createProjectionMatrix(width: Int, height: Int) {
         Log.i("TAG_1", "width: $width, height: $height")
@@ -146,9 +154,9 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
     }
 
     fun createViewMatrix(
-        cameraPosition: Position,
-        cameraDirectionPoint: Position,
-        upVector: Position
+        cameraPosition: Position3D,
+        cameraDirectionPoint: Position3D,
+        upVector: Position3D
     ) {
         this.cameraPosition = cameraPosition
         this.cameraDirectionPoint = cameraDirectionPoint
@@ -185,7 +193,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     }
 
-    data class Position(var x: Float, var y: Float, var z: Float)
+    data class Position3D(var x: Float, var y: Float, var z: Float)
 
     fun bindMatrix() {
         Matrix.multiplyMM(mMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
@@ -233,7 +241,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         // up-вектор
         val (upX, upY, upZ) = upVector
-        gluLookAt(arg0,eyeX,eyeY,eyeZ, centerX, centerY, centerZ, upX, upY, upZ)
+        gluLookAt(arg0, eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ)
     }
 
 

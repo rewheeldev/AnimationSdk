@@ -18,9 +18,9 @@ class MainActivity : AppCompatActivity() {
         get() {
             return _binding!!
         }
-    val cameraPosition = OpenGLRenderer.Position(0.0f, 0.0f, 10.0f)
-    val cameraDirectionPoint = OpenGLRenderer.Position(0.0f, 0.0f, 5.0f)
-    val upVector = OpenGLRenderer.Position(0.0f, 1.0f, 0.0f)
+    val cameraPosition = OpenGLRenderer.Position3D(0.0f, 0.0f, 10.0f)
+    val cameraDirectionPoint = OpenGLRenderer.Position3D(0.0f, 0.0f, 5.0f)
+    val upVector = OpenGLRenderer.Position3D(0.0f, 1.0f, 0.0f)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
