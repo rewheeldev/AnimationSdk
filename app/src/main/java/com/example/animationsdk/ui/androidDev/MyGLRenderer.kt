@@ -17,6 +17,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
 
     private lateinit var mTriangle: Triangle
+    private lateinit var mTriangle2: Triangle
     // vPMatrix is an abbreviation for "Model View Projection Matrix"
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -31,7 +32,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f)
 
         // initialize a triangle
-        mTriangle = Triangle()
+        mTriangle = Triangle(triangleCoords)
+        mTriangle2 = Triangle(triangleCoords2)
 
     }
     var index = -3f
@@ -43,19 +45,19 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         // Set the camera position (View matrix)
-//        Matrix.setLookAtM(viewMatrix, 0,
-//            0f, 0f, 3f,
-//            0f, 0f, 0f,
-//            upX, 5.0f, 0.0f)
         Matrix.setLookAtM(viewMatrix, 0,
             cameraPosition.x, cameraPosition.y, cameraPosition.z,
             cameraDirectionPoint.x, cameraDirectionPoint.y, cameraDirectionPoint.z,
             upVector.x, upVector.y, upVector.z)
 
         // Calculate the projection and view transformation
+        //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
         mTriangle.draw()
         mTriangle.draw(vPMatrix)
+
+        mTriangle2.draw()
+        mTriangle2.draw(vPMatrix)
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
@@ -87,20 +89,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         Log.d("TAG_1", "eyeX: $eyeX, eyeY: $eyeY, eyeZ: $eyeZ")
         Log.d("TAG_1", "centerX: $centerX, centerY: $centerY, centerZ: $centerZ")
         Log.d("TAG_1", "upX: $upX, upY: $upY, upZ: $upZ")
-        //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
-//        Matrix.setLookAtM(
-//            viewMatrix,
-//            0,
-//            eyeX,
-//            eyeY,
-//            eyeZ,
-//            centerX,
-//            centerY,
-//            centerZ,
-//            upX,
-//            upY,
-//            upZ
-//        )
+
     }
 }
 
@@ -111,14 +100,14 @@ var triangleCoords = floatArrayOf(     // in counterclockwise order:
     -0.5f, -0.311004243f, 0.0f,    // bottom left
     0.5f, -0.311004243f, 0.0f      // bottom right
 )
+var triangleCoords2 = floatArrayOf(     // in counterclockwise order:
+    0.5f, 0.722008459f, 0.0f,      // top
+    -0.5f, -0.311004243f, 0.0f,    // bottom left
+    0.5f, -0.311004243f, 0.0f      // bottom right
+)
 
-class Triangle {
+class Triangle( private val triangleCoords: FloatArray) {
     private var mProgram: Int
-//    private val vertexShaderCode =
-//        "attribute vec4 vPosition;" +
-//                "void main() {" +
-//                "  gl_Position = vPosition;" +
-//                "}"
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
