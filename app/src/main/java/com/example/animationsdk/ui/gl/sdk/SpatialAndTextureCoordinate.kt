@@ -56,3 +56,9 @@ fun FloatArray.asSortedFloatBuffer(): FloatBuffer {
         .order(ByteOrder.nativeOrder())
         .asFloatBuffer().put(this)
 }
+
+fun FloatArray.asFloatBuffer(): FloatBuffer {
+    return ByteBuffer.allocateDirect(this.size * 4)
+        .order(ByteOrder.nativeOrder())
+        .asFloatBuffer().put(this)
+}

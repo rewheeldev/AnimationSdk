@@ -9,6 +9,7 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.Log
 import com.example.animationsdk.R
+import com.example.animationsdk.ui.gl.sdk.IDrawOpenGLImpl
 import com.example.animationsdk.ui.gl.sdk.asSortedFloatBuffer
 import com.example.animationsdk.ui.gl.sdk.createDefaultRectangleVertices
 import com.example.animationsdk.ui.gl.sdk.internal.getOpenGlInfo
@@ -28,27 +29,30 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     //    private var texture = 0
     private var textureArray = mutableListOf<Int>()
+    val drawOpenGL = IDrawOpenGLImpl()
     override fun onSurfaceCreated(arg0: GL10, arg1: EGLConfig) {
-        initBitmap(context, orcBitmaps, 650, 650)
-
-        //region done
-        GLES32.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
-        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
-        createAndUseProgram()
-        locations
-        //endregion
-        orcBitmaps.forEach {
-            val texture = TextureUtils.loadTexture(it)
-            textureArray.add(texture)
-        }
-        orcBitmaps.clear()
-        createViewMatrix()
+//        initBitmap(context, orcBitmaps, 650, 650)
+//
+//        //region done
+//        GLES32.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
+//        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
+//        createAndUseProgram()
+//        locations
+//        //endregion
+//        orcBitmaps.forEach {
+//            val texture = TextureUtils.loadTexture(it)
+//            textureArray.add(texture)
+//        }
+//        orcBitmaps.clear()
+//        createViewMatrix()
+        drawOpenGL.initialize2()
     }
 
     override fun onSurfaceChanged(arg0: GL10, width: Int, height: Int) {
         GLES32.glViewport(0, 0, width, height)
-        createProjectionMatrix(width, height)
-        bindMatrix()
+//        createProjectionMatrix(width, height)
+//        bindMatrix()
+
     }
 
     private fun createAndUseProgram() {
@@ -176,33 +180,34 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
 
     override fun onDrawFrame(arg0: GL10) {
-        measureFPS {
-            GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT or GLES32.GL_DEPTH_BUFFER_BIT)
-            //region Включаем прозрачность
-            GLES32.glEnable(GLES32.GL_BLEND);
-            GLES32.glBlendFunc(GLES32.GL_SRC_ALPHA, GLES32.GL_ONE_MINUS_SRC_ALPHA);
-            //endregion
-            drawRectTexture(
-                textureArray[orcCurrentFrame % textureArray.size],
-                (currentFrame % 99).toFloat() / 50,
-                (currentFrame % 99).toFloat() / 50,
-                2f, 2f
-            )
-            drawRectTexture(
-                textureArray[(orcCurrentFrame + 4) % textureArray.size],
-                -1f,
-                -1f,
-                6f,
-                6f
-            )
-
-            if (currentFrame % 6 == 0) {
-                orcCurrentFrame += 1
-            }
-            currentFrame += 1
-        }
-        getOpenGlInfo()
+//        measureFPS {
+//            GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT or GLES32.GL_DEPTH_BUFFER_BIT)
+//            //region Включаем прозрачность
+//            GLES32.glEnable(GLES32.GL_BLEND);
+//            GLES32.glBlendFunc(GLES32.GL_SRC_ALPHA, GLES32.GL_ONE_MINUS_SRC_ALPHA);
+//            //endregion
+//            drawRectTexture(
+//                textureArray[orcCurrentFrame % textureArray.size],
+//                (currentFrame % 99).toFloat() / 50,
+//                (currentFrame % 99).toFloat() / 50,
+//                2f, 2f
+//            )
+//            drawRectTexture(
+//                textureArray[(orcCurrentFrame + 4) % textureArray.size],
+//                -1f,
+//                -1f,
+//                6f,
+//                6f
+//            )
+//
+//            if (currentFrame % 6 == 0) {
+//                orcCurrentFrame += 1
+//            }
+//            currentFrame += 1
+//        }
+//        getOpenGlInfo()
 //        orcBitmaps[orcCurrentFrame % orcBitmaps.size].recycle()
+        drawOpenGL.draw()
     }
 
 

@@ -1,11 +1,14 @@
 package com.example.animationsdk.ui.gl.sdk
 
 import android.opengl.GLES20.*
+import android.opengl.GLES30.glBindVertexArray
+import android.opengl.GLES30.glGenVertexArrays
 import android.opengl.GLES32
 import android.util.Log
 import com.example.animationsdk.ui.gl.sdk.internal.NOT_INIT
 import com.example.animationsdk.ui.gl.startAndroid.*
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
 
 class IDrawOpenGLImpl {
 
@@ -25,34 +28,7 @@ class IDrawOpenGLImpl {
         val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
 
         programId = createProgram(vertexShaderId, fragmentShaderId)
-        if (programId == NOT_INIT){
-           printErrorLog("Error creating and linking with the program.")
-            return
-        }
-        //if creating and linking with the fragments and shaders is successful
-        // end than add the program to the OpenGl' conveyor
-        GLES32.glUseProgram(programId)
-
-        //region регистрация и привязка переменных которые определенны в шейдерах
-        aPositionLocation = GLES32.glGetAttribLocation(programId, "a_Position")
-        aTextureLocation = GLES32.glGetAttribLocation(programId, "a_Texture")
-        uTextureUnitLocation = GLES32.glGetUniformLocation(programId, "u_TextureUnit")
-        uMatrixLocation = GLES32.glGetUniformLocation(programId, "u_Matrix")
-        //endregion
-
-        GLES32.glClearColor(0.2f, 0.2f, 0.2f, 0.2f)
-        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
-    }
-
-    fun initialize2() {
-        //создание компонентов GL (Shader & fragment)
-//        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, VERTEX_SHADER)
-//        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
-        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, vertex_basic)
-        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, frag_basic)
-
-        programId = createProgram(vertexShaderId, fragmentShaderId)
-        if (programId == NOT_INIT){
+        if (programId == NOT_INIT) {
             printErrorLog("Error creating and linking with the program.")
             return
         }
@@ -71,6 +47,106 @@ class IDrawOpenGLImpl {
         GLES32.glEnable(GLES32.GL_DEPTH_TEST)
     }
 
+    //will safe vertex array object descriptor
+    val vaoHandle: IntBuffer = IntBuffer.allocate(1)
+
+    fun initialize2() {
+        //создание компонентов GL (Shader & fragment)
+//        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, VERTEX_SHADER)
+//        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, FRAGMENT_SHADER)
+        val vertexShaderId: Int = createShader(GLES32.GL_VERTEX_SHADER, vertex_basic)
+        val fragmentShaderId: Int = createShader(GLES32.GL_FRAGMENT_SHADER, frag_basic)
+
+        programId = createProgram(vertexShaderId, fragmentShaderId)
+        if (programId == NOT_INIT) {
+            printErrorLog("Error creating and linking with the program.")
+            return
+        }
+        //if creating and linking with the fragments and shaders is successful
+        // end than add the program to the OpenGl' conveyor
+        GLES32.glUseProgram(programId)
+
+        //region регистрация и привязка переменных которые определенны в шейдерах
+//        aPositionLocation = GLES32.glGetAttribLocation(programId, "a_Position")
+//        aTextureLocation = GLES32.glGetAttribLocation(programId, "a_Texture")
+//        uTextureUnitLocation = GLES32.glGetUniformLocation(programId, "u_TextureUnit")
+//        uMatrixLocation = GLES32.glGetUniformLocation(programId, "u_Matrix")
+        //endregion
+
+
+//        GLES32.glEnable(GLES32.GL_DEPTH_TEST)
+
+        //creation and filling vertex buffer objects
+        val positionData = floatArrayOf(
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f
+        ).asFloatBuffer()
+
+        for (i in 0 until 9) {
+            Log.d("TAG_1", "i: $i | positionData: ${positionData.get(i)}")
+        }
+
+        val colorData = floatArrayOf(
+            1.0f, 0.0f, 0.0f,
+
+            0.0f, 1.0f, 0.0f,
+
+            0.0f, 0.0f, 1.0f,
+
+            0.5f, 0.0f, 0.5f
+        ).asFloatBuffer()
+
+        //create and fill up buffer objects
+        val vboHandles = IntArray(2)
+        GLES32.glGenBuffers(2, vboHandles, 0)
+        val positionBufferHandle = vboHandles[0]
+        val colorBufferHandle = vboHandles[1]
+
+        //fill coordinates' buffer
+        glBindBuffer(GLES32.GL_ARRAY_BUFFER, positionBufferHandle)
+        positionData.flip()
+        glBufferData(
+            GLES32.GL_ARRAY_BUFFER,
+            positionData.capacity() * 4,
+            positionData,
+            GL_STATIC_DRAW
+        )
+        //fill colors' buffer
+        glBindBuffer(GLES32.GL_ARRAY_BUFFER, colorBufferHandle)
+        colorData.flip()
+        glBufferData(
+            GLES32.GL_ARRAY_BUFFER,
+            colorData.capacity() * 4,
+            colorData,
+            GL_STATIC_DRAW
+        )
+
+        //create object array vertex, that will tell us relationships between buffers and incoming attributes
+        //create object array' vertexes
+        glGenVertexArrays(1, vaoHandle)
+        glBindVertexArray(vaoHandle.get())
+
+        //activation arrays vertex' attributes
+        glEnableVertexAttribArray(0) // vertex' coordinates
+        glEnableVertexAttribArray(1) // vertex' color
+
+        //fix index 0 for buffer with coordinates
+        glBindBuffer(GLES32.GL_ARRAY_BUFFER, positionBufferHandle)
+        glVertexAttribPointer(0, 4, GLES32.GL_FLOAT, false, 0, 0)
+
+        //fix index 1 for buffer with color
+        glBindBuffer(GLES32.GL_ARRAY_BUFFER, colorBufferHandle)
+        glVertexAttribPointer(1, 3, GLES32.GL_FLOAT, false, 0, 0)
+    }
+
+    fun draw() {
+        GLES32.glClearColor(0.2f, 0.2f, 0.2f, 1.0f)
+        glBindVertexArray(vaoHandle.get(0))
+        glDrawArrays(GLES32.GL_TRIANGLE_STRIP, 0, 4)
+    }
+
 
     /**
      * It creates a shader object, copies the shader code into it, compiles the shader and returns the
@@ -83,13 +159,18 @@ class IDrawOpenGLImpl {
      */
     private fun createShader(type: Int, shaderText: String): Int {
 
-        val shaderId = GLES32.glCreateShader(type) //if we will get an error here then return 0 (zero)
+        val shaderId =
+            GLES32.glCreateShader(type) //if we will get an error here then return 0 (zero)
         if (shaderId == GLES32.GL_FALSE) {
             printErrorLog("Error creating vertex shader.")
             return NOT_INIT
         }
         //copy shader' code into shader object
-        GLES32.glShaderSource(shaderId, shaderText) //can compile shader from different source files or just strings
+        GLES32.glShaderSource(
+            shaderId,
+            shaderText
+        )
+        //can compile shader from different source files or just strings
         //compile shader
         GLES32.glCompileShader(shaderId)
 
@@ -133,6 +214,7 @@ class IDrawOpenGLImpl {
 //        createProjectionMatrix(width, height)
 //        bindMatrix()
     }
+
     //here we will create the program and make linking with shaders
     //we can create a different number of programs and we can change these programs
     //just call OpenGL' conveyor function glUseProgram(..)
