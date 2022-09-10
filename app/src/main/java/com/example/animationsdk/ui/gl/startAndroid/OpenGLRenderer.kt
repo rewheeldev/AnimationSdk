@@ -3,9 +3,9 @@ package com.example.animationsdk.ui.gl.startAndroid
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.opengl.GLES20.glGenBuffers
 import android.opengl.GLES32
 import android.opengl.GLSurfaceView
+import android.opengl.GLU.gluLookAt
 import android.opengl.Matrix
 import android.util.Log
 import com.example.animationsdk.R
@@ -42,10 +42,18 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
             textureArray.add(texture)
         }
         orcBitmaps.clear()
-        createViewMatrix()
+        createViewMatrix(
+            cameraPosition = Position(0.0f, 0.0f, 100.0f),
+            cameraDirectionPoint = Position(0.0f, 0.0f, 5.0f),
+            upVector = Position(0.0f, 1.0f, 0.0f)
+        )
     }
-
+    var width = 0
+    var height = 0
     override fun onSurfaceChanged(arg0: GL10, width: Int, height: Int) {
+        //done
+        this.width = width
+        this.height = height
         GLES32.glViewport(0, 0, width, height)
         createProjectionMatrix(width, height)
         bindMatrix()
@@ -82,7 +90,7 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     private fun bindData(texture: Int, vertexData: FloatBuffer) {
         // region координаты вершин
-        vertexData.position(0)
+        vertexData.flip()
         GLES32.glVertexAttribPointer(
             aPositionLocation, POSITION_COUNT, GLES32.GL_FLOAT,
             false, STRIDE, vertexData
@@ -106,6 +114,9 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         // юнит текстуры
         GLES32.glUniform1i(uTextureUnitLocation, 0)
     }
+    var cameraPosition = OpenGLRenderer.Position(0.0f, 0.0f, 10.0f)
+    var cameraDirectionPoint = OpenGLRenderer.Position(0.0f, 0.0f, 5.0f)
+    var upVector = OpenGLRenderer.Position(0.0f, 1.0f, 0.0f)
 
     private fun createProjectionMatrix(width: Int, height: Int) {
         Log.i("TAG_1", "width: $width, height: $height")
@@ -134,23 +145,29 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far)
     }
 
-    private fun createViewMatrix() {
+    fun createViewMatrix(
+        cameraPosition: Position,
+        cameraDirectionPoint: Position,
+        upVector: Position
+    ) {
+        this.cameraPosition = cameraPosition
+        this.cameraDirectionPoint = cameraDirectionPoint
+        this.upVector = upVector
+        GLES32.glViewport(0, 0, width, height)
+        createProjectionMatrix(width, height)
         // точка положения камеры
-        val eyeX = 0f
-        val eyeY = 0f
-        val eyeZ = 100f
+        val (eyeX, eyeY, eyeZ) = cameraPosition
 
         // точка направления камеры
-        val centerX = 0f
-        val centerY = 0f
-        val centerZ = 0f
+        val (centerX, centerY, centerZ) = cameraDirectionPoint
 
         // up-вектор
-        val upX = 0f
-        val upY = 1f
-        val upZ = 0f
-
-
+        val (upX, upY, upZ) = upVector
+        Log.d("TAG_1", "cameraPosition: $cameraPosition, cameraDirectionPoint: $cameraDirectionPoint, upVector: $upVector")
+        Log.d("TAG_1", "eyeX: $eyeX, eyeY: $eyeY, eyeZ: $eyeZ")
+        Log.d("TAG_1", "centerX: $centerX, centerY: $centerY, centerZ: $centerZ")
+        Log.d("TAG_1", "upX: $upX, upY: $upY, upZ: $upZ")
+        //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
         Matrix.setLookAtM(
             mViewMatrix,
             0,
@@ -164,10 +181,15 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
             upY,
             upZ
         )
+        bindMatrix()
+
     }
 
-    private fun bindMatrix() {
+    data class Position(var x: Float, var y: Float, var z: Float)
+
+    fun bindMatrix() {
         Matrix.multiplyMM(mMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
+        //https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml
         GLES32.glUniformMatrix4fv(uMatrixLocation, 1, false, mMatrix, 0)
     }
 
@@ -201,8 +223,17 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
             }
             currentFrame += 1
         }
-        getOpenGlInfo()
+//        getOpenGlInfo()
 //        orcBitmaps[orcCurrentFrame % orcBitmaps.size].recycle()
+        // точка положения камеры
+        val (eyeX, eyeY, eyeZ) = cameraPosition
+
+        // точка направления камеры
+        val (centerX, centerY, centerZ) = cameraDirectionPoint
+
+        // up-вектор
+        val (upX, upY, upZ) = upVector
+        gluLookAt(arg0,eyeX,eyeY,eyeZ, centerX, centerY, centerZ, upX, upY, upZ)
     }
 
 

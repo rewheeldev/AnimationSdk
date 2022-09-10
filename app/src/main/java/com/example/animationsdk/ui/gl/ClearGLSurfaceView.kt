@@ -15,4 +15,11 @@ class ClearGLSurfaceView(context: Context, attrs: AttributeSet? = null) :
         setEGLContextClientVersion(3)
         setRenderer(mRenderer)
     }
+    fun createViewMatrix(
+        cameraPosition: OpenGLRenderer.Position,
+        cameraDirectionPoint: OpenGLRenderer.Position,
+        upVector: OpenGLRenderer.Position
+    ){
+        mRenderer.createViewMatrix(cameraPosition, cameraDirectionPoint, upVector)
+    }
 }
