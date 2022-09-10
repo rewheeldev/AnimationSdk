@@ -4,8 +4,11 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 import android.opengl.GLES20
+import android.opengl.GLES32
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
+import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -19,20 +22,35 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
 
+    var cameraPosition = OpenGLRenderer.Position3D(0.0f, 0.0f, 3.0f)
+    var cameraDirectionPoint = OpenGLRenderer.Position3D(0.0f, 0.0f, 0.0f)
+    var upVector = OpenGLRenderer.Position3D(1.0f, 5f, 0.0f)
+
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f)
 
         // initialize a triangle
         mTriangle = Triangle()
 
     }
-
+    var index = -3f
     override fun onDrawFrame(unused: GL10) {
+        index++
+        val upX = (index/1000)
+//        Log.d("TAG_1","upX: $upX")
+
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
+//        Matrix.setLookAtM(viewMatrix, 0,
+//            0f, 0f, 3f,
+//            0f, 0f, 0f,
+//            upX, 5.0f, 0.0f)
+        Matrix.setLookAtM(viewMatrix, 0,
+            cameraPosition.x, cameraPosition.y, cameraPosition.z,
+            cameraDirectionPoint.x, cameraDirectionPoint.y, cameraDirectionPoint.z,
+            upVector.x, upVector.y, upVector.z)
 
         // Calculate the projection and view transformation
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
@@ -46,7 +64,43 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
+        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 1000f)
+    }
+
+    fun createViewMatrix(
+        cameraPosition: OpenGLRenderer.Position3D,
+        cameraDirectionPoint: OpenGLRenderer.Position3D,
+        upVector: OpenGLRenderer.Position3D
+    ) {
+        this.cameraPosition = cameraPosition
+        this.cameraDirectionPoint = cameraDirectionPoint
+        this.upVector = upVector
+        // точка положения камеры
+        val (eyeX, eyeY, eyeZ) = cameraPosition
+
+        // точка направления камеры
+        val (centerX, centerY, centerZ) = cameraDirectionPoint
+
+        // up-вектор
+        val (upX, upY, upZ) = upVector
+        Log.d("TAG_1", "cameraPosition: $cameraPosition, cameraDirectionPoint: $cameraDirectionPoint, upVector: $upVector")
+        Log.d("TAG_1", "eyeX: $eyeX, eyeY: $eyeY, eyeZ: $eyeZ")
+        Log.d("TAG_1", "centerX: $centerX, centerY: $centerY, centerZ: $centerZ")
+        Log.d("TAG_1", "upX: $upX, upY: $upY, upZ: $upZ")
+        //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
+//        Matrix.setLookAtM(
+//            viewMatrix,
+//            0,
+//            eyeX,
+//            eyeY,
+//            eyeZ,
+//            centerX,
+//            centerY,
+//            centerZ,
+//            upX,
+//            upY,
+//            upZ
+//        )
     }
 }
 
