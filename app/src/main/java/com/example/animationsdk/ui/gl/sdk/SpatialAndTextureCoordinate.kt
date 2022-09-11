@@ -4,6 +4,9 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
+
+data class Position3D(var x: Float, var y: Float, var z: Float)
+
 /**
  * взаимосвязь координат в пространстве с координатами текстуры
  * в [textureX],[textureY] рекомендуется указывать значения 0f , 1f. другие значения могут исказить изображение
@@ -52,12 +55,6 @@ fun createDefaultRectangleVertices(x: Float, y: Float, width: Float, height: Flo
 }
 
 fun FloatArray.asSortedFloatBuffer(): FloatBuffer {
-    return ByteBuffer.allocateDirect(this.size * 4)
-        .order(ByteOrder.nativeOrder())
-        .asFloatBuffer().put(this)
-}
-
-fun FloatArray.asFloatBuffer(): FloatBuffer {
     return ByteBuffer.allocateDirect(this.size * 4)
         .order(ByteOrder.nativeOrder())
         .asFloatBuffer().put(this)

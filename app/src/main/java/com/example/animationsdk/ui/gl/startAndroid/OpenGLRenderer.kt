@@ -9,6 +9,7 @@ import android.opengl.GLU.gluLookAt
 import android.opengl.Matrix
 import android.util.Log
 import com.example.animationsdk.R
+import com.example.animationsdk.ui.gl.sdk.Position3D
 import com.example.animationsdk.ui.gl.sdk.asSortedFloatBuffer
 import com.example.animationsdk.ui.gl.sdk.createDefaultRectangleVertices
 import java.nio.FloatBuffer
@@ -192,8 +193,6 @@ class OpenGLRenderer(private val context: Context) : GLSurfaceView.Renderer {
         bindMatrix()
 
     }
-
-    data class Position3D(var x: Float, var y: Float, var z: Float)
 
     fun bindMatrix() {
         Matrix.multiplyMM(mMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)

@@ -3,6 +3,7 @@ package com.example.animationsdk.ui.gl
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.AttributeSet
+import com.example.animationsdk.ui.gl.sdk.Position3D
 import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
 
 
@@ -17,9 +18,9 @@ class ClearGLSurfaceView(context: Context, attrs: AttributeSet? = null) :
 
     }
     fun createViewMatrix(
-        cameraPosition: OpenGLRenderer.Position3D,
-        cameraDirectionPoint: OpenGLRenderer.Position3D,
-        upVector: OpenGLRenderer.Position3D
+        cameraPosition: Position3D,
+        cameraDirectionPoint: Position3D,
+        upVector: Position3D
     ){
         mRenderer.createViewMatrix(cameraPosition, cameraDirectionPoint, upVector)
     }

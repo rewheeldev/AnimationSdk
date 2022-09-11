@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.databinding.ActivityMainBinding
-import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
+import com.example.animationsdk.ui.gl.sdk.Position3D
 
 class MainActivity : AppCompatActivity() {
     var _binding: ActivityMainBinding? = null
@@ -18,9 +18,9 @@ class MainActivity : AppCompatActivity() {
         get() {
             return _binding!!
         }
-    val cameraPosition = OpenGLRenderer.Position3D(0.0f, 0.0f, 10.0f)
-    val cameraDirectionPoint = OpenGLRenderer.Position3D(0.0f, 0.0f, 5.0f)
-    val upVector = OpenGLRenderer.Position3D(0.0f, 1.0f, 0.0f)
+    val cameraPosition = Position3D(0.0f, 0.0f, 10.0f)
+    val cameraDirectionPoint = Position3D(0.0f, 0.0f, 5.0f)
+    val upVector = Position3D(0.0f, 1.0f, 0.0f)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {

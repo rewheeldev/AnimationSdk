@@ -1,20 +1,17 @@
 package com.example.animationsdk.ui.androidDev
 
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
-
 import android.opengl.GLES20
-import android.opengl.GLES32
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.Log
-import com.example.animationsdk.ui.gl.startAndroid.OpenGLRenderer
+import com.example.animationsdk.ui.gl.sdk.Position3D
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
 class MyGLRenderer : GLSurfaceView.Renderer {
-
 
     private lateinit var mTriangle: Triangle
     private lateinit var mTriangle2: Triangle
@@ -23,9 +20,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
 
-    var cameraPosition = OpenGLRenderer.Position3D(0.0f, 0.0f, 3.0f)
-    var cameraDirectionPoint = OpenGLRenderer.Position3D(0.0f, 0.0f, 0.0f)
-    var upVector = OpenGLRenderer.Position3D(1.0f, 5f, 0.0f)
+    var cameraPosition = Position3D(0.0f, 0.0f, 13.0f)
+    var cameraDirectionPoint = Position3D(0.0f, 0.0f, 0.0f)
+    var upVector = Position3D(1.0f, 5f, 0.0f)
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
@@ -53,10 +50,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-        mTriangle.draw()
-        mTriangle.draw(vPMatrix)
 
-        mTriangle2.draw()
+        mTriangle.draw(vPMatrix)
         mTriangle2.draw(vPMatrix)
     }
 
@@ -70,9 +65,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 
     fun createViewMatrix(
-        cameraPosition: OpenGLRenderer.Position3D,
-        cameraDirectionPoint: OpenGLRenderer.Position3D,
-        upVector: OpenGLRenderer.Position3D
+        cameraPosition: Position3D,
+        cameraDirectionPoint: Position3D,
+        upVector: Position3D
     ) {
         this.cameraPosition = cameraPosition
         this.cameraDirectionPoint = cameraDirectionPoint
@@ -100,10 +95,11 @@ var triangleCoords = floatArrayOf(     // in counterclockwise order:
     -0.5f, -0.311004243f, 0.0f,    // bottom left
     0.5f, -0.311004243f, 0.0f      // bottom right
 )
+val offset = 6
 var triangleCoords2 = floatArrayOf(     // in counterclockwise order:
-    0.5f, 0.722008459f, 0.0f,      // top
-    -0.5f, -0.311004243f, 0.0f,    // bottom left
-    0.5f, -0.311004243f, 0.0f      // bottom right
+   0.0f+offset, 0.622008459f+offset, 0.0f+offset,
+   -0.5f+offset, -0.311004243f+offset, 0.0f+offset,
+   0.5f+offset, -0.311004243f+offset, 0.0f+offset
 )
 
 class Triangle( private val triangleCoords: FloatArray) {
@@ -176,16 +172,13 @@ class Triangle( private val triangleCoords: FloatArray) {
             }
         }
 
-    fun draw() {
+    fun draw(vpMatrix: FloatArray) {
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(mProgram)
-
         // get handle to vertex shader's vPosition member
         positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also {
-
             // Enable a handle to the triangle vertices
             GLES20.glEnableVertexAttribArray(it)
-
             // Prepare the triangle coordinate data
             GLES20.glVertexAttribPointer(
                 it,
@@ -195,36 +188,28 @@ class Triangle( private val triangleCoords: FloatArray) {
                 vertexStride,
                 vertexBuffer
             )
-
             // get handle to fragment shader's vColor member
             mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
-
                 // Set color for drawing the triangle
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
             }
-
             // Draw the triangle
             GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
-
             // Disable vertex array
             GLES20.glDisableVertexAttribArray(it)
         }
+
+        // pass in the calculated transformation matrix
+        // get handle to shape's transformation matrix
+        vPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
+        // Pass the projection and view transformation to the shader
+        GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vpMatrix, 0)
+        // Draw the triangle
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+        // Disable vertex array
+        GLES20.glDisableVertexAttribArray(positionHandle)
     }
 
-fun draw(mvpMatrix: FloatArray) { // pass in the calculated transformation matrix
-
-    // get handle to shape's transformation matrix
-    vPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
-
-    // Pass the projection and view transformation to the shader
-    GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0)
-
-    // Draw the triangle
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
-
-    // Disable vertex array
-    GLES20.glDisableVertexAttribArray(positionHandle)
-}
 }
 
 fun loadShader(type: Int, shaderCode: String): Int {
