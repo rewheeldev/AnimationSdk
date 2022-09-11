@@ -21,13 +21,13 @@ object ShaderUtils {
         return programId
     }
 
-    fun createShader(type: Int, shaderText: String): Int {
+    fun createShader(type: Int, shaderCode: String): Int {
         //done
         val shaderId = GLES20.glCreateShader(type)
         if (shaderId == 0) {
             return 0
         }
-        GLES20.glShaderSource(shaderId, shaderText)
+        GLES20.glShaderSource(shaderId, shaderCode)
         GLES20.glCompileShader(shaderId)
         val compileStatus = IntArray(1)
         GLES20.glGetShaderiv(shaderId, GLES20.GL_COMPILE_STATUS, compileStatus, 0)
@@ -95,3 +95,24 @@ void main(){
     FragColor = vec4(Color, 1.0);
 }
     """
+
+
+const val vertexShaderCode =
+// This matrix member variable provides a hook to manipulate
+    // the coordinates of the objects that use this vertex shader
+    "uniform mat4 uMVPMatrix;" +
+            "attribute vec4 vPosition;" +
+            "void main() {" +
+            // the matrix must be included as a modifier of gl_Position
+            // Note that the uMVPMatrix factor *must be first* in order
+            // for the matrix multiplication product to be correct.
+            "  gl_Position = uMVPMatrix * vPosition;" +
+            "}"
+
+
+const val fragmentShaderCode =
+    "precision mediump float;" +
+            "uniform vec4 vColor;" +
+            "void main() {" +
+            "  gl_FragColor = vColor;" +
+            "}"

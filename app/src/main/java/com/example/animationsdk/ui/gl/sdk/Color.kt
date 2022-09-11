@@ -34,6 +34,14 @@ class Color(
         green = argbHex.substring(4, 6).toInt(16)
         blue = argbHex.substring(6, 8).toInt(16)
     }
+
+    fun toFloatArray() = floatArrayOf(
+        red.toPercentFloat(),
+        green.toPercentFloat(),
+        blue.toPercentFloat(),
+        alpha.toPercentFloat()
+    )
+
 }
 
 //region TODO требует проверки
