@@ -57,5 +57,5 @@ fun createDefaultRectangleVertices(x: Float, y: Float, width: Float, height: Flo
 fun FloatArray.asSortedFloatBuffer(): FloatBuffer {
     return ByteBuffer.allocateDirect(this.size * 4)
         .order(ByteOrder.nativeOrder())
-        .asFloatBuffer().put(this)
+        .asFloatBuffer().put(this).apply { position(0) }
 }

@@ -66,8 +66,11 @@ class Coord(
         asFloatArray(type).asSortedFloatBuffer()
 
     fun asFloatArray(): FloatArray = coordData
-    fun asFloatArray(coordsPerVertex:CoordsPerVertex): FloatArray {
-        return if (coordsPerVertex == CoordsPerVertex.VERTEX_2D) floatArrayOf(coordData[0], coordData[1])
+    fun asFloatArray(coordsPerVertex: CoordsPerVertex): FloatArray {
+        return if (coordsPerVertex == CoordsPerVertex.VERTEX_2D) floatArrayOf(
+            coordData[0],
+            coordData[1]
+        )
         else floatArrayOf(coordData[0], coordData[1], coordData[2])
     }
 
@@ -78,20 +81,26 @@ class Coords(
     val stride: Int = coordsPerVertex.num
 ) {
     val array: ArrayList<Coord> = ArrayList()
-    val size:Int
+    val size: Int
         get() = array.size
+
+    fun getStrideAsByte(): Int = stride * 4
 
     //region constructors
     constructor(
         floatArray: FloatArray,
         coordsPerVertex: CoordsPerVertex,
         stride: Int = coordsPerVertex.num
-    ) : this(coordsPerVertex=coordsPerVertex,stride=stride) {
+    ) : this(coordsPerVertex = coordsPerVertex, stride = stride) {
         if (floatArray.size % stride != 0) throw(Exception("floatArray.size%stride != 0"))
-        val count = floatArray.size / stride
-        for (i in 0..count) {
+        val countPoints = floatArray.size / stride
+        var count = 0
+        for (i in 0 until countPoints) {
             val pointArray = ArrayList<Float>()
-            for (j in 0..stride) pointArray.add(floatArray[i + j])
+            (0 until stride).forEach {
+                pointArray.add(floatArray[count])
+                count++
+            }
             array.add(Coord(pointArray.toFloatArray(), coordsPerVertex))
         }
     }
@@ -108,7 +117,10 @@ class Coords(
     constructor(type: FigureType) : this(type.countPoint)
     //endregion
 
-    fun asSortedFloatBuffer(): FloatBuffer  =
+    fun asSortedFloatBufferFromCoordsPerVertex(): FloatBuffer =
+        asFloatArrayFromCoordsPerVertex().asSortedFloatBuffer()
+
+    fun asSortedFloatBuffer(): FloatBuffer =
         asFloatArray().asSortedFloatBuffer()
 
     fun asFloatArray(): FloatArray {
@@ -118,10 +130,11 @@ class Coords(
         }
         return pointArray.toFloatArray()
     }
+
     fun asFloatArrayFromCoordsPerVertex(): FloatArray {
         val pointArray = ArrayList<Float>()
         array.forEach {
-            pointArray.addAll(it.asFloatArray().toList())
+            pointArray.addAll(it.asFloatArray(coordsPerVertex).toList())
         }
         return pointArray.toFloatArray()
     }

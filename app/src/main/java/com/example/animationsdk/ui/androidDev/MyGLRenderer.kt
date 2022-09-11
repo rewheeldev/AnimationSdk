@@ -10,9 +10,6 @@ import com.example.animationsdk.ui.gl.sdk.internal.CoordsPerVertex
 import com.example.animationsdk.ui.gl.startAndroid.ShaderUtils.createShader
 import com.example.animationsdk.ui.gl.startAndroid.fragmentShaderCode
 import com.example.animationsdk.ui.gl.startAndroid.vertexShaderCode
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -41,9 +38,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             GLES20.glLinkProgram(it)
         }
 
-        mTriangle = Triangle(coords = triangleCoordsPrevData, program = triangleProgram)
+        mTriangle = Triangle(coords = triangleCoords, program = triangleProgram)
         mTriangle2 = Triangle(
-            coords = triangleCoordsPrevData2,
+            coords = triangleCoords2,
             program = triangleProgram,
             color = Color(0.5f, 1f, 0f, 0f)
         )
@@ -71,43 +68,26 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 // number of coordinates per vertex in this array
 const val COORDS_PER_VERTEX = 3
 var triangleCoordsPrevData = floatArrayOf(     // in counterclockwise order:
-    0.0f, 0.622008459f, 0.0f,      // top
-    -0.5f, -0.311004243f, 0.0f,    // bottom left
-    0.5f, -0.311004243f, 0.0f      // bottom right
+    0f, 0f, 0.0f,
+    -25f, -25f, 0.0f,
+    25f, -25f, 0.0f
 )
-val offset = 0.2f
+val offset = 0.7f
 var triangleCoordsPrevData2 = floatArrayOf(     // in counterclockwise order:
-    0.0f + offset, 0.622008459f + offset,
-    -0.5f + offset, -0.311004243f + offset,
-    0.5f + offset, -0.311004243f + offset
+    0f + offset, 0f + offset,
+    -25f + offset, -20f + offset,
+    20f + offset, -20f + offset
 )
+
 //
-//val triangleCoords = Coords(triangleCoordsPrevData, CoordsPerVertex.VERTEX_3D)
-//val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
+val triangleCoords = Coords(triangleCoordsPrevData, CoordsPerVertex.VERTEX_3D)
+val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
 
 class Triangle(
     private var program: Int,
-    private val coords: FloatArray,
+    private val coords: Coords,
     private val color: Color = Color.WHITE,
 ) {
-    private val vertexCount: Int = coords.size / COORDS_PER_VERTEX
-    private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
-
-    var vertexBuffer: FloatBuffer = //coords.asSortedFloatBuffer()
-        // (number of coordinate values * 4 bytes per float)
-        ByteBuffer.allocateDirect(coords.size * 4).run {
-            // use the device hardware's native byte order
-            order(ByteOrder.nativeOrder())
-
-            // create a floating point buffer from the ByteBuffer
-            asFloatBuffer().apply {
-                // add the coordinates to the FloatBuffer
-                put(coords)
-                // set the buffer to read the first coordinate
-                position(0)
-            }
-        }
-
     fun draw(vpMatrix: FloatArray) {
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(program)
@@ -119,11 +99,11 @@ class Triangle(
 
             GLES20.glVertexAttribPointer(
                 it,
-                COORDS_PER_VERTEX,
+                coords.coordsPerVertex.num,
                 GLES20.GL_FLOAT,
                 false,
-                vertexStride,
-                vertexBuffer
+                coords.getStrideAsByte(),
+                coords.asSortedFloatBufferFromCoordsPerVertex()
             )
             // get handle to fragment shader's vColor member
             GLES20.glGetUniformLocation(program, "vColor").also { colorHandle ->
@@ -131,7 +111,7 @@ class Triangle(
                 GLES20.glUniform4fv(colorHandle, 1, color.toFloatArray(), 0)
             }
             // Draw the triangle
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
             // Disable vertex array
             GLES20.glDisableVertexAttribArray(it)
         }
@@ -142,7 +122,7 @@ class Triangle(
         // Pass the projection and view transformation to the shader
         GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vpMatrix, 0)
         // Draw the triangle
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
     }
