@@ -2,9 +2,8 @@ package com.example.animationsdk.ui.androidDev
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import android.opengl.Matrix
-import android.util.Log
-import com.example.animationsdk.ui.gl.sdk.Position3D
+import com.example.animationsdk.ui.gl.sdk.CameraView
+import com.example.animationsdk.ui.gl.sdk.ViewScene
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -12,17 +11,9 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class MyGLRenderer : GLSurfaceView.Renderer {
-
+    private var scene = ViewScene()
     private lateinit var mTriangle: Triangle
     private lateinit var mTriangle2: Triangle
-    // vPMatrix is an abbreviation for "Model View Projection Matrix"
-    private val vPMatrix = FloatArray(16)
-    private val projectionMatrix = FloatArray(16)
-    private val viewMatrix = FloatArray(16)
-
-    var cameraPosition = Position3D(0.0f, 0.0f, 13.0f)
-    var cameraDirectionPoint = Position3D(0.0f, 0.0f, 0.0f)
-    var upVector = Position3D(1.0f, 5f, 0.0f)
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
@@ -31,60 +22,24 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         // initialize a triangle
         mTriangle = Triangle(triangleCoords)
         mTriangle2 = Triangle(triangleCoords2)
-
     }
-    var index = -3f
-    override fun onDrawFrame(unused: GL10) {
-        index++
-        val upX = (index/1000)
-//        Log.d("TAG_1","upX: $upX")
 
+    override fun onDrawFrame(unused: GL10) {
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(viewMatrix, 0,
-            cameraPosition.x, cameraPosition.y, cameraPosition.z,
-            cameraDirectionPoint.x, cameraDirectionPoint.y, cameraDirectionPoint.z,
-            upVector.x, upVector.y, upVector.z)
+        val matrix = scene.update()
 
-        // Calculate the projection and view transformation
-        //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
-        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-
-        mTriangle.draw(vPMatrix)
-        mTriangle2.draw(vPMatrix)
+        mTriangle.draw(matrix)
+        mTriangle2.draw(matrix)
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
-        val ratio: Float = width.toFloat() / height.toFloat()
-
-        // this projection matrix is applied to object coordinates
-        // in the onDrawFrame() method
-        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 1000f)
+        scene.reInitScene(width, height)
     }
 
-    fun createViewMatrix(
-        cameraPosition: Position3D,
-        cameraDirectionPoint: Position3D,
-        upVector: Position3D
-    ) {
-        this.cameraPosition = cameraPosition
-        this.cameraDirectionPoint = cameraDirectionPoint
-        this.upVector = upVector
-        // точка положения камеры
-        val (eyeX, eyeY, eyeZ) = cameraPosition
-
-        // точка направления камеры
-        val (centerX, centerY, centerZ) = cameraDirectionPoint
-
-        // up-вектор
-        val (upX, upY, upZ) = upVector
-        Log.d("TAG_1", "cameraPosition: $cameraPosition, cameraDirectionPoint: $cameraDirectionPoint, upVector: $upVector")
-        Log.d("TAG_1", "eyeX: $eyeX, eyeY: $eyeY, eyeZ: $eyeZ")
-        Log.d("TAG_1", "centerX: $centerX, centerY: $centerY, centerZ: $centerZ")
-        Log.d("TAG_1", "upX: $upX, upY: $upY, upZ: $upZ")
-
+    fun bindCamera(camera: CameraView) {
+        scene.camera = camera
     }
 }
 
@@ -95,14 +50,14 @@ var triangleCoords = floatArrayOf(     // in counterclockwise order:
     -0.5f, -0.311004243f, 0.0f,    // bottom left
     0.5f, -0.311004243f, 0.0f      // bottom right
 )
-val offset = 6
+val offset = 2
 var triangleCoords2 = floatArrayOf(     // in counterclockwise order:
-   0.0f+offset, 0.622008459f+offset, 0.0f+offset,
-   -0.5f+offset, -0.311004243f+offset, 0.0f+offset,
-   0.5f+offset, -0.311004243f+offset, 0.0f+offset
+    0.0f + offset, 0.622008459f + offset, 0.0f,
+    -0.5f + offset, -0.311004243f + offset, 0.0f,
+    0.5f + offset, -0.311004243f + offset, 0.0f
 )
 
-class Triangle( private val triangleCoords: FloatArray) {
+class Triangle(private val triangleCoords: FloatArray) {
     private var mProgram: Int
 
     private val vertexShaderCode =
@@ -152,7 +107,6 @@ class Triangle( private val triangleCoords: FloatArray) {
             GLES20.glLinkProgram(it)
         }
     }
-
 
     // Set color with red, green, blue and alpha (opacity) values
     val color = floatArrayOf(0.63671875f, 0.76953125f, 0.22265625f, 1.0f)

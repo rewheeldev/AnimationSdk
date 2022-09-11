@@ -1,15 +1,16 @@
 package com.example.animationsdk.ui.gl.sdk
 
+import android.opengl.GLES20
 import android.opengl.Matrix
 
 const val matrixSideSize: Int = 4
 
 class ViewScene(var camera: CameraView = CameraView()) {
-    private val viewProjectionMultiplyMatrix = FloatArray(matrixSideSize * matrixSideSize)
+    val lastResultMatrix = FloatArray(matrixSideSize * matrixSideSize)
     private val projectionMatrix = FloatArray(matrixSideSize * matrixSideSize)
     private val viewMatrix = FloatArray(matrixSideSize * matrixSideSize)
 
-    fun update() {
+    fun update(): FloatArray {
         // Set the camera position (View matrix)
         Matrix.setLookAtM(
             viewMatrix, 0,
@@ -27,15 +28,45 @@ class ViewScene(var camera: CameraView = CameraView()) {
         // Calculate the projection and view transformation
         //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
         Matrix.multiplyMM(
-            viewProjectionMultiplyMatrix, 0,
+            lastResultMatrix, 0,
             projectionMatrix, 0,
             viewMatrix, 0
+        )
+        return lastResultMatrix
+    }
+
+    fun reInitScene(sceneWidth: Int, sceneHeight: Int) {
+        GLES20.glViewport(0, 0, sceneWidth, sceneHeight)
+        var ratio = 1f
+        var left = -1f
+        var right = 1f
+        var bottom = -1f
+        var top = 1f
+        if (sceneWidth > sceneHeight) {
+            ratio = sceneWidth.toFloat() / sceneHeight
+            left *= ratio
+            right *= ratio
+
+        } else {
+            ratio = sceneHeight.toFloat() / sceneWidth
+            bottom *= ratio
+            top *= ratio
+        }
+
+        // this projection matrix is applied to object coordinates
+        // in the onDrawFrame() method
+        Matrix.frustumM(
+            projectionMatrix, 0,
+            left, right, bottom, top,
+            camera.nearVision, camera.farVision
         )
     }
 }
 
-class CameraView {
-    var cameraPosition = Position3D(0.0f, 0.0f, 5.0f)
-    var cameraDirectionPoint = Position3D(0.0f, 0.0f, 0.0f)
-    var upVector = Position3D(0.0f, 5f, 0.0f)
-}
+data class CameraView(
+    var cameraPosition: Position3D = Position3D(0.0f, 0.0f, 5.0f),
+    var cameraDirectionPoint: Position3D = Position3D(0.0f, 0.0f, 0.0f),
+    var upVector: Position3D = Position3D(0.0f, 5f, 0.0f),
+    var nearVision: Float = 0.1f,
+    var farVision: Float = 1000f
+)

@@ -2,17 +2,14 @@ package com.example.animationsdk.ui.androidDev
 
 import android.content.Context
 import android.opengl.GLSurfaceView
-import com.example.animationsdk.ui.gl.sdk.Position3D
+import com.example.animationsdk.ui.gl.sdk.CameraView
 
 class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val renderer: MyGLRenderer
 
     init {
-
-        // Create an OpenGL ES 2.0 context
-        setEGLContextClientVersion(2)
-
+        setEGLContextClientVersion(3)
         renderer = MyGLRenderer()
 
         // Set the Renderer for drawing on the GLSurfaceView
@@ -21,11 +18,7 @@ class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 //        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 
-    fun createViewMatrix(
-        cameraPosition: Position3D,
-        cameraDirectionPoint: Position3D,
-        upVector: Position3D
-    ) {
-        renderer.createViewMatrix(cameraPosition, cameraDirectionPoint, upVector)
+    fun bindCamera(camera: CameraView) {
+        renderer.bindCamera(camera)
     }
 }

@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.databinding.ActivityMainBinding
-import com.example.animationsdk.ui.gl.sdk.Position3D
+import com.example.animationsdk.ui.gl.sdk.CameraView
 
 class MainActivity : AppCompatActivity() {
     var _binding: ActivityMainBinding? = null
@@ -18,9 +18,6 @@ class MainActivity : AppCompatActivity() {
         get() {
             return _binding!!
         }
-    val cameraPosition = Position3D(0.0f, 0.0f, 10.0f)
-    val cameraDirectionPoint = Position3D(0.0f, 0.0f, 5.0f)
-    val upVector = Position3D(0.0f, 1.0f, 0.0f)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,11 +32,11 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.mainLayout.initialize()
+        updateData()
         //camera position
         binding.sbCpX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                cameraPosition.x = progress * 0.10f
-                updateData()
+                camera.cameraPosition.x = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -54,8 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbCpY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                cameraPosition.y = progress * 0.10f
-                updateData()
+                camera.cameraPosition.y = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -70,8 +66,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbCpZ.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                cameraPosition.z = progress * 0.10f
-                updateData()
+                camera.cameraPosition.z = progress * 0.10f
                 Log.d("TAG_1", "STEP: $progress")
             }
 
@@ -88,8 +83,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbCpointX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                cameraDirectionPoint.x = progress * 0.10f
-                updateData()
+                camera.cameraDirectionPoint.x = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -104,8 +98,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbCpointY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                cameraDirectionPoint.y = progress * 0.10f
-                updateData()
+                camera.cameraDirectionPoint.y = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -120,8 +113,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbCpointZ.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                cameraDirectionPoint.z = progress * 0.10f
-                updateData()
+                camera.cameraDirectionPoint.z = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -138,8 +130,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbVectorX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                upVector.x = progress * 0.10f
-                updateData()
+                camera.upVector.x = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -154,8 +145,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbVectorY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                upVector.y = progress * 0.10f
-                updateData()
+                camera.upVector.y = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -170,8 +160,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbVectorZ.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                upVector.z = progress * 0.10f
-                updateData()
+                camera.upVector.z = progress * 0.10f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -185,12 +174,9 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    val camera = CameraView()
     private fun updateData() {
-        binding.mainLayout.createViewMatrix(
-            cameraPosition = cameraPosition,
-            cameraDirectionPoint = cameraDirectionPoint,
-            upVector = upVector
-        )
+        binding.mainLayout.bindCamera(camera)
     }
 
     override fun onPause() {

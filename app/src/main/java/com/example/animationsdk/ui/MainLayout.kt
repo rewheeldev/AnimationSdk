@@ -4,40 +4,29 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.example.animationsdk.ui.androidDev.MyGLSurfaceView
-import com.example.animationsdk.ui.gl.sdk.Position3D
+import com.example.animationsdk.ui.gl.sdk.CameraView
 
-//import com.example.animationsdk.ui.gl.ClearGLSurfaceView
 
 class MainLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
-    //    private lateinit var mainView: MainView
-//    private lateinit var mainView: ClearGLSurfaceView
     private lateinit var mainView: MyGLSurfaceView
-//    private lateinit var mainView: AsteroidsView
 
     fun initialize() {
-//        mainView = AsteroidsView(context, 390 * 2, 220 * 2)
-//        mainView = ClearGLSurfaceView(context)
         mainView = MyGLSurfaceView(context)
         addView(mainView)
     }
 
-    fun createViewMatrix(
-        cameraPosition: Position3D,
-        cameraDirectionPoint: Position3D,
-        upVector: Position3D
-    ) {
-        mainView.createViewMatrix(cameraPosition, cameraDirectionPoint, upVector)
+    fun bindCamera(camera: CameraView) {
+        mainView.bindCamera(camera)
     }
 
     /**
      * The function `pause()` is called when the user presses the back button on their device
      */
     fun pause() {
-//        mainView.pause()
         mainView.onPause()
     }
 
@@ -45,7 +34,6 @@ class MainLayout @JvmOverloads constructor(
      * Resumes the game
      */
     fun resume() {
-//        mainView.resume()
         mainView.onResume()
     }
 }
