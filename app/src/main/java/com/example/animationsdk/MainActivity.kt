@@ -5,12 +5,15 @@ import android.content.pm.ConfigurationInfo
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.ui.gl.sdk.CameraView
+
 
 class MainActivity : AppCompatActivity() {
     var _binding: ActivityMainBinding? = null
@@ -18,6 +21,8 @@ class MainActivity : AppCompatActivity() {
         get() {
             return _binding!!
         }
+
+    lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +36,17 @@ class MainActivity : AppCompatActivity() {
 
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         binding.mainLayout.initialize()
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, binding.drawerLayout, R.string.nav_open, R.string.nav_close)
+
+        // pass the Open and Close toggle for the drawer layout listener
+        // to toggle the button
+        binding.drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+
+        // to make the Navigation drawer icon always appear on the action bar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         updateData()
         //camera position
         binding.sbCpX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -172,6 +187,17 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+    }
+
+    // override the onOptionsItemSelected()
+    // function to implement
+    // the item click listener callback
+    // to open and close the navigation
+    // drawer when the icon is clicked
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            true
+        } else super.onOptionsItemSelected(item)
     }
 
     val camera = CameraView()

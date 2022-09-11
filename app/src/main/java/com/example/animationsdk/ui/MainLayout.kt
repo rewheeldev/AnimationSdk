@@ -5,6 +5,8 @@ import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.example.animationsdk.ui.androidDev.MyGLSurfaceView
 import com.example.animationsdk.ui.gl.sdk.CameraView
+import com.example.animationsdk.ui.gl.sdk.IDraw
+import com.example.animationsdk.ui.gl.sdk.internal.draw.RwDraw
 
 
 class MainLayout @JvmOverloads constructor(
@@ -13,6 +15,7 @@ class MainLayout @JvmOverloads constructor(
     defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
     private lateinit var mainView: MyGLSurfaceView
+    private val draw = RwDraw()
 
     fun initialize() {
         mainView = MyGLSurfaceView(context)
@@ -35,5 +38,9 @@ class MainLayout @JvmOverloads constructor(
      */
     fun resume() {
         mainView.onResume()
+    }
+
+    fun draw(): IDraw {
+        return draw
     }
 }
