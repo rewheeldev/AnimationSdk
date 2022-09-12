@@ -13,7 +13,11 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
+import com.rewheeldev.glsdk.sdk.api.Color
+import com.rewheeldev.glsdk.sdk.api.Coords
+import com.rewheeldev.glsdk.sdk.api.model.Triangle
 import com.rewheeldev.glsdk.sdk.internal.CameraView
+import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +28,20 @@ class MainActivity : AppCompatActivity() {
         }
 
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    var triangleCoordsPrevData = floatArrayOf(
+        0f, 0f, 0.0f,
+        -25f, -25f, 0.0f,
+        25f, -25f, 0.0f
+    )
+    val offset = 0.7f
+    var triangleCoordsPrevData2 = floatArrayOf(
+        0f + offset, 0f + offset,
+        -25f + offset, -20f + offset,
+        20f + offset, -20f + offset
+    )
+
+    val triangleCoords = Coords(triangleCoordsPrevData, CoordsPerVertex.VERTEX_3D)
+    val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,8 +56,15 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mainLayout.initialize()
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, binding.drawerLayout,
+        binding.mainLayout.initialize() {
+            val triangle = Triangle(triangleCoords, Color(0.5f, 1f, 0f, 0f))
+            val triangle2 = Triangle(triangleCoords2)
+            binding.mainLayout.getShapeController().add(triangle)
+            binding.mainLayout.getShapeController().add(triangle2)
+        }
+
+        actionBarDrawerToggle = ActionBarDrawerToggle(
+            this, binding.drawerLayout,
             R.string.nav_open,
             R.string.nav_close
         )
