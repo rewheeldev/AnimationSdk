@@ -1,53 +1,45 @@
 package com.rewheeldev.glsdk.sdk.internal
 
+import com.rewheeldev.glsdk.sdk.api.Coord
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
-/**
- * взаимосвязь координат в пространстве с координатами текстуры
- * в [textureX],[textureY] рекомендуется указывать значения 0f , 1f. другие значения могут исказить изображение
- * не коректная связь их с пространственными координатами также может исказить изображение или перевернуть систему координат
- */
-data class SpatialAndTextureCoordinate(
-    val x: Float, val y: Float, val z: Float,
-    val textureX: Float, val textureY: Float
-)
-
 const val START_OF_SIDE = 0f
 const val END_OF_SIDE = 1f
-const val DEFAULT_Z_VALUE = 1f
 
 fun createDefaultRectangleVertices(x: Float, y: Float, width: Float, height: Float): FloatArray {
-    val leftTopPoint = SpatialAndTextureCoordinate(
-        x, height + y, DEFAULT_Z_VALUE,
-        START_OF_SIDE, START_OF_SIDE
+    val leftTopPoint = Coord(
+        coordData = floatArrayOf(x, height + y, START_OF_SIDE, START_OF_SIDE),
+        countCoordsPerVertex = CoordsPerVertex.VERTEX_2D
     )
-    val leftBottomPoint = SpatialAndTextureCoordinate(
-        x, y, DEFAULT_Z_VALUE,
-        START_OF_SIDE, END_OF_SIDE
+    val leftBottomPoint = Coord(
+        coordData = floatArrayOf(x, y, START_OF_SIDE, END_OF_SIDE),
+        countCoordsPerVertex = CoordsPerVertex.VERTEX_2D
     )
-    val rightTopPoint = SpatialAndTextureCoordinate(
-        width + x, height + y, DEFAULT_Z_VALUE,
-        END_OF_SIDE, START_OF_SIDE
+
+    val rightTopPoint = Coord(
+        coordData = floatArrayOf(width + x, height + y, END_OF_SIDE, START_OF_SIDE),
+        countCoordsPerVertex = CoordsPerVertex.VERTEX_2D
     )
-    val rightBottomPoint = SpatialAndTextureCoordinate(
-        width + x, y, DEFAULT_Z_VALUE,
-        END_OF_SIDE, END_OF_SIDE
+
+    val rightBottomPoint = Coord(
+        coordData = floatArrayOf(width + x, y, END_OF_SIDE, END_OF_SIDE),
+        countCoordsPerVertex = CoordsPerVertex.VERTEX_2D
     )
 
     return floatArrayOf(
         leftTopPoint.x, leftTopPoint.y, leftTopPoint.z,
-        leftTopPoint.textureX, leftTopPoint.textureY,
+        leftTopPoint.coordData[2], leftTopPoint.coordData[3],
 
         leftBottomPoint.x, leftBottomPoint.y, leftBottomPoint.z,
-        leftBottomPoint.textureX, leftBottomPoint.textureY,
+        leftBottomPoint.coordData[2], leftBottomPoint.coordData[3],
 
         rightTopPoint.x, rightTopPoint.y, rightTopPoint.z,
-        rightTopPoint.textureX, rightTopPoint.textureY,
+        rightTopPoint.coordData[2], rightTopPoint.coordData[3],
 
         rightBottomPoint.x, rightBottomPoint.y, rightBottomPoint.z,
-        rightBottomPoint.textureX, rightBottomPoint.textureY
+        rightBottomPoint.coordData[2], rightBottomPoint.coordData[3]
     )
 }
 
