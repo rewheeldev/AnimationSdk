@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "AnimationSdk"
 include(":app")
+include(":glsdk")
