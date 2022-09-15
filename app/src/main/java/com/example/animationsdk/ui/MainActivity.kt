@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.rewheeldev.glsdk.sdk.api.Color
+import com.rewheeldev.glsdk.sdk.api.Coord
 import com.rewheeldev.glsdk.sdk.api.Coords
 import com.rewheeldev.glsdk.sdk.api.model.Triangle
 import com.rewheeldev.glsdk.sdk.internal.CameraView
@@ -39,9 +40,19 @@ class MainActivity : AppCompatActivity() {
         -25f + offset, -20f + offset,
         20f + offset, -20f + offset
     )
+    //здесь мы создаем замыкающий начальный квадрат
+    var triangleCoordsPrevData3 = floatArrayOf(
+        -20f + offset, -20f + offset,
+        -20f + offset, -10f + offset,
+        -10f + offset, -10f + offset,
+        -10f + offset, -20f + offset,
+        -20f + offset, -20f + offset,
+    )
 
     val triangleCoords = Coords(triangleCoordsPrevData, CoordsPerVertex.VERTEX_3D)
     val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
+    //вершины которые будут отрисованы (в данном случае сетка из квадратов)
+    val triangleCoords5 = Coords(triangleCoordsPrevData3, CoordsPerVertex.VERTEX_2D)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,11 +67,28 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+        val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
         binding.mainLayout.initialize() {
             val triangle = Triangle(triangleCoords, Color(0.5f, 1f, 0f, 0f))
             val triangle2 = Triangle(triangleCoords2)
-            binding.mainLayout.getShapeController().add(triangle)
-            binding.mainLayout.getShapeController().add(triangle2)
+            //создание обьекта отрисовки с вершинами
+            val triangle6 = Triangle(triangleCoords3)
+//заполнение вершин
+            //сетка заполняется с низу в верх
+            for (y in 0..100 step 10) {
+                for (x in 0..100 step 10) {
+
+                    triangleCoords5.array.forEach {
+                        val coord = Coord(x.toFloat() + it.x, y.toFloat() + it.y)
+                        triangleCoords3.array.add(coord)
+                    }
+                }
+                //добавление последней дополнительной точки для переноса соединение на линию вверх
+                triangleCoords3.array.add(triangleCoords3.array[triangleCoords3.array.lastIndex - 3])
+            }
+
+            binding.mainLayout.getShapeController().add(triangle6)
         }
 
         actionBarDrawerToggle = ActionBarDrawerToggle(

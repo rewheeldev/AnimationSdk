@@ -33,8 +33,10 @@ data class TriangleInternal(
                 // Set color for drawing the triangle
                 GLES20.glUniform4fv(colorHandle, 1, color.toFloatArray(), 0)
             }
+
+            GLES20.glLineWidth(100f)
             // Draw the triangle
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
+            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, coords.size)
             // Disable vertex array
             GLES20.glDisableVertexAttribArray(it)
         }
