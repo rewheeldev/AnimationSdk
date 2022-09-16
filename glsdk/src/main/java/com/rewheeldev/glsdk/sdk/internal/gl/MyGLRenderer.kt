@@ -2,13 +2,14 @@ package com.rewheeldev.glsdk.sdk.internal.gl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import com.rewheeldev.glsdk.sdk.api.model.Color
+import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.ViewScene
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
-import com.rewheeldev.glsdk.sdk.internal.model.TriangleInternal
-import com.rewheeldev.glsdk.sdk.internal.util.FRAGMENT_SHADER_CODE
+import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.FRAGMENT_SHADER_CODE
+import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.VERTEX_SHADER_CODE
 import com.rewheeldev.glsdk.sdk.internal.util.ShaderUtils.createShader
-import com.rewheeldev.glsdk.sdk.internal.util.VERTEX_SHADER_CODE
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -19,22 +20,31 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
     var triangleProgram: Int = 0
     var vertexShader: Int = 0
     var fragmentShader: Int = 0
-    val shapeList = ArrayList<TriangleInternal>()
+    val shapeList = ArrayList<IShapeDraw>()
 
     init {
         shapeController.addListener { shape ->
             shapeList.add(
-                TriangleInternal(
-                    triangleId = shape.id,
+//                TriangleInternal(
+//                    id = shape.id,
+//                    programId = triangleProgram,
+//                    coords = shape.coords,
+//                    color = shape.color
+//                )
+                Figure(
+                    id = shape.id,
                     programId = triangleProgram,
                     coords = shape.coords,
-                    color = shape.color
+                    colors = Colors(Color.GREEN, Color.RED, Color.BLUE, Color.BLACK),
+//                    colors = Colors(1, shape.color),
+//                    borderColor = shape.color,
+                    borderWidth = 5f
                 )
             )
         }
 
         shapeController.removeListener { shape ->
-            val foundShape = shapeList.firstOrNull { it.triangleId == shape.id }
+            val foundShape = shapeList.firstOrNull { it.id == shape.id }
             if (foundShape != null) shapeList.remove(foundShape)
         }
     }

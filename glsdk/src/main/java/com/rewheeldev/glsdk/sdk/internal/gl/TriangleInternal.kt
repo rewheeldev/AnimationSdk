@@ -1,21 +1,26 @@
-package com.rewheeldev.glsdk.sdk.internal.model
+package com.rewheeldev.glsdk.sdk.internal.gl
 
 import android.opengl.GLES20
-import com.rewheeldev.glsdk.sdk.api.Color
-import com.rewheeldev.glsdk.sdk.api.Coords
+import com.rewheeldev.glsdk.sdk.api.model.Color
+import com.rewheeldev.glsdk.sdk.api.model.Coords
+import com.rewheeldev.glsdk.sdk.internal.ViewScene
+import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_UMVPMATRIX
+import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_VCOLOR
+import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_VPOSITION
 
 data class TriangleInternal(
-    val triangleId: Long,
-    private var programId: Int,
+    override val id: Long,
+    override var programId: Int,
     private val coords: Coords,
     private val color: Color = Color.WHITE
-) {
+) : IShapeDraw {
 
-    fun draw(vpMatrix: FloatArray) {
+
+    override fun draw(vpMatrix: FloatArray) {
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(programId)
         // get handle to vertex shader's vPosition member
-        val positionHandle = GLES20.glGetAttribLocation(programId, "vPosition").also {
+        val positionHandle = GLES20.glGetAttribLocation(programId, SHADER_VARIABLE_VPOSITION).also {
             // Enable a handle to the triangle vertices
             GLES20.glEnableVertexAttribArray(it)
             // Prepare the triangle coordinate data
@@ -29,9 +34,9 @@ data class TriangleInternal(
                 coords.asSortedFloatBufferFromCoordsPerVertex()
             )
             // get handle to fragment shader's vColor member
-            GLES20.glGetUniformLocation(programId, "vColor").also { colorHandle ->
+            GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_VCOLOR).also { colorHandle ->
                 // Set color for drawing the triangle
-                GLES20.glUniform4fv(colorHandle, 1, color.toFloatArray(), 0)
+                GLES20.glUniform4fv(colorHandle, 1, color.asFloatArray(), 0)
             }
 
             GLES20.glLineWidth(100f)
@@ -43,13 +48,17 @@ data class TriangleInternal(
 
         // pass in the calculated transformation matrix
         // get handle to shape's transformation matrix
-        val vPMatrixHandle = GLES20.glGetUniformLocation(programId, "uMVPMatrix")
+        val vPMatrixHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_UMVPMATRIX)
         // Pass the projection and view transformation to the shader
         GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vpMatrix, 0)
         // Draw the triangle
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
+    }
+
+    override fun draw(scene: ViewScene) {
+        draw(scene.lastResultMatrix)
     }
 
 }

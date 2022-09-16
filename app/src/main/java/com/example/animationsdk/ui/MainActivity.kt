@@ -13,9 +13,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
-import com.rewheeldev.glsdk.sdk.api.Color
-import com.rewheeldev.glsdk.sdk.api.Coord
-import com.rewheeldev.glsdk.sdk.api.Coords
+import com.rewheeldev.glsdk.sdk.api.model.Color
+import com.rewheeldev.glsdk.sdk.api.model.Coord
+import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.model.Triangle
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         -25f + offset, -20f + offset,
         20f + offset, -20f + offset
     )
+
     //здесь мы создаем замыкающий начальный квадрат
     var triangleCoordsPrevData3 = floatArrayOf(
         -20f + offset, -20f + offset,
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     val triangleCoords = Coords(triangleCoordsPrevData, CoordsPerVertex.VERTEX_3D)
     val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
+
     //вершины которые будут отрисованы (в данном случае сетка из квадратов)
     val triangleCoords5 = Coords(triangleCoordsPrevData3, CoordsPerVertex.VERTEX_2D)
 
@@ -67,6 +69,39 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+//        fun tempFillCoordsFromGrid(
+//            x: Float, y: Float,
+//            columns: Int, rows: Int,
+//            stepSize: Float
+//        ): Coords {
+//            val squareExample = Coords(
+//                floatArrayOf(x,y,),
+//                CoordsPerVertex.VERTEX_2D
+//            )
+//            var triangleCoordsPrevData3 = floatArrayOf(
+//                -20f + offset, -20f + offset,
+//                -20f + offset, -10f + offset,
+//                -10f + offset, -10f + offset,
+//                -10f + offset, -20f + offset,
+//                -20f + offset, -20f + offset,
+//            )
+//            val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
+//
+//
+////заполнение вершин
+//            //сетка заполняется с низу в верх
+//            for (y in 0..100 step 10) {
+//                for (x in 0..100 step 10) {
+//
+//                    triangleCoords5.array.forEach {
+//                        val coord = Coord(x.toFloat() + it.x, y.toFloat() + it.y)
+//                        triangleCoords3.array.add(coord)
+//                    }
+//                }
+//                //добавление последней дополнительной точки для переноса соединение на линию вверх
+//                triangleCoords3.array.add(triangleCoords3.array[triangleCoords3.array.lastIndex - 3])
+//            }
+//        }
 
         val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
         binding.mainLayout.initialize() {
@@ -88,7 +123,8 @@ class MainActivity : AppCompatActivity() {
                 triangleCoords3.array.add(triangleCoords3.array[triangleCoords3.array.lastIndex - 3])
             }
 
-            binding.mainLayout.getShapeController().add(triangle6)
+//            binding.mainLayout.getShapeController().add(triangle6)
+            binding.mainLayout.getShapeController().add(triangle)
         }
 
         actionBarDrawerToggle = ActionBarDrawerToggle(

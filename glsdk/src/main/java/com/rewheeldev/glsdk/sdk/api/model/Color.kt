@@ -1,4 +1,4 @@
-package com.rewheeldev.glsdk.sdk.api
+package com.rewheeldev.glsdk.sdk.api.model
 
 class Color(
     var alpha: Int = 255,
@@ -17,6 +17,9 @@ class Color(
     companion object {
         val BLACK by lazy { Color() }
         val WHITE by lazy { Color(255, 255, 255, 255) }
+        val RED by lazy { Color(255, 255, 0, 0) }
+        val GREEN by lazy { Color(255, 0, 255, 0) }
+        val BLUE by lazy { Color(255, 0, 0, 255) }
         val TRANSPARENT by lazy { Color(alpha = 0f) }
 
         fun createFrom(argbHex: String) = Color(//TODO требует проверки
@@ -35,13 +38,33 @@ class Color(
         blue = argbHex.substring(6, 8).toInt(16)
     }
 
-    fun toFloatArray() = floatArrayOf(
-        red.toPercentFloat(),
-        green.toPercentFloat(),
-        blue.toPercentFloat(),
-        alpha.toPercentFloat()
-    )
+    fun asFloatArray(type: ColorSchemeType = ColorSchemeType.RGBA): FloatArray {
+        return when (type) {
+            ColorSchemeType.RGBA -> floatArrayOf(
+                red.toPercentFloat(),
+                green.toPercentFloat(),
+                blue.toPercentFloat(),
+                alpha.toPercentFloat()
+            )
+            ColorSchemeType.ARGB -> floatArrayOf(
+                alpha.toPercentFloat(),
+                red.toPercentFloat(),
+                green.toPercentFloat(),
+                blue.toPercentFloat()
+            )
+            ColorSchemeType.RGB -> floatArrayOf(
+                red.toPercentFloat(),
+                green.toPercentFloat(),
+                blue.toPercentFloat()
+            )
+        }
+    }
+}
 
+enum class ColorSchemeType {
+    ARGB,
+    RGBA,
+    RGB
 }
 
 //region TODO требует проверки

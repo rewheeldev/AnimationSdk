@@ -2,7 +2,7 @@ package com.rewheeldev.glsdk.sdk.internal
 
 import android.opengl.GLES20
 import android.opengl.Matrix
-import com.rewheeldev.glsdk.sdk.api.Coord
+import com.rewheeldev.glsdk.sdk.api.model.Coord
 
 const val matrixSideSize: Int = 4
 

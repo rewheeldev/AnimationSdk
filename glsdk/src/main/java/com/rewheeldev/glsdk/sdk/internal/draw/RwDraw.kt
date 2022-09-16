@@ -5,8 +5,8 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.fonts.Font
-import com.rewheeldev.glsdk.sdk.api.Color
 import com.rewheeldev.glsdk.sdk.api.IDraw
+import com.rewheeldev.glsdk.sdk.api.model.Color
 
 class RwDraw : IDraw {
 

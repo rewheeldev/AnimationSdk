@@ -1,7 +1,5 @@
 package com.rewheeldev.glsdk.sdk.api.model
 
-import com.rewheeldev.glsdk.sdk.api.Color
-import com.rewheeldev.glsdk.sdk.api.Coords
 import com.rewheeldev.glsdk.sdk.api.IShape
 
 class Triangle(
@@ -9,7 +7,6 @@ class Triangle(
     override val color: Color = Color.WHITE,
 ) : IShape {
     override val id: Long = counterObject++
-
 
     companion object {
         var counterObject: Long = 0

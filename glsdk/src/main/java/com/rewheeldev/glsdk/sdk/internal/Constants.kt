@@ -1,6 +1,7 @@
 package com.rewheeldev.glsdk.sdk.internal
 
-const val NOT_INIT = -1
+const val I_NOT_INIT = -1
+const val F_NOT_INIT = -1f
 
 
 enum class CoordsPerVertex(val num:Int) {

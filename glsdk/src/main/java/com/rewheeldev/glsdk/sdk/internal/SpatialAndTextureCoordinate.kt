@@ -1,6 +1,6 @@
 package com.rewheeldev.glsdk.sdk.internal
 
-import com.rewheeldev.glsdk.sdk.api.Coord
+import com.rewheeldev.glsdk.sdk.api.model.Coord
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
