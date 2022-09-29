@@ -2,6 +2,7 @@ package com.rewheeldev.glsdk.sdk.internal.gl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import com.rewheeldev.glsdk.sdk.api.IViewScene
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.ViewScene
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
@@ -13,7 +14,22 @@ import javax.microedition.khronos.opengles.GL10
 
 class MyGLRenderer(val shapeController: ShapeController, private val onReady: () -> Unit) :
     GLSurfaceView.Renderer {
-    private var scene = ViewScene()
+    private lateinit var sceneInternal: ViewScene
+    var scene: IViewScene
+        set(value) {
+            sceneInternal = when (value) {
+                is ViewScene -> {
+                    value
+                }
+                else -> {
+                    throw IllegalArgumentException("Unknown")
+                }
+            }
+        }
+        get() {
+            return sceneInternal
+        }
+
 
     var triangleProgram: Int = 0
     var vertexShader: Int = 0
@@ -23,12 +39,6 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
     init {
         shapeController.addListener { shape ->
             shapeList.add(
-//                TriangleInternal(
-//                    id = shape.id,
-//                    programId = triangleProgram,
-//                    coords = shape.coords,
-//                    color = shape.color
-//                )
                 Figure(
                     id = shape.id,
                     programId = triangleProgram,
@@ -71,17 +81,17 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         // Set the camera position (View matrix)
-        val matrix = scene.update()
+        val matrix = sceneInternal.update()
         shapeList.forEach { shape ->
             shape.draw(matrix)
         }
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
-        scene.reInitScene(width, height)
+        sceneInternal.reInitScene(width, height)
     }
 
     fun bindCamera(camera: CameraView) {
-        scene.camera = camera
+        sceneInternal.camera = camera
     }
 }

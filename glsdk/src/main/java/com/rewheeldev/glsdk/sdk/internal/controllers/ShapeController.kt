@@ -5,7 +5,7 @@ import com.rewheeldev.glsdk.sdk.api.IShapeController
 
 class ShapeController : IShapeController {
 
-    val shapeList = ArrayList<IShape>()
+    val shapeList = ArrayList<IShape>()//todo might be redundant
     val addListenerList = ArrayList<IAddShapeListener>()
     val removeListenerList = ArrayList<IRemoveShapeListener>()
 

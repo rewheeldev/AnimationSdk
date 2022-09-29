@@ -2,11 +2,12 @@ package com.rewheeldev.glsdk.sdk.internal
 
 import android.opengl.GLES20
 import android.opengl.Matrix
+import com.rewheeldev.glsdk.sdk.api.IViewScene
 import com.rewheeldev.glsdk.sdk.api.model.Coord
 
 const val matrixSideSize: Int = 4
 
-class ViewScene(var camera: CameraView = CameraView()) {
+open class ViewScene(var camera: CameraView = CameraView()) : IViewScene {
     val lastResultMatrix = FloatArray(matrixSideSize * matrixSideSize)
     private val projectionMatrix = FloatArray(matrixSideSize * matrixSideSize)
     private val viewMatrix = FloatArray(matrixSideSize * matrixSideSize)
@@ -21,9 +22,9 @@ class ViewScene(var camera: CameraView = CameraView()) {
             camera.cameraDirectionPoint.x,
             camera.cameraDirectionPoint.y,
             camera.cameraDirectionPoint.z,
-            camera.upVector.x,
-            camera.upVector.y,
-            camera.upVector.z
+            camera.cameraTiltPoint.x,
+            camera.cameraTiltPoint.y,
+            camera.cameraTiltPoint.z
         )
 
         // Calculate the projection and view transformation
@@ -67,7 +68,7 @@ class ViewScene(var camera: CameraView = CameraView()) {
 data class CameraView(
     var cameraPosition: Coord = Coord(0.0f, 0.0f, 5.0f),
     var cameraDirectionPoint: Coord = Coord(0.0f, 0.0f, 0.0f),
-    var upVector: Coord = Coord(0.0f, 5f, 0.0f),
+    var cameraTiltPoint: Coord = Coord(0.0f, 5f, 0.0f),
     var nearVision: Float = 0.1f,
     var farVision: Float = 1000f
 )

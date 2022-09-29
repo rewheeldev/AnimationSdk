@@ -4,12 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.rewheeldev.glsdk.sdk.api.IDraw
+import com.rewheeldev.glsdk.sdk.api.IScene
 import com.rewheeldev.glsdk.sdk.api.IShapeController
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
 import com.rewheeldev.glsdk.sdk.internal.draw.RwDraw
 import com.rewheeldev.glsdk.sdk.internal.gl.MyGLSurfaceView
-
 
 class MainLayout @JvmOverloads constructor(
     context: Context,
@@ -21,13 +21,18 @@ class MainLayout @JvmOverloads constructor(
     private val draw = RwDraw()
     private val shapeController = ShapeController()
 
+
     fun initialize(onReady: () -> Unit) {
         mainView = MyGLSurfaceView(context, shapeController, onReady)
         addView(mainView)
     }
 
-    fun bindCamera(camera: CameraView) {
-        mainView.bindCamera(camera)
+//    fun bindCamera(camera: CameraView) {
+//        mainView.bindCamera(camera)
+//    }
+
+    fun setScene(scene: IScene) {
+        mainView.setScene(scene)
     }
 
     /**

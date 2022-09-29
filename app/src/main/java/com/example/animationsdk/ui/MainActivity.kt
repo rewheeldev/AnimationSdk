@@ -18,6 +18,7 @@ import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.model.Shape
 import com.rewheeldev.glsdk.sdk.api.model.Shape.Companion.prepareCoordsForGrid
+import com.rewheeldev.glsdk.sdk.api.scene.Scene2D
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 import com.rewheeldev.glsdk.sdk.internal.gl.TypeLinkLines
@@ -53,10 +54,23 @@ class MainActivity : AppCompatActivity() {
     )
 
     val triangleCoords = Coords(triangleCoordsPrevData, CoordsPerVertex.VERTEX_3D)
-    val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
-
-    //вершины которые будут отрисованы (в данном случае сетка из квадратов)
-    val triangleCoords5 = Coords(triangleCoordsPrevData3, CoordsPerVertex.VERTEX_2D)
+    val triangle = Shape(triangleCoords, Colors(Color(0.5f, 1f, 0f, 0f)))
+    val grid = Shape(
+        prepareCoordsForGrid(columns = 5, rows = 10, stepSize = 10f),
+        borderWidth = 0.0000000000000001f,
+        borderColor = Color.GREEN,
+        borderType = TypeLinkLines.Strip
+    )
+    val grid2 = Shape(
+        coords = prepareCoordsForGrid(
+            x = -30f, y = -50f, z = 0.0001f,
+            columns = 10, rows = 5,
+            stepSize = 6f
+        ),
+        borderWidth = 0.00000000001f,
+        borderType = TypeLinkLines.Strip
+    )
+    val scene:Scene2D = Scene2D(800, 480)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,30 +85,14 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
         binding.mainLayout.initialize() {
-            val triangle = Shape(triangleCoords, Colors(Color(0.5f, 1f, 0f, 0f)))
-            val triangle2 = Shape(triangleCoords2)
-            val grid = Shape(
-                prepareCoordsForGrid(columns = 5, rows = 10, stepSize = 10f),
-                borderWidth = 0.0000000000000001f,
-                borderColor = Color.GREEN,
-                borderType = TypeLinkLines.Strip
-            )
-            val grid2 = Shape(
-                coords = prepareCoordsForGrid(
-                    x = -30f, y = -50f, z = 0.0001f,
-                    columns = 10, rows = 5,
-                    stepSize = 6f
-                ),
-                borderWidth = 0.00000000001f,
-                borderType = TypeLinkLines.Strip
-            )
-
+            binding.mainLayout.setScene(scene)
+            updateData()
             binding.mainLayout.getShapeController().add(grid)
             binding.mainLayout.getShapeController().add(grid2)
             binding.mainLayout.getShapeController().add(triangle)
         }
+
 
         actionBarDrawerToggle = ActionBarDrawerToggle(
             this, binding.drawerLayout,
@@ -109,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
         // to make the Navigation drawer icon always appear on the action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        updateData()
+
         //camera position
         binding.sbCpX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -207,7 +205,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbVectorX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.upVector.x = progress * MULTIPLIER
+                camera.cameraTiltPoint.x = progress * MULTIPLIER
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -222,7 +220,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbVectorY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.upVector.y = progress * MULTIPLIER
+                camera.cameraTiltPoint.y = progress * MULTIPLIER
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -237,7 +235,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.sbVectorZ.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.upVector.z = progress * MULTIPLIER
+                camera.cameraTiltPoint.z = progress * MULTIPLIER
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -264,7 +262,7 @@ class MainActivity : AppCompatActivity() {
 
     val camera = CameraView()
     private fun updateData() {
-        binding.mainLayout.bindCamera(camera)
+//        binding.mainLayout.bindCamera(camera)
     }
 
     override fun onPause() {
