@@ -2,8 +2,6 @@ package com.rewheeldev.glsdk.sdk.internal.gl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import com.rewheeldev.glsdk.sdk.api.model.Color
-import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.ViewScene
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
@@ -35,11 +33,10 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
                     id = shape.id,
                     programId = triangleProgram,
                     coords = shape.coords,
-//                    colors = Colors(Color.GREEN, Color.RED, Color.BLUE, Color.BLACK),
-//                    colors = Colors(1, shape.color),
-//                    borderColor = shape.color,
-                    borderWidth = 0.000000000001f,
-                    borderType = TypeLinkLines.Strip
+                    colors = shape.colors,
+                    borderColor = shape.borderColor,
+                    borderWidth = shape.borderWidth,
+                    borderType = shape.borderType
                 )
             )
         }

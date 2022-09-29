@@ -14,11 +14,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.rewheeldev.glsdk.sdk.api.model.Color
-import com.rewheeldev.glsdk.sdk.api.model.Coord
+import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.api.model.Coords
-import com.rewheeldev.glsdk.sdk.api.model.Triangle
+import com.rewheeldev.glsdk.sdk.api.model.Shape
+import com.rewheeldev.glsdk.sdk.api.model.Shape.Companion.prepareCoordsForGrid
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
+import com.rewheeldev.glsdk.sdk.internal.gl.TypeLinkLines
 
 
 class MainActivity : AppCompatActivity() {
@@ -69,54 +71,29 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        fun tempFillCoordsFromGrid(
-            x: Float = 0f, y: Float = 0f, z: Float = 0f,
-            columns: Int = 10, rows: Int = 10,
-            stepSize: Float = 10f
-        ): Coords {
-            val squareExample = Coords(
-                floatArrayOf(
-                    x, y,
-                    x, y + stepSize,
-                    x + stepSize, y + stepSize,
-                    x + stepSize, y,
-                    x, y,
-                ),
-                CoordsPerVertex.VERTEX_2D
-            )
-            val resultCoords = Coords(coordsPerVertex = CoordsPerVertex.VERTEX_3D)
-
-            (0 until rows).forEach { yi ->
-                val offsetY = yi.toFloat() * stepSize
-                (0 until columns).forEach { xi ->
-                    val offsetX = xi.toFloat() * stepSize
-                    squareExample.array.forEach {
-                        val coord = Coord(offsetX + it.x, offsetY + it.y, z)
-                        resultCoords.array.add(coord)
-                    }
-                }
-                //добавление последней дополнительной точки для переноса соединение на линию вверх
-                resultCoords.array.add(resultCoords.array[resultCoords.array.lastIndex - 3])
-            }
-            return resultCoords
-        }
-
         val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
         binding.mainLayout.initialize() {
-            val triangle = Triangle(triangleCoords, Color(0.5f, 1f, 0f, 0f))
-            val triangle2 = Triangle(triangleCoords2)
-            val grid = Triangle(tempFillCoordsFromGrid(columns = 5, rows = 10, stepSize = 10f))
-            val grid2 = Triangle(
-                tempFillCoordsFromGrid(
-                    x = -30f, y = -60f,
+            val triangle = Shape(triangleCoords, Colors(Color(0.5f, 1f, 0f, 0f)))
+            val triangle2 = Shape(triangleCoords2)
+            val grid = Shape(
+                prepareCoordsForGrid(columns = 5, rows = 10, stepSize = 10f),
+                borderWidth = 0.0000000000000001f,
+                borderColor = Color.GREEN,
+                borderType = TypeLinkLines.Strip
+            )
+            val grid2 = Shape(
+                coords = prepareCoordsForGrid(
+                    x = -30f, y = -50f, z = 0.0001f,
                     columns = 10, rows = 5,
                     stepSize = 6f
-                )
+                ),
+                borderWidth = 0.00000000001f,
+                borderType = TypeLinkLines.Strip
             )
 
             binding.mainLayout.getShapeController().add(grid)
             binding.mainLayout.getShapeController().add(grid2)
-//            binding.mainLayout.getShapeController().add(triangle)
+            binding.mainLayout.getShapeController().add(triangle)
         }
 
         actionBarDrawerToggle = ActionBarDrawerToggle(
