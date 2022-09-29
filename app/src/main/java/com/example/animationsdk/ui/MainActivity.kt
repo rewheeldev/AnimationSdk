@@ -69,62 +69,54 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        fun tempFillCoordsFromGrid(
-//            x: Float, y: Float,
-//            columns: Int, rows: Int,
-//            stepSize: Float
-//        ): Coords {
-//            val squareExample = Coords(
-//                floatArrayOf(x,y,),
-//                CoordsPerVertex.VERTEX_2D
-//            )
-//            var triangleCoordsPrevData3 = floatArrayOf(
-//                -20f + offset, -20f + offset,
-//                -20f + offset, -10f + offset,
-//                -10f + offset, -10f + offset,
-//                -10f + offset, -20f + offset,
-//                -20f + offset, -20f + offset,
-//            )
-//            val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
-//
-//
-////заполнение вершин
-//            //сетка заполняется с низу в верх
-//            for (y in 0..100 step 10) {
-//                for (x in 0..100 step 10) {
-//
-//                    triangleCoords5.array.forEach {
-//                        val coord = Coord(x.toFloat() + it.x, y.toFloat() + it.y)
-//                        triangleCoords3.array.add(coord)
-//                    }
-//                }
-//                //добавление последней дополнительной точки для переноса соединение на линию вверх
-//                triangleCoords3.array.add(triangleCoords3.array[triangleCoords3.array.lastIndex - 3])
-//            }
-//        }
+        fun tempFillCoordsFromGrid(
+            x: Float = 0f, y: Float = 0f, z: Float = 0f,
+            columns: Int = 10, rows: Int = 10,
+            stepSize: Float = 10f
+        ): Coords {
+            val squareExample = Coords(
+                floatArrayOf(
+                    x, y,
+                    x, y + stepSize,
+                    x + stepSize, y + stepSize,
+                    x + stepSize, y,
+                    x, y,
+                ),
+                CoordsPerVertex.VERTEX_2D
+            )
+            val resultCoords = Coords(coordsPerVertex = CoordsPerVertex.VERTEX_3D)
+
+            (0 until rows).forEach { yi ->
+                val offsetY = yi.toFloat() * stepSize
+                (0 until columns).forEach { xi ->
+                    val offsetX = xi.toFloat() * stepSize
+                    squareExample.array.forEach {
+                        val coord = Coord(offsetX + it.x, offsetY + it.y, z)
+                        resultCoords.array.add(coord)
+                    }
+                }
+                //добавление последней дополнительной точки для переноса соединение на линию вверх
+                resultCoords.array.add(resultCoords.array[resultCoords.array.lastIndex - 3])
+            }
+            return resultCoords
+        }
 
         val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
         binding.mainLayout.initialize() {
             val triangle = Triangle(triangleCoords, Color(0.5f, 1f, 0f, 0f))
             val triangle2 = Triangle(triangleCoords2)
-            //создание обьекта отрисовки с вершинами
-            val triangle6 = Triangle(triangleCoords3)
-//заполнение вершин
-            //сетка заполняется с низу в верх
-            for (y in 0..100 step 10) {
-                for (x in 0..100 step 10) {
+            val grid = Triangle(tempFillCoordsFromGrid(columns = 5, rows = 10, stepSize = 10f))
+            val grid2 = Triangle(
+                tempFillCoordsFromGrid(
+                    x = -30f, y = -60f,
+                    columns = 10, rows = 5,
+                    stepSize = 6f
+                )
+            )
 
-                    triangleCoords5.array.forEach {
-                        val coord = Coord(x.toFloat() + it.x, y.toFloat() + it.y)
-                        triangleCoords3.array.add(coord)
-                    }
-                }
-                //добавление последней дополнительной точки для переноса соединение на линию вверх
-                triangleCoords3.array.add(triangleCoords3.array[triangleCoords3.array.lastIndex - 3])
-            }
-
-//            binding.mainLayout.getShapeController().add(triangle6)
-            binding.mainLayout.getShapeController().add(triangle)
+            binding.mainLayout.getShapeController().add(grid)
+            binding.mainLayout.getShapeController().add(grid2)
+//            binding.mainLayout.getShapeController().add(triangle)
         }
 
         actionBarDrawerToggle = ActionBarDrawerToggle(

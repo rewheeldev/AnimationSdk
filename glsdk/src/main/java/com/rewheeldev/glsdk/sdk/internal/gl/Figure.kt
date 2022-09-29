@@ -1,6 +1,5 @@
 package com.rewheeldev.glsdk.sdk.internal.gl
 
-import android.opengl.GLES10
 import android.opengl.GLES20
 import com.rewheeldev.glsdk.sdk.api.model.Color
 import com.rewheeldev.glsdk.sdk.api.model.Colors
@@ -38,8 +37,10 @@ data class Figure(
                 coords.asSortedFloatBufferFromCoordsPerVertex()
             )
             val colorHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_VCOLOR)
-            GLES20.glUniform4fv(colorHandle, 1/*TODO colors.size*/, colors.asFloatArray(), 0)
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
+            if (colors.array.isNotEmpty()) {
+                GLES20.glUniform4fv(colorHandle, 1/*TODO colors.size*/, colors.asFloatArray(), 0)
+                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
+            }
 
             if (borderWidth > 0) {
                 GLES20.glUniform4fv(colorHandle, 1, borderColor.asFloatArray(), 0)

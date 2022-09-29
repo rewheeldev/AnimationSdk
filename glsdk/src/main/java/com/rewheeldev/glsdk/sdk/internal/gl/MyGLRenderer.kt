@@ -35,10 +35,11 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
                     id = shape.id,
                     programId = triangleProgram,
                     coords = shape.coords,
-                    colors = Colors(Color.GREEN, Color.RED, Color.BLUE, Color.BLACK),
+//                    colors = Colors(Color.GREEN, Color.RED, Color.BLUE, Color.BLACK),
 //                    colors = Colors(1, shape.color),
 //                    borderColor = shape.color,
-                    borderWidth = 5f
+                    borderWidth = 0.000000000001f,
+                    borderType = TypeLinkLines.Strip
                 )
             )
         }
