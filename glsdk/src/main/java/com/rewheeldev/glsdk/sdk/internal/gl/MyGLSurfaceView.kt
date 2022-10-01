@@ -5,6 +5,7 @@ import android.opengl.GLSurfaceView
 import com.rewheeldev.glsdk.sdk.api.IScene
 import com.rewheeldev.glsdk.sdk.api.scene.Scene2D
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
+import utils.Color
 
 class MyGLSurfaceView(context: Context, shapeController: ShapeController, onReady: () -> Unit) :
     GLSurfaceView(context) {
@@ -21,10 +22,6 @@ class MyGLSurfaceView(context: Context, shapeController: ShapeController, onRead
 //        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 
-//    fun bindCamera(camera: CameraView) {
-//        renderer.bindCamera(camera)
-//    }
-
     fun setScene(scene: IScene) {
         when (scene) {
             is Scene2D -> {
@@ -34,7 +31,8 @@ class MyGLSurfaceView(context: Context, shapeController: ShapeController, onRead
                 //todo
             }
         }
-
-
+    }
+    fun setBackgroundColor(color: Color){
+        renderer.setBackgroundColor(color)
     }
 }

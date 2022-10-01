@@ -19,6 +19,7 @@ class Scene2D(
     )
 
     override val scene: IViewScene = ViewScene(camera)
+
     private val sceneInternal: ViewScene = when (scene) {
         is ViewScene -> {
             scene

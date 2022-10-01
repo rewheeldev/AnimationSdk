@@ -86,11 +86,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.mainLayout.initialize() {
-            binding.mainLayout.setScene(scene)
-            updateData()
-            binding.mainLayout.getShapeController().add(grid)
-            binding.mainLayout.getShapeController().add(grid2)
-            binding.mainLayout.getShapeController().add(triangle)
+            binding.mainLayout.run {
+                setScene(scene)
+                getShapeController().add(grid)
+                getShapeController().add(grid2)
+                getShapeController().add(triangle)
+                setBackgroundColor(utils.Color(0.2f, 0.2f, 0.2f, 1.0f))
+            }
         }
 
 

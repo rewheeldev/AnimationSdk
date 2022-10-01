@@ -6,33 +6,31 @@ import android.widget.LinearLayout
 import com.rewheeldev.glsdk.sdk.api.IDraw
 import com.rewheeldev.glsdk.sdk.api.IScene
 import com.rewheeldev.glsdk.sdk.api.IShapeController
-import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
 import com.rewheeldev.glsdk.sdk.internal.draw.RwDraw
 import com.rewheeldev.glsdk.sdk.internal.gl.MyGLSurfaceView
+import utils.Color
 
 class MainLayout @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyle: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
 
     private lateinit var mainView: MyGLSurfaceView
     private val draw = RwDraw()
     private val shapeController = ShapeController()
 
-
-    fun initialize(onReady: () -> Unit) {
+    fun initialize(backgroundColor: Color = Color.BLACK, onReady: () -> Unit) {
         mainView = MyGLSurfaceView(context, shapeController, onReady)
+        mainView.setBackgroundColor(backgroundColor)
         addView(mainView)
     }
 
-//    fun bindCamera(camera: CameraView) {
-//        mainView.bindCamera(camera)
-//    }
-
     fun setScene(scene: IScene) {
         mainView.setScene(scene)
+    }
+
+    fun setBackgroundColor(color: Color) {
+        mainView.setBackgroundColor(color)
     }
 
     /**
