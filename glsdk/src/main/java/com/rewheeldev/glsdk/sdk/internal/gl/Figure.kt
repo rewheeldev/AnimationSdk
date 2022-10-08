@@ -26,56 +26,63 @@ data class Figure(
         //drawing anything to the screen.
         GLES20.glUseProgram(programId)
 
-        val positionHandle = GLES20.glGetAttribLocation(programId, SHADER_VARIABLE_VPOSITION)
-            .also { attribLocationId ->
-                withVertexAttribArray(attribLocationId) {
-                    GLES20.glVertexAttribPointer(
-                        attribLocationId,
-                        coords.coordsPerVertex.num,
-                        GLES20.GL_FLOAT,
-                        false,
-                        coords.getStrideAsByte(),
-                        coords.asSortedFloatBufferFromCoordsPerVertex()
-                    )
-                    val colorHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_VCOLOR)
+        val attribLocationId = GLES20.glGetAttribLocation(programId, SHADER_VARIABLE_VPOSITION)
 
-                    if (colors.array.isNotEmpty()) { //TODO: what do we need to do if we retrieve the empty array of colors
-                        withBlend {
-                            colors.array.forEach { color ->
-                                GLES20.glUniform4f(
-                                    colorHandle,
-                                    color.r,
-                                    color.g,
-                                    color.b,
-                                    color.a
-                                )
-                            }
+        withVertexAttribArray(attribLocationId) {
 
-                            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
-                        }
-                    }
+            GLES20.glVertexAttribPointer(
+                attribLocationId,
+                coords.coordsPerVertex.num,
+                GLES20.GL_FLOAT,
+                false,
+                coords.getStrideAsByte(),
+                coords.asSortedFloatBufferFromCoordsPerVertex()
+            )
 
-                    if (border.width > 0) {
-                        withBlend {
-                            GLES20.glUniform4f(
-                                colorHandle,
-                                border.color.r,
-                                border.color.g,
-                                border.color.b,
-                                border.color.a
-                            )
+            val colorHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_VCOLOR)
 
-                            GLES20.glLineWidth(border.width)
-                            GLES20.glDrawArrays(border.type.code, 0, coords.size)
-                        }
-                    }
-                }
-            }
+            drawFigure(colorHandle)
 
+            drawBorder(colorHandle)
+        }
         val vPMatrixHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_UMVPMATRIX)
         GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vpMatrix, 0)
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
-        GLES20.glDisableVertexAttribArray(positionHandle)
+    }
+
+    private fun drawFigure(colorHandle: Int) {
+        if (colors.array.isNotEmpty()) { //TODO: what do we need to do if we retrieve the empty array of colors
+            withBlend {
+                colors.array.forEach { color ->
+                    GLES20.glUniform4f(
+                        colorHandle,
+                        color.r,
+                        color.g,
+                        color.b,
+                        color.a
+                    )
+                }
+
+                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
+            }
+        }
+    }
+
+    private fun drawBorder(colorHandle: Int) {
+        if (border.width > 0) {
+            withBlend {
+                GLES20.glUniform4f(
+                    colorHandle,
+                    border.color.r,
+                    border.color.g,
+                    border.color.b,
+                    border.color.a
+                )
+
+                GLES20.glLineWidth(border.width)
+                GLES20.glDrawArrays(border.type.code, 0, coords.size)
+            }
+        }
     }
 
     private fun withBlend(run: () -> Unit) {
