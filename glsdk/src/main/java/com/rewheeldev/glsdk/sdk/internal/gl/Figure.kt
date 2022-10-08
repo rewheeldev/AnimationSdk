@@ -1,10 +1,9 @@
 package com.rewheeldev.glsdk.sdk.internal.gl
 
 import android.opengl.GLES20
-import com.rewheeldev.glsdk.sdk.api.model.Color
 import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.api.model.Coords
-import com.rewheeldev.glsdk.sdk.internal.F_NOT_INIT
+import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.internal.ViewScene
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_UMVPMATRIX
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_VCOLOR
@@ -15,41 +14,63 @@ data class Figure(
     override var programId: Int,
     private val coords: Coords,
     private val colors: Colors = Colors(),
-    private val borderType: TypeLinkLines = TypeLinkLines.Loop,
-    private val borderColor: Color = Color.WHITE,
-    private val borderWidth: Float = F_NOT_INIT
+    private val border: Border = Border()
 ) : IShapeDraw {
     override fun draw(scene: ViewScene) {
         draw(scene.lastResultMatrix)
     }
 
     override fun draw(vpMatrix: FloatArray) {
+
+        //We call glUseProgram() to tell OpenGL to use the program defined here when
+        //drawing anything to the screen.
         GLES20.glUseProgram(programId)
-        val positionHandle = GLES20.glGetAttribLocation(programId, SHADER_VARIABLE_VPOSITION).also {
-            GLES20.glEnableVertexAttribArray(it)
 
-            GLES20.glVertexAttribPointer(
-                it,
-                coords.coordsPerVertex.num,
-                GLES20.GL_FLOAT,
-                false,
-                coords.getStrideAsByte(),
-                coords.asSortedFloatBufferFromCoordsPerVertex()
-            )
-            val colorHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_VCOLOR)
-            if (colors.array.isNotEmpty()) {
-                GLES20.glUniform4fv(colorHandle, 1/*TODO colors.size*/, colors.asFloatArray(), 0)
-                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
+        val positionHandle = GLES20.glGetAttribLocation(programId, SHADER_VARIABLE_VPOSITION)
+            .also { attribLocationId ->
+                withVertexAttribArray(attribLocationId) {
+                    GLES20.glVertexAttribPointer(
+                        attribLocationId,
+                        coords.coordsPerVertex.num,
+                        GLES20.GL_FLOAT,
+                        false,
+                        coords.getStrideAsByte(),
+                        coords.asSortedFloatBufferFromCoordsPerVertex()
+                    )
+                    val colorHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_VCOLOR)
+
+                    if (colors.array.isNotEmpty()) { //TODO: what do we need to do if we retrieve the empty array of colors
+                        withBlend {
+                            colors.array.forEach { color ->
+                                GLES20.glUniform4f(
+                                    colorHandle,
+                                    color.r,
+                                    color.g,
+                                    color.b,
+                                    color.a
+                                )
+                            }
+
+                            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.size)
+                        }
+                    }
+
+                    if (border.width > 0) {
+                        withBlend {
+                            GLES20.glUniform4f(
+                                colorHandle,
+                                border.color.r,
+                                border.color.g,
+                                border.color.b,
+                                border.color.a
+                            )
+
+                            GLES20.glLineWidth(border.width)
+                            GLES20.glDrawArrays(border.type.code, 0, coords.size)
+                        }
+                    }
+                }
             }
-
-            if (borderWidth > 0) {
-                GLES20.glUniform4fv(colorHandle, 1, borderColor.asFloatArray(), 0)
-
-                GLES20.glLineWidth(borderWidth)
-                GLES20.glDrawArrays(borderType.code, 0, coords.size)
-            }
-            GLES20.glDisableVertexAttribArray(it)
-        }
 
         val vPMatrixHandle = GLES20.glGetUniformLocation(programId, SHADER_VARIABLE_UMVPMATRIX)
         GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vpMatrix, 0)
@@ -57,25 +78,18 @@ data class Figure(
         GLES20.glDisableVertexAttribArray(positionHandle)
     }
 
+    private fun withBlend(run: () -> Unit) {
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        run()
+        GLES20.glDisable(GLES20.GL_BLEND)
+    }
+
+    private fun withVertexAttribArray(id: Int, run: () -> Unit) {
+        GLES20.glEnableVertexAttribArray(id)
+        run()
+        GLES20.glDisableVertexAttribArray(id)
+    }
+
 }
 
-enum class TypeLinkLines(val code: Int) {
-    /**
-     * соединяет все точки между собой: первую со второй, вторую с третей и так далее
-     * Примечание: первая и последняя не будут соединены
-     */
-    Strip(GLES20.GL_LINE_STRIP),
-
-    /**
-     * соединяет пары точек между собой: первую со второй, третью с четветой
-     * Примечание: если количество точек не четное последняя точка не учитывается
-     */
-    Lines(GLES20.GL_LINES),
-
-    /**
-     * соединяет все точки между собой: первую со второй, вторую с третей ... и последнюю с первой
-     */
-    Loop(GLES20.GL_LINE_LOOP),
-
-    ;
-}

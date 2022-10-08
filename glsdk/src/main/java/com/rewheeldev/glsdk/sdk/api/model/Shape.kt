@@ -1,20 +1,16 @@
 package com.rewheeldev.glsdk.sdk.api.model
 
 import com.rewheeldev.glsdk.sdk.api.IShape
+import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 import com.rewheeldev.glsdk.sdk.internal.F_NOT_INIT
-import com.rewheeldev.glsdk.sdk.internal.gl.TypeLinkLines
+import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
+import utils.Color
 
 class Shape(
     override val coords: Coords,
     override val colors: Colors = Colors(),
-    override val borderType: TypeLinkLines = TypeLinkLines.Loop,
-    override val borderColor: Color = Color.WHITE,
-
-    /**
-     * если [borderWidth] меньше или равен 0 border не будет нарисован
-     */
-    override val borderWidth: Float = F_NOT_INIT
+    override val border: Border = Border()
 ) : IShape {
     override val id: Long = counterObject++
 
@@ -23,7 +19,7 @@ class Shape(
 
         /**
          * для правильного отображения кординаты сетки должны
-         * быть созданы с [borderType] = [TypeLinkLines.Strip]
+         * быть созданы с [borderType] = [LinkLineTypes.Strip]
          */
         fun prepareCoordsForGrid(
             x: Float = 0f, y: Float = 0f, z: Float = 0f,
@@ -66,9 +62,9 @@ class Shape(
 
         if (coords != other.coords) return false
         if (colors != other.colors) return false
-        if (borderType != other.borderType) return false
-        if (borderColor != other.borderColor) return false
-        if (borderWidth != other.borderWidth) return false
+        if (border.type != other.border.type) return false
+        if (border.color != other.border.color) return false
+        if (border.width != other.border.width) return false
         if (id != other.id) return false
 
         return true
@@ -77,9 +73,9 @@ class Shape(
     override fun hashCode(): Int {
         var result = coords.hashCode()
         result = 31 * result + colors.hashCode()
-        result = 31 * result + borderType.hashCode()
-        result = 31 * result + borderColor.hashCode()
-        result = 31 * result + borderWidth.hashCode()
+        result = 31 * result + border.type.hashCode()
+        result = 31 * result + border.color.hashCode()
+        result = 31 * result + border.width.hashCode()
         result = 31 * result + id.hashCode()
         return result
     }
@@ -88,9 +84,7 @@ class Shape(
         return "Shape(" +
                 "coords=$coords" +
                 ", colors=$colors" +
-                ", borderType=$borderType" +
-                ", borderColor=$borderColor" +
-                ", borderWidth=$borderWidth" +
+                ", border=$border" +
                 ", id=$id)"
     }
 

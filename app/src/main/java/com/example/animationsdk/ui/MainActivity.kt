@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -13,14 +14,16 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
-import com.rewheeldev.glsdk.sdk.api.model.Color
+import com.example.animationsdk.databinding.NavHeaderMainBinding
 import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.model.Shape
 import com.rewheeldev.glsdk.sdk.api.model.Shape.Companion.prepareCoordsForGrid
+import com.rewheeldev.glsdk.sdk.api.shape.border.Border
+import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
-import com.rewheeldev.glsdk.sdk.internal.gl.TypeLinkLines
+import utils.Color
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,18 +32,19 @@ class MainActivity : AppCompatActivity() {
         get() {
             return _binding!!
         }
+    var _navHeaderMainBinding: NavHeaderMainBinding? = null
+    val navHeaderMainBinding: NavHeaderMainBinding
+        get() {
+            return _navHeaderMainBinding!!
+        }
 
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     var triangleCoordsPrevData = floatArrayOf(
-        0f, 0f, 0.0f,
-        -25f, -25f, 0.0f,
-        25f, -25f, 0.0f
+        0f, 0f, 0.0f, -25f, -25f, 0.0f, 25f, -25f, 0.0f
     )
     val offset = 0.7f
     var triangleCoordsPrevData2 = floatArrayOf(
-        0f + offset, 0f + offset,
-        -25f + offset, -20f + offset,
-        20f + offset, -20f + offset
+        0f + offset, 0f + offset, -25f + offset, -20f + offset, 20f + offset, -20f + offset
     )
 
     //здесь мы создаем замыкающий начальный квадрат
@@ -69,26 +73,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         _binding = ActivityMainBinding.inflate(layoutInflater)
+        val header = binding.navigationView.getHeaderView(0)
+        _navHeaderMainBinding = NavHeaderMainBinding.bind(header)
         setContentView(binding.root)
+
+        navHeaderMainBinding.swCameraControllers.setOnCheckedChangeListener { buttonView, isChecked ->
+            binding.groupCameraControllers.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
 
         val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
         binding.mainLayout.initialize() {
-            val triangle = Shape(triangleCoords, Colors(Color(0.5f, 1f, 0f, 0f)))
+            val triangle = Shape(triangleCoords, Colors(Color(1f, 0f, 0f, 1f)))
             val triangle2 = Shape(triangleCoords2)
+            val gridBorder = Border(
+                width = 0.0000000000000001f, color = Color.GREEN, type = LinkLineTypes.Strip
+            )
             val grid = Shape(
-                prepareCoordsForGrid(columns = 5, rows = 10, stepSize = 10f),
-                borderWidth = 0.0000000000000001f,
-                borderColor = Color.GREEN,
-                borderType = TypeLinkLines.Strip
+                prepareCoordsForGrid(columns = 5, rows = 10, stepSize = 10f), border = gridBorder
+            )
+            val grid2Border = Border(
+                width = 0.00000000001f, type = LinkLineTypes.Strip
             )
             val grid2 = Shape(
                 coords = prepareCoordsForGrid(
-                    x = -30f, y = -50f, z = 0.0001f,
-                    columns = 10, rows = 5,
-                    stepSize = 6f
-                ),
-                borderWidth = 0.00000000001f,
-                borderType = TypeLinkLines.Strip
+                    x = -30f, y = -50f, z = 0.0001f, columns = 10, rows = 5, stepSize = 6f
+                ), border = grid2Border
             )
 
             binding.mainLayout.getShapeController().add(grid)
@@ -97,9 +106,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         actionBarDrawerToggle = ActionBarDrawerToggle(
-            this, binding.drawerLayout,
-            R.string.nav_open,
-            R.string.nav_close
+            this, binding.drawerLayout, R.string.nav_open, R.string.nav_close
         )
 
         // pass the Open and Close toggle for the drawer layout listener
@@ -110,7 +117,12 @@ class MainActivity : AppCompatActivity() {
         // to make the Navigation drawer icon always appear on the action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         updateData()
-        //camera position
+        //region camera position
+        setOnSeekBarChangeListener()
+        //endregion
+    }
+
+    private fun setOnSeekBarChangeListener() {
         binding.sbCpX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 camera.cameraPosition.x = progress * MULTIPLIER
@@ -280,6 +292,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        _navHeaderMainBinding = null
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

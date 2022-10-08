@@ -1,12 +1,11 @@
 package com.rewheeldev.glsdk.sdk.api.model
 
 import com.rewheeldev.glsdk.sdk.internal.asSortedFloatBuffer
+import utils.Color
 import java.nio.FloatBuffer
 
 class Colors() {
     val array: ArrayList<Color> = ArrayList()
-    val size: Int
-        get() = array.size
 
     constructor(
         vararg colors: Color

@@ -23,20 +23,12 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
     init {
         shapeController.addListener { shape ->
             shapeList.add(
-//                TriangleInternal(
-//                    id = shape.id,
-//                    programId = triangleProgram,
-//                    coords = shape.coords,
-//                    color = shape.color
-//                )
                 Figure(
                     id = shape.id,
                     programId = triangleProgram,
                     coords = shape.coords,
                     colors = shape.colors,
-                    borderColor = shape.borderColor,
-                    borderWidth = shape.borderWidth,
-                    borderType = shape.borderType
+                    border = shape.border
                 )
             )
         }

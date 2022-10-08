@@ -6,7 +6,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.fonts.Font
 import com.rewheeldev.glsdk.sdk.api.IDraw
-import com.rewheeldev.glsdk.sdk.api.model.Color
+import utils.Color
 
 class RwDraw : IDraw {
 
@@ -29,12 +29,7 @@ class RwDraw : IDraw {
     }
 
     override fun drawText(
-        text: String,
-        rect: RectF,
-        font: Font,
-        fontSize: Float,
-        fontColor: Color,
-        backColor: Color
+        text: String, rect: RectF, font: Font, fontSize: Float, fontColor: Color, backColor: Color
     ) {
         TODO("Not yet implemented")
     }
@@ -56,10 +51,7 @@ class RwDraw : IDraw {
     }
 
     override fun drawPoints(
-        arrayPoints: Array<PointF>,
-        fillColor: Color,
-        borderColor: Color,
-        borderFatness: Int
+        arrayPoints: Array<PointF>, fillColor: Color, borderColor: Color, borderFatness: Int
     ) {
         TODO("Not yet implemented")
     }

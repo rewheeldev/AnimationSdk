@@ -1,12 +1,12 @@
 package com.rewheeldev.glsdk.sdk.internal.gl
 
 import android.opengl.GLES20
-import com.rewheeldev.glsdk.sdk.api.model.Color
 import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.internal.ViewScene
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_UMVPMATRIX
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_VCOLOR
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_VPOSITION
+import utils.Color
 
 data class TriangleInternal(
     override val id: Long,
