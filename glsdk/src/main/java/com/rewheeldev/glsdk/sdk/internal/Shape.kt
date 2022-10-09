@@ -1,13 +1,13 @@
-package com.rewheeldev.glsdk.sdk.api.model
+package com.rewheeldev.glsdk.sdk.internal
 
 import com.rewheeldev.glsdk.sdk.api.IShape
+import com.rewheeldev.glsdk.sdk.api.model.Colors
+import com.rewheeldev.glsdk.sdk.api.model.Coord
+import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
-import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
-import com.rewheeldev.glsdk.sdk.internal.F_NOT_INIT
 import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
-import utils.Color
 
-class Shape(
+internal class Shape(
     override val coords: Coords,
     override val colors: Colors = Colors(),
     override val border: Border = Border()

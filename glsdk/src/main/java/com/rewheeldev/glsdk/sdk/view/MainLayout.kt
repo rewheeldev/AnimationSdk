@@ -5,7 +5,9 @@ import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.rewheeldev.glsdk.sdk.api.IDraw
 import com.rewheeldev.glsdk.sdk.api.IShapeController
+import com.rewheeldev.glsdk.sdk.api.factories.IShapeFactory
 import com.rewheeldev.glsdk.sdk.internal.CameraView
+import com.rewheeldev.glsdk.sdk.internal.ShapeFactory
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
 import com.rewheeldev.glsdk.sdk.internal.draw.RwDraw
 import com.rewheeldev.glsdk.sdk.internal.gl.MyGLSurfaceView
@@ -20,6 +22,7 @@ class MainLayout @JvmOverloads constructor(
     private lateinit var mainView: MyGLSurfaceView
     private val draw = RwDraw()
     private val shapeController = ShapeController()
+    private val shapeFactory = ShapeFactory()
 
     fun initialize(onReady: () -> Unit) {
         mainView = MyGLSurfaceView(context, shapeController, onReady)
@@ -50,5 +53,9 @@ class MainLayout @JvmOverloads constructor(
 
     fun getShapeController(): IShapeController {
         return shapeController
+    }
+
+    fun getShapeFactory(): IShapeFactory {
+        return shapeFactory
     }
 }

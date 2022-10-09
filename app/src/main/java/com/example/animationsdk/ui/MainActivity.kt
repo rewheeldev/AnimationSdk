@@ -15,10 +15,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.databinding.NavHeaderMainBinding
-import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.api.model.Coords
-import com.rewheeldev.glsdk.sdk.api.model.Shape
-import com.rewheeldev.glsdk.sdk.api.model.Shape.Companion.prepareCoordsForGrid
+import com.rewheeldev.glsdk.sdk.api.model.GridParams
+import com.rewheeldev.glsdk.sdk.api.model.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
 import com.rewheeldev.glsdk.sdk.internal.CameraView
@@ -81,24 +80,36 @@ class MainActivity : AppCompatActivity() {
             binding.groupCameraControllers.visibility = if (isChecked) View.VISIBLE else View.GONE
         }
 
-        val triangleCoords3 = Coords(CoordsPerVertex.VERTEX_2D)
         binding.mainLayout.initialize() {
-            val triangle = Shape(triangleCoords, Colors(Color(1f, 0f, 0f, 1f)))
-            val triangle2 = Shape(triangleCoords2)
+            val shapeFactory = binding.mainLayout.getShapeFactory()
+
+            val triangleParams = TriangleParams(triangleCoords, Color(1f, 0f, 0f, 1f))
+            val triangle = shapeFactory.createTriangle(triangleParams)
+
             val gridBorder = Border(
-                width = 0.0000000000000001f, color = Color.GREEN, type = LinkLineTypes.Strip
+                width = 0.0000000000000001f,
+                color = Color.GREEN,
+                type = LinkLineTypes.Strip
             )
-            val grid = Shape(
-                prepareCoordsForGrid(columns = 5, rows = 10, stepSize = 10f), border = gridBorder
+            val gridParams = GridParams(
+                columns = 5,
+                rows = 10,
+                stepSize = 10f,
+                border = gridBorder
             )
-            val grid2Border = Border(
-                width = 0.00000000001f, type = LinkLineTypes.Strip
+            val grid = shapeFactory.createGrid(gridParams)
+
+            val grid2Border = Border(width = 0.00000000001f, type = LinkLineTypes.Strip)
+            val grid2Params = GridParams(
+                x = -30f,
+                y = -50f,
+                z = 0.0001f,
+                columns = 10,
+                rows = 5,
+                stepSize = 6f,
+                border = grid2Border
             )
-            val grid2 = Shape(
-                coords = prepareCoordsForGrid(
-                    x = -30f, y = -50f, z = 0.0001f, columns = 10, rows = 5, stepSize = 6f
-                ), border = grid2Border
-            )
+            val grid2 = shapeFactory.createGrid(grid2Params)
 
             binding.mainLayout.getShapeController().add(grid)
             binding.mainLayout.getShapeController().add(grid2)
