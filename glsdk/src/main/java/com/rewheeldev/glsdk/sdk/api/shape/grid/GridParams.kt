@@ -1,4 +1,4 @@
-package com.rewheeldev.glsdk.sdk.api.model
+package com.rewheeldev.glsdk.sdk.api.shape.grid
 
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 

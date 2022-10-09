@@ -1,8 +1,9 @@
 package com.rewheeldev.glsdk.sdk.api.factories
 
 import com.rewheeldev.glsdk.sdk.api.IShape
-import com.rewheeldev.glsdk.sdk.api.model.GridParams
-import com.rewheeldev.glsdk.sdk.api.model.TriangleParams
+import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
+import com.rewheeldev.glsdk.sdk.api.shape.point.PointParams
+import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 
 /**
  * @author Ivantsov Mykola

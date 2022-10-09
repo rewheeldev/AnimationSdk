@@ -3,8 +3,10 @@ package com.rewheeldev.glsdk.sdk.internal
 import com.rewheeldev.glsdk.sdk.api.IShape
 import com.rewheeldev.glsdk.sdk.api.factories.IShapeFactory
 import com.rewheeldev.glsdk.sdk.api.model.Colors
-import com.rewheeldev.glsdk.sdk.api.model.GridParams
-import com.rewheeldev.glsdk.sdk.api.model.TriangleParams
+import com.rewheeldev.glsdk.sdk.api.model.Coords
+import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
+import com.rewheeldev.glsdk.sdk.api.shape.point.PointParams
+import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 
 /**
  * @author Ivantsov Mykola
@@ -29,6 +31,13 @@ class ShapeFactory : IShapeFactory {
                 )
             },
             border = params.border
+        )
+    }
+
+    fun createPoint(params: PointParams): IShape {
+        return Shape(
+            coords = Coords(params.coord.asFloatArray(), params.coordsPerVertex),
+            colors = Colors(params.color)
         )
     }
 

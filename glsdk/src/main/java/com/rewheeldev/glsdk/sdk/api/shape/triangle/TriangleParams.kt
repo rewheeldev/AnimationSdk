@@ -1,5 +1,6 @@
-package com.rewheeldev.glsdk.sdk.api.model
+package com.rewheeldev.glsdk.sdk.api.shape.triangle
 
+import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import utils.Color
 

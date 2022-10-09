@@ -16,8 +16,8 @@ import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.databinding.NavHeaderMainBinding
 import com.rewheeldev.glsdk.sdk.api.model.Coords
-import com.rewheeldev.glsdk.sdk.api.model.GridParams
-import com.rewheeldev.glsdk.sdk.api.model.TriangleParams
+import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
+import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
 import com.rewheeldev.glsdk.sdk.internal.CameraView
