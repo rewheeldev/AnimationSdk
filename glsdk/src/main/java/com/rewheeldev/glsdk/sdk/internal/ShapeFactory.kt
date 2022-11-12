@@ -6,6 +6,7 @@ import com.rewheeldev.glsdk.sdk.api.model.Colors
 import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
 import com.rewheeldev.glsdk.sdk.api.shape.point.PointParams
+import com.rewheeldev.glsdk.sdk.api.shape.rectangle.RectangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 
 /**
@@ -15,6 +16,10 @@ import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 class ShapeFactory : IShapeFactory {
 
     override fun createTriangle(params: TriangleParams): IShape {
+        return Shape(coords = params.coords, colors = Colors(params.color), border = params.border)
+    }
+
+    override fun createRectangle(params: RectangleParams): IShape {
         return Shape(coords = params.coords, colors = Colors(params.color), border = params.border)
     }
 

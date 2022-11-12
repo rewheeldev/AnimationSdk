@@ -8,10 +8,15 @@ import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.FRAGMENT_SHADER_CODE
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.VERTEX_SHADER_CODE
 import com.rewheeldev.glsdk.sdk.internal.util.ShaderUtils.createShader
+import utils.Color
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class MyGLRenderer(val shapeController: ShapeController, private val onReady: () -> Unit) :
+class MyGLRenderer(
+    val shapeController: ShapeController,
+    val backgroundColor: Color,
+    private val onReady: () -> Unit
+) :
     GLSurfaceView.Renderer {
     private var scene = ViewScene()
 
@@ -19,6 +24,7 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
     var vertexShader: Int = 0
     var fragmentShader: Int = 0
     val shapeList = ArrayList<IShapeDraw>()
+
 
     init {
         shapeController.addListener { shape ->
@@ -40,8 +46,19 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
     }
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
+        //GLSurfaceView calls this when the surface is created. This happens the first
+        //time our application is run, and it may also be called when the device
+        //wakes up or when the user switches back to our activity. In practice, this
+        //means that this method may be called multiple times while our application
+        //is running.
+
         // Set the background frame color
-        GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f)
+        GLES20.glClearColor(
+            backgroundColor.r,
+            backgroundColor.g,
+            backgroundColor.b,
+            backgroundColor.a
+        )
 
         // initialize a triangle
         vertexShader = createShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER_CODE)
@@ -60,6 +77,19 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
 
     // add(TriangleInternal(programId = triangleProgram, shape.coords, shape.color))
     override fun onDrawFrame(unused: GL10) {
+        // Set the background frame color
+        GLES20.glClearColor(
+            backgroundColor.r,
+            backgroundColor.g,
+            backgroundColor.b,
+            backgroundColor.a
+        )
+
+        //GLSurfaceView calls this when it’s time to draw a frame. We must draw
+        //something, even if it’s only to clear the screen. The rendering buffer will
+        //be swapped and displayed on the screen after this method returns, so if
+        //we don’t draw anything, we’ll probably get a bad flickering effect.
+
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         // Set the camera position (View matrix)
@@ -70,6 +100,11 @@ class MyGLRenderer(val shapeController: ShapeController, private val onReady: ()
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
+
+        //GLSurfaceView calls this after the surface is created and whenever the size
+        //has changed. A size change can occur when switching from portrait to
+        //landscape and vice versa.
+
         scene.reInitScene(width, height)
     }
 

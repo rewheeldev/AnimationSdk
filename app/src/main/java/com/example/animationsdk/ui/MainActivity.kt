@@ -16,10 +16,12 @@ import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.databinding.NavHeaderMainBinding
 import com.rewheeldev.glsdk.sdk.api.model.Coords
-import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
-import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
+import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
 import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
+import com.rewheeldev.glsdk.sdk.api.shape.rectangle.RectangleParams
+import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
+import com.rewheeldev.glsdk.sdk.api.util.OpenGLConfigurationInfoManager
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 import utils.Color
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         get() {
             return _binding!!
         }
+    val openGLConfigurationInfoManager = OpenGLConfigurationInfoManager()
     var _navHeaderMainBinding: NavHeaderMainBinding? = null
     val navHeaderMainBinding: NavHeaderMainBinding
         get() {
@@ -61,6 +64,18 @@ class MainActivity : AppCompatActivity() {
     //вершины которые будут отрисованы (в данном случае сетка из квадратов)
     val triangleCoords5 = Coords(triangleCoordsPrevData3, CoordsPerVertex.VERTEX_2D)
 
+    val rectangleCoordsVertices = floatArrayOf(
+        0f, 0f,
+        9f, 14f,
+        0f, 14f,
+
+        0f, 0f,
+        9f, 0f,
+        9f, 14f
+    )
+
+    val rectangleCoords = Coords(rectangleCoordsVertices, CoordsPerVertex.VERTEX_2D)
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,22 +95,130 @@ class MainActivity : AppCompatActivity() {
             binding.groupCameraControllers.visibility = if (isChecked) View.VISIBLE else View.GONE
         }
 
+        initScreen()
+
+        actionBarDrawerToggle = ActionBarDrawerToggle(
+            this, binding.drawerLayout, R.string.nav_open, R.string.nav_close
+        )
+
+        // pass the Open and Close toggle for the drawer layout listener
+        // to toggle the button
+        binding.drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+
+        // to make the Navigation drawer icon always appear on the action bar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        //region camera position
+        setOnSeekBarChangeListener()
+        //endregion
+        openGLConfigurationInfoManager.initActivityManager(this)
+
+        navHeaderMainBinding.tvOpenGlVersion.text =
+            "OpenGL SE version: ${openGLConfigurationInfoManager.openGLVersion}"
+
+        binding.sbCpX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                camera.cameraPosition.x = progress * MULTIPLIER
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+        })
+
+        navHeaderMainBinding.tvRedValue.text = resources.getString(R.string.red, 0.2)
+        navHeaderMainBinding.sbRed.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val value = progress / 10.0f
+                binding.mainLayout.backgroundColor.r = value
+                navHeaderMainBinding.tvRedValue.text = resources.getString(R.string.red, value)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+        })
+        navHeaderMainBinding.tvGreenValue.text = resources.getString(R.string.green, 0.2)
+        navHeaderMainBinding.sbGreen.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val value = progress / 10.0f
+                binding.mainLayout.backgroundColor.g = value
+                navHeaderMainBinding.tvGreenValue.text = resources.getString(R.string.green, value)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+        })
+        navHeaderMainBinding.tvBlueValue.text = resources.getString(R.string.blue, 0.2)
+        navHeaderMainBinding.sbBlue.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val value = progress / 10.0f
+                binding.mainLayout.backgroundColor.b = value
+                navHeaderMainBinding.tvBlueValue.text = resources.getString(R.string.blue, value)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+        })
+        navHeaderMainBinding.tvAlphaValue.text = resources.getString(R.string.alpha, 0.2)
+        navHeaderMainBinding.sbAlpha.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val value = progress / 10.0f
+                binding.mainLayout.backgroundColor.a = value
+                navHeaderMainBinding.tvAlphaValue.text = resources.getString(R.string.alpha, value)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+        })
+    }
+
+    private fun initScreen() {
         binding.mainLayout.initialize() {
+            updateData()
             val shapeFactory = binding.mainLayout.getShapeFactory()
+
+            binding.mainLayout.backgroundColor
 
             val triangleParams = TriangleParams(triangleCoords, Color(1f, 0f, 0f, 1f))
             val triangle = shapeFactory.createTriangle(triangleParams)
 
             val gridBorder = Border(
-                width = 0.0000000000000001f,
-                color = Color.GREEN,
-                type = LinkLineTypes.Strip
+                width = 0.0000000000000001f, color = Color.GREEN, type = LinkLineTypes.Strip
             )
             val gridParams = GridParams(
-                columns = 5,
-                rows = 10,
-                stepSize = 10f,
-                border = gridBorder
+                columns = 5, rows = 10, stepSize = 10f, border = gridBorder
             )
             val grid = shapeFactory.createGrid(gridParams)
 
@@ -111,26 +234,15 @@ class MainActivity : AppCompatActivity() {
             )
             val grid2 = shapeFactory.createGrid(grid2Params)
 
+            val rectangleParams = RectangleParams(x = -10, y = 10, width = -20, height = 20)
+            rectangleParams.color = Color(0f, 0.34f, 0.34f, 1f)
+            val rectangle = shapeFactory.createRectangle(rectangleParams)
+
             binding.mainLayout.getShapeController().add(grid)
             binding.mainLayout.getShapeController().add(grid2)
             binding.mainLayout.getShapeController().add(triangle)
+            binding.mainLayout.getShapeController().add(rectangle)
         }
-
-        actionBarDrawerToggle = ActionBarDrawerToggle(
-            this, binding.drawerLayout, R.string.nav_open, R.string.nav_close
-        )
-
-        // pass the Open and Close toggle for the drawer layout listener
-        // to toggle the button
-        binding.drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
-
-        // to make the Navigation drawer icon always appear on the action bar
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        updateData()
-        //region camera position
-        setOnSeekBarChangeListener()
-        //endregion
     }
 
     private fun setOnSeekBarChangeListener() {

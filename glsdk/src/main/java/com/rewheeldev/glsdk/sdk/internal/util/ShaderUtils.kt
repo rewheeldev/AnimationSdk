@@ -121,4 +121,32 @@ object FigureShader {
                 "void main() {" +
                 "  gl_FragColor = vColor;" +
                 "}"
+
+
+    const val SHADER_VARIABLE_APOSITION = "a_Position"
+    const val SHADER_VARIABLE_ACOLOR = "a_Color"
+
+    const val GRADIENT_VERTEX_SHADER_CODE = """
+        attribute vec4 a_Position;
+        attribute vec4 a_Color;
+
+        varying vec4 v_Color;
+
+        void main()
+        {
+            v_Color = a_Color;
+    
+            gl_Position =  a_Position;
+            gl_PointSize = 10.0;
+        }
+    """
+    const val GRADIENT_FRAGMENT_SHADER_CODE = """
+        precision mediump float;
+        varying vec4 v_Color;
+
+        void main()
+        {
+            gl_FragColor = v_Color;
+        }
+    """
 }

@@ -2,7 +2,7 @@ package com.rewheeldev.glsdk.sdk.api.factories
 
 import com.rewheeldev.glsdk.sdk.api.IShape
 import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
-import com.rewheeldev.glsdk.sdk.api.shape.point.PointParams
+import com.rewheeldev.glsdk.sdk.api.shape.rectangle.RectangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 
 /**
@@ -17,6 +17,13 @@ interface IShapeFactory {
      * @param params TriangleParams
      */
     fun createTriangle(params: TriangleParams): IShape
+
+    /**
+     * Create a rectangle with the given parameters.
+     *
+     * @param params RectangleParams
+     */
+    fun createRectangle(params: RectangleParams): IShape
 
     /**
      * Create a grid with the given parameters.
