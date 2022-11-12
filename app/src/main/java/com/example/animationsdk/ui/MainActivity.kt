@@ -18,7 +18,9 @@ import com.example.animationsdk.databinding.NavHeaderMainBinding
 import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
+import com.rewheeldev.glsdk.sdk.api.shape.line.LineParams
 import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
+import com.rewheeldev.glsdk.sdk.api.shape.point.PointParams
 import com.rewheeldev.glsdk.sdk.api.shape.rectangle.RectangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.util.OpenGLConfigurationInfoManager
@@ -72,6 +74,13 @@ class MainActivity : AppCompatActivity() {
         0f, 0f,
         9f, 0f,
         9f, 14f
+    )
+
+    val lineCoordsVertices = floatArrayOf(
+        -25f, 10f,
+        -35f, 15f,
+        -35f, 15f,
+        -45f, 25f
     )
 
     val rectangleCoords = Coords(rectangleCoordsVertices, CoordsPerVertex.VERTEX_2D)
@@ -238,10 +247,25 @@ class MainActivity : AppCompatActivity() {
             rectangleParams.color = Color(0f, 0.34f, 0.34f, 1f)
             val rectangle = shapeFactory.createRectangle(rectangleParams)
 
+            val pointParams = PointParams(
+                x = -30, y = 20, coordsPerVertex = CoordsPerVertex.VERTEX_2D,
+                color = Color.GOLD
+            )
+            val point = shapeFactory.createPoint(pointParams)
+
+            val lineParams = LineParams(
+                coords = Coords(lineCoordsVertices, CoordsPerVertex.VERTEX_2D),
+                color = Color.ROYAL,
+                coordsPerVertex = CoordsPerVertex.VERTEX_3D,
+            )
+            val line = shapeFactory.createLine(lineParams)
+
             binding.mainLayout.getShapeController().add(grid)
             binding.mainLayout.getShapeController().add(grid2)
             binding.mainLayout.getShapeController().add(triangle)
             binding.mainLayout.getShapeController().add(rectangle)
+            binding.mainLayout.getShapeController().add(point)
+            binding.mainLayout.getShapeController().add(line)
         }
     }
 

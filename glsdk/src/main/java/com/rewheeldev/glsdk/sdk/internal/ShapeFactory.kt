@@ -3,11 +3,12 @@ package com.rewheeldev.glsdk.sdk.internal
 import com.rewheeldev.glsdk.sdk.api.IShape
 import com.rewheeldev.glsdk.sdk.api.factories.IShapeFactory
 import com.rewheeldev.glsdk.sdk.api.model.Colors
-import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
+import com.rewheeldev.glsdk.sdk.api.shape.line.LineParams
 import com.rewheeldev.glsdk.sdk.api.shape.point.PointParams
 import com.rewheeldev.glsdk.sdk.api.shape.rectangle.RectangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
+import com.rewheeldev.glsdk.sdk.internal.gl.FigureType
 
 /**
  * @author Ivantsov Mykola
@@ -39,10 +40,19 @@ class ShapeFactory : IShapeFactory {
         )
     }
 
-    fun createPoint(params: PointParams): IShape {
+    override fun createPoint(params: PointParams): IShape {
         return Shape(
-            coords = Coords(params.coord.asFloatArray(), params.coordsPerVertex),
-            colors = Colors(params.color)
+            coords = params.coords,
+            colors = Colors(params.color),
+            figureType = FigureType.POINT
+        )
+    }
+
+    override fun createLine(params: LineParams): IShape {
+        return Shape(
+            coords = params.coords,
+            colors = Colors(params.color),
+            figureType = FigureType.LINE
         )
     }
 

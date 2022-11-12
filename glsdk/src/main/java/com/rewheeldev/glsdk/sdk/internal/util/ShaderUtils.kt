@@ -100,6 +100,8 @@ object FigureShader {
 
     const val SHADER_VARIABLE_VPOSITION = "vPosition"
     const val SHADER_VARIABLE_VCOLOR = "vColor"
+
+    //    const val SHADER_VARIABLE_VSIZE = "vSize"
     const val SHADER_VARIABLE_UMVPMATRIX = "uMVPMatrix"
 
     const val VERTEX_SHADER_CODE =
@@ -107,11 +109,13 @@ object FigureShader {
         // the coordinates of the objects that use this vertex shader
         "uniform mat4 uMVPMatrix;" +
                 "attribute vec4 vPosition;" +
+                "attribute float vSize;" +
                 "void main() {" +
                 // the matrix must be included as a modifier of gl_Position
                 // Note that the uMVPMatrix factor *must be first* in order
                 // for the matrix multiplication product to be correct.
                 "  gl_Position = uMVPMatrix * vPosition;" +
+                "  gl_PointSize = 10.0;" +
                 "}"
 
 

@@ -6,11 +6,13 @@ import com.rewheeldev.glsdk.sdk.api.model.Coord
 import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.api.shape.line.LinkLineTypes
+import com.rewheeldev.glsdk.sdk.internal.gl.FigureType
 
 internal class Shape(
     override val coords: Coords,
     override val colors: Colors = Colors(),
-    override val border: Border = Border()
+    override val border: Border = Border(),
+    override val figureType: FigureType = FigureType.TRIANGLE
 ) : IShape {
     override val id: Long = counterObject++
 

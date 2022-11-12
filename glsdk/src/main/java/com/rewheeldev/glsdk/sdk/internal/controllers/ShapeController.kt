@@ -10,6 +10,7 @@ class ShapeController : IShapeController {
     val removeListenerList = ArrayList<IRemoveShapeListener>()
 
     override fun add(shape: IShape): Boolean {
+        //todo: this is a really weird solution need to find time to make it in a different way
         addListenerList.forEach {
             it.addListener(shape)
         }
@@ -17,6 +18,7 @@ class ShapeController : IShapeController {
     }
 
     override fun remove(shape: IShape): Boolean {
+        //todo: this is a really weird solution need to find time to make it in a different way
         removeListenerList.forEach {
             it.addListener(shape)
         }

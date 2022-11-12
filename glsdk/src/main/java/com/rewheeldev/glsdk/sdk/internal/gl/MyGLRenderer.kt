@@ -34,7 +34,8 @@ class MyGLRenderer(
                     programId = triangleProgram,
                     coords = shape.coords,
                     colors = shape.colors,
-                    border = shape.border
+                    border = shape.border,
+                    figureType = shape.figureType
                 )
             )
         }

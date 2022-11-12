@@ -41,8 +41,6 @@ class Coords(
             array.add(Coord(coordsPerVertex))
         }
     }
-
-    constructor(type: FigureType) : this(type.countPoint)
     //endregion
 
     fun asSortedFloatBufferFromCoordsPerVertex(): FloatBuffer =
@@ -66,16 +64,4 @@ class Coords(
         }
         return pointArray.toFloatArray()
     }
-}
-
-enum class FigureType(val countPoint: Int) {
-    Other(0),
-    Point(1),
-    Line(2),
-    Triangle(3),
-    Square(4),
-    Pentagon(5),
-    Hexagon(6),
-    ;
-
 }

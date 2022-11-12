@@ -8,11 +8,13 @@ import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_VCOLO
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.SHADER_VARIABLE_VPOSITION
 import utils.Color
 
+//todo: this class must die
 data class TriangleInternal(
     override val id: Long,
     override var programId: Int,
     private val coords: Coords,
-    private val color: Color = Color.WHITE
+    private val color: Color = Color.WHITE,
+    override val figureType: FigureType
 ) : IShapeDraw {
 
 
