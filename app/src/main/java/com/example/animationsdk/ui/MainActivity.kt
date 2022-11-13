@@ -44,27 +44,53 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     var triangleCoordsPrevData = floatArrayOf(
-        0f, 0f, 0.0f, -25f, -25f, 0.0f, 25f, -25f, 0.0f
+        -25f, 25f, 10.0f,
+        -0f, 0f, 30.0f,
+        25f, 25f, 10.0f,
+    )
+    var triangleCoordsPrevData1 = floatArrayOf(
+
+
+        25f, 25f, 10.0f,
+        -0f, 0f, 30.0f,
+        25f, -25f, 10.0f,
+
+        )
+    var triangleCoordsPrevData2 = floatArrayOf(
+
+        25f, -25f, 10.0f,
+        -0f, 0f, 30.0f,
+        -25f, -25f, 10.0f,
+
+        )
+    var triangleCoordsPrevData3 = floatArrayOf(
+
+        -25f, -25f, 10.0f,
+        -0f, 0f, 30.0f,
+        -25f, 25f, 10.0f,
     )
     val offset = 0.7f
-    var triangleCoordsPrevData2 = floatArrayOf(
-        0f + offset, 0f + offset, -25f + offset, -20f + offset, 20f + offset, -20f + offset
-    )
+//    var triangleCoordsPrevData2 = floatArrayOf(
+//        0f + offset, 0f + offset, -25f + offset, -20f + offset, 20f + offset, -20f + offset
+//    )
 
     //здесь мы создаем замыкающий начальный квадрат
-    var triangleCoordsPrevData3 = floatArrayOf(
-        -20f + offset, -20f + offset,
-        -20f + offset, -10f + offset,
-        -10f + offset, -10f + offset,
-        -10f + offset, -20f + offset,
-        -20f + offset, -20f + offset,
-    )
+//    var triangleCoordsPrevData3 = floatArrayOf(
+//        -20f + offset, -20f + offset,
+//        -20f + offset, -10f + offset,
+//        -10f + offset, -10f + offset,
+//        -10f + offset, -20f + offset,
+//        -20f + offset, -20f + offset,
+//    )
 
     val triangleCoords = Coords(triangleCoordsPrevData, CoordsPerVertex.VERTEX_3D)
-    val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
+    val triangleCoords1 = Coords(triangleCoordsPrevData1, CoordsPerVertex.VERTEX_3D)
+    val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_3D)
+    val triangleCoords3 = Coords(triangleCoordsPrevData3, CoordsPerVertex.VERTEX_3D)
+//    val triangleCoords2 = Coords(triangleCoordsPrevData2, CoordsPerVertex.VERTEX_2D)
 
     //вершины которые будут отрисованы (в данном случае сетка из квадратов)
-    val triangleCoords5 = Coords(triangleCoordsPrevData3, CoordsPerVertex.VERTEX_2D)
+//    val triangleCoords5 = Coords(triangleCoordsPrevData3, CoordsPerVertex.VERTEX_2D)
 
     val rectangleCoordsVertices = floatArrayOf(
         0f, 0f,
@@ -220,30 +246,37 @@ class MainActivity : AppCompatActivity() {
 
             binding.mainLayout.backgroundColor
 
-            val triangleParams = TriangleParams(triangleCoords, Color(1f, 0f, 0f, 1f))
+            val triangleParams = TriangleParams(triangleCoords, Color.RED)
+            val triangleParams1 = TriangleParams(triangleCoords1, Color.GREEN)
+            val triangleParams2 = TriangleParams(triangleCoords2, Color.BLACK)
+            val triangleParams3 = TriangleParams(triangleCoords3, Color.MAGENTA)
+
             val triangle = shapeFactory.createTriangle(triangleParams)
+            val triangle1 = shapeFactory.createTriangle(triangleParams1)
+            val triangle2 = shapeFactory.createTriangle(triangleParams2)
+            val triangle3 = shapeFactory.createTriangle(triangleParams3)
 
             val gridBorder = Border(
                 width = 0.0000000000000001f, color = Color.GREEN, type = LinkLineTypes.Strip
             )
             val gridParams = GridParams(
-                columns = 5, rows = 10, stepSize = 10f, border = gridBorder
+                columns = 5, rows = 10, stepSize = 6f, border = gridBorder
             )
             val grid = shapeFactory.createGrid(gridParams)
 
             val grid2Border = Border(width = 0.00000000001f, type = LinkLineTypes.Strip)
             val grid2Params = GridParams(
-                x = -30f,
-                y = -50f,
+                x = -170f,
+                y = -170f,
                 z = 0.0001f,
-                columns = 10,
-                rows = 5,
-                stepSize = 6f,
+                columns = 60,
+                rows = 60,
+                stepSize = 10f,
                 border = grid2Border
             )
             val grid2 = shapeFactory.createGrid(grid2Params)
 
-            val rectangleParams = RectangleParams(x = -10, y = 10, width = -20, height = 20)
+            val rectangleParams = RectangleParams(x = -30, y = 30, width = 30, height = -30)
             rectangleParams.color = Color(0f, 0.34f, 0.34f, 1f)
             val rectangle = shapeFactory.createRectangle(rectangleParams)
 
@@ -260,12 +293,16 @@ class MainActivity : AppCompatActivity() {
             )
             val line = shapeFactory.createLine(lineParams)
 
-            binding.mainLayout.getShapeController().add(grid)
             binding.mainLayout.getShapeController().add(grid2)
-            binding.mainLayout.getShapeController().add(triangle)
-            binding.mainLayout.getShapeController().add(rectangle)
+            binding.mainLayout.getShapeController().add(grid)
             binding.mainLayout.getShapeController().add(point)
             binding.mainLayout.getShapeController().add(line)
+
+            binding.mainLayout.getShapeController().add(rectangle)
+            binding.mainLayout.getShapeController().add(triangle)
+            binding.mainLayout.getShapeController().add(triangle1)
+            binding.mainLayout.getShapeController().add(triangle2)
+            binding.mainLayout.getShapeController().add(triangle3)
         }
     }
 
