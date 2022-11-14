@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.databinding.NavHeaderMainBinding
+import com.rewheeldev.glsdk.sdk.api.model.Coord
 import com.rewheeldev.glsdk.sdk.api.model.Coords
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
@@ -144,88 +146,112 @@ class MainActivity : AppCompatActivity() {
         // to make the Navigation drawer icon always appear on the action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         //region camera position
-        setOnSeekBarChangeListener()
+        setCameraOnSeekBarChangeListeners()
         //endregion
         openGLConfigurationInfoManager.initActivityManager(this)
 
         navHeaderMainBinding.tvOpenGlVersion.text =
             "OpenGL SE version: ${openGLConfigurationInfoManager.openGLVersion}"
 
-        binding.sbCpX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.cameraPosition.x = progress * MULTIPLIER
-            }
+        bgRed()
+        bgGreen()
+        bgBlue()
+        bgAlpha()
+    }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+    private fun bgAlpha() {
 
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-
-        navHeaderMainBinding.tvRedValue.text = resources.getString(R.string.red, 0.2)
-        navHeaderMainBinding.sbRed.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val value = progress / 10.0f
-                binding.mainLayout.backgroundColor.r = value
-                navHeaderMainBinding.tvRedValue.text = resources.getString(R.string.red, value)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-        navHeaderMainBinding.tvGreenValue.text = resources.getString(R.string.green, 0.2)
-        navHeaderMainBinding.sbGreen.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val value = progress / 10.0f
-                binding.mainLayout.backgroundColor.g = value
-                navHeaderMainBinding.tvGreenValue.text = resources.getString(R.string.green, value)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-        navHeaderMainBinding.tvBlueValue.text = resources.getString(R.string.blue, 0.2)
-        navHeaderMainBinding.sbBlue.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val value = progress / 10.0f
-                binding.mainLayout.backgroundColor.b = value
-                navHeaderMainBinding.tvBlueValue.text = resources.getString(R.string.blue, value)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
-        navHeaderMainBinding.tvAlphaValue.text = resources.getString(R.string.alpha, 0.2)
-        navHeaderMainBinding.sbAlpha.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val value = progress / 10.0f
+        bgColorUI(
+            tvValue = navHeaderMainBinding.tvAlphaValue,
+            resId = R.string.alpha,
+            startValue = binding.mainLayout.backgroundColor.a,
+            seekBar = navHeaderMainBinding.sbAlpha,
+            newValue = { value ->
                 binding.mainLayout.backgroundColor.a = value
-                navHeaderMainBinding.tvAlphaValue.text = resources.getString(R.string.alpha, value)
+            }
+        )
+    }
+
+
+    private fun bgBlue() {
+        bgColorUI(
+            tvValue = navHeaderMainBinding.tvBlueValue,
+            resId = R.string.blue,
+            startValue = binding.mainLayout.backgroundColor.b,
+            seekBar = navHeaderMainBinding.sbBlue,
+            newValue = { value ->
+                binding.mainLayout.backgroundColor.b = value
+            }
+        )
+    }
+
+    private fun bgGreen() {
+        bgColorUI(
+            tvValue = navHeaderMainBinding.tvGreenValue,
+            resId = R.string.green,
+            startValue = binding.mainLayout.backgroundColor.g,
+            seekBar = navHeaderMainBinding.sbGreen,
+            newValue = { value ->
+                binding.mainLayout.backgroundColor.g = value
+            }
+        )
+    }
+
+    private fun bgRed() {
+        bgColorUI(
+            tvValue = navHeaderMainBinding.tvRedValue,
+            resId = R.string.red,
+            startValue = binding.mainLayout.backgroundColor.r,
+            seekBar = navHeaderMainBinding.sbRed,
+            newValue = { value ->
+                binding.mainLayout.backgroundColor.r = value
+            }
+        )
+    }
+
+    private fun cameraUI(
+        stringResId: Int,
+        startCameraValue: Float,
+        valueTV: TextView,
+        seekBar: SeekBar,
+        setValue: (Float) -> Unit
+    ) {
+        val tmp = (startCameraValue * 10).toInt()
+        Log.d("TAG_1", "tmp: $tmp")
+        seekBar.progress = (startCameraValue * 10).toInt()
+        valueTV.text = resources.getString(stringResId, startCameraValue)
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val value = progress * MULTIPLIER
+                valueTV.text = resources.getString(stringResId, value)
+                setValue(value)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                //do nothing
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                //do nothing
+            }
+        })
+    }
+
+    private fun bgColorUI(
+        tvValue: TextView,
+        resId: Int,
+        startValue: Float,
+        seekBar: SeekBar,
+        newValue: (Float) -> Unit
+    ) {
+        tvValue.text = resources.getString(resId, startValue)
+        seekBar.progress = (startValue * 10).toInt()
+        seekBar.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val value = progress / 10.0f
+                newValue(value)
+                tvValue.text = resources.getString(resId, value)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -239,9 +265,10 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+
     private fun initScreen() {
         binding.mainLayout.initialize() {
-            updateData()
+            binding.mainLayout.bindCamera(camera)
             val shapeFactory = binding.mainLayout.getShapeFactory()
 
             binding.mainLayout.backgroundColor
@@ -268,7 +295,7 @@ class MainActivity : AppCompatActivity() {
             val grid2Params = GridParams(
                 x = -170f,
                 y = -170f,
-                z = 0.0001f,
+                z = 0.0003f,
                 columns = 60,
                 rows = 60,
                 stepSize = 10f,
@@ -306,145 +333,100 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setOnSeekBarChangeListener() {
-        binding.sbCpX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.cameraPosition.x = progress * MULTIPLIER
-            }
+    private fun setCameraOnSeekBarChangeListeners() {
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        //region cameraPosition
+        cameraUI(
+            stringResId = R.string.x,
+            startCameraValue = camera.cameraPosition.x,
+            valueTV = binding.tvCpX,
+            seekBar = binding.sbCpX,
 
-            }
+            ) { value ->
+            camera.cameraPosition.x = value
+        }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+        cameraUI(
+            stringResId = R.string.y,
+            startCameraValue = camera.cameraPosition.y,
+            valueTV = binding.tvCpY,
+            seekBar = binding.sbCpY,
 
-            }
+            ) { value ->
+            camera.cameraPosition.y = value
+        }
 
-        })
+        cameraUI(
+            stringResId = R.string.z,
+            startCameraValue = camera.cameraPosition.z,
+            valueTV = binding.tvCpZ,
+            seekBar = binding.sbCpZ,
 
-        binding.sbCpY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.cameraPosition.y = progress * MULTIPLIER
-            }
+            ) { value ->
+            camera.cameraPosition.z = value
+        }
+        //endregion
+        //region cameraDirectionPoint
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        cameraUI(
+            stringResId = R.string.x,
+            startCameraValue = camera.cameraDirectionPoint.x,
+            valueTV = binding.tvCpointX,
+            seekBar = binding.sbCpointX,
 
-            }
+            ) { value ->
+            camera.cameraDirectionPoint.x = value
+        }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+        cameraUI(
+            stringResId = R.string.y,
+            startCameraValue = camera.cameraDirectionPoint.y,
+            valueTV = binding.tvCpointY,
+            seekBar = binding.sbCpointY,
 
-            }
+            ) { value ->
+            camera.cameraDirectionPoint.y = value
+        }
 
-        })
+        cameraUI(
+            stringResId = R.string.z,
+            startCameraValue = camera.cameraDirectionPoint.z,
+            valueTV = binding.tvCpointZ,
+            seekBar = binding.sbCpointZ,
 
-        binding.sbCpZ.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.cameraPosition.z = progress * MULTIPLIER
-                Log.d("TAG_1", "STEP: $progress")
-            }
+            ) { value ->
+            camera.cameraDirectionPoint.z = value
+        }
+        //endregion
+        //region upVector
+        cameraUI(
+            stringResId = R.string.x,
+            startCameraValue = camera.upVector.x,
+            valueTV = binding.tvVectorX,
+            seekBar = binding.sbVectorX,
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            ) { value ->
+            camera.upVector.x = value
+        }
+        cameraUI(
+            stringResId = R.string.y,
+            startCameraValue = camera.upVector.y,
+            valueTV = binding.tvVectorY,
+            seekBar = binding.sbVectorY,
 
-            }
+            ) { value ->
+            camera.upVector.y = value
+        }
+        cameraUI(
+            stringResId = R.string.z,
+            startCameraValue = camera.upVector.z,
+            valueTV = binding.tvVectorZ,
+            seekBar = binding.sbVectorZ,
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-
-
-        binding.sbCpointX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.cameraDirectionPoint.x = progress * MULTIPLIER
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-
-        binding.sbCpointY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.cameraDirectionPoint.y = progress * MULTIPLIER
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-
-        binding.sbCpointZ.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.cameraDirectionPoint.z = progress * MULTIPLIER
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-
-
-
-        binding.sbVectorX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.upVector.x = progress * MULTIPLIER
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-
-        binding.sbVectorY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.upVector.y = progress * MULTIPLIER
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
-
-        binding.sbVectorZ.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                camera.upVector.z = progress * MULTIPLIER
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
+            ) { value ->
+            camera.upVector.z = value
+        }
+        //endregion
     }
 
     // override the onOptionsItemSelected()
@@ -458,10 +440,11 @@ class MainActivity : AppCompatActivity() {
         } else super.onOptionsItemSelected(item)
     }
 
-    val camera = CameraView()
-    private fun updateData() {
-        binding.mainLayout.bindCamera(camera)
-    }
+    val camera = CameraView(
+        cameraPosition = Coord(x = 0f, y = 5.94f, z = 196.26f),
+        cameraDirectionPoint = Coord(x = 2.55f, y = 99.409996f)
+    )
+
 
     override fun onPause() {
         super.onPause()

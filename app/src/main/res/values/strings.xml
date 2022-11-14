@@ -4,8 +4,13 @@
     <!-- to toggle the open close button of the navigation drawer -->
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
+
     <string name="red">Red(%s)</string>
     <string name="green">Green(%s)</string>
     <string name="blue">Blue(%s)</string>
     <string name="alpha">Alpha(%s)</string>
+
+    <string name="x">x(%s)</string>
+    <string name="y">y(%s)</string>
+    <string name="z">z(%s)</string>
 </resources>

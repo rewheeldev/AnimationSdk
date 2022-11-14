@@ -56,10 +56,20 @@ class ViewScene(var camera: CameraView = CameraView()) {
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.frustumM(
-            projectionMatrix, 0,
-            left, right, bottom, top,
-            camera.nearVision, camera.farVision
+//        Matrix.frustumM(
+//            projectionMatrix, 0,
+//            left, right, bottom, top,
+//            camera.nearVision, camera.farVision
+//        )
+        //Unfortunately,
+        //frustumM() has a bug that affects some types of projections, and perspectiveM()
+        //was only introduced in Android Ice Cream Sandwich and is not available on
+        //earlier versions of Android.
+
+        //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
+        Matrix.perspectiveM(
+            projectionMatrix, 0, 100f, sceneWidth.toFloat()
+                    / sceneHeight.toFloat(), camera.farVision, camera.nearVision
         )
     }
 }
