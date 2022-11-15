@@ -32,6 +32,7 @@ class Coord(
             else coordData[2]
         }
         set(value) {
+            if (coordData.size < 3) return
             coordData[2] = value
         }
 
@@ -74,5 +75,10 @@ class Coord(
         )
         else floatArrayOf(coordData[0], coordData[1], coordData[2])
     }
+
+    override fun toString(): String {
+        return "Coord(x=$x, y=$y, z=$z)"
+    }
+
 
 }

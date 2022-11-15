@@ -337,9 +337,63 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.96107054" />
 
+        <Button
+            android:id="@+id/btn_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Up"
+            app:layout_constraintBottom_toTopOf="@+id/btn_left"
+            app:layout_constraintEnd_toEndOf="@+id/btn_down"
+            app:layout_constraintStart_toStartOf="@+id/btn_down" />
+
+        <Button
+            android:id="@+id/btn_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="left"
+            app:layout_constraintBottom_toTopOf="@+id/btn_down"
+            app:layout_constraintEnd_toStartOf="@+id/btn_down" />
+
+        <Button
+            android:id="@+id/btn_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Right"
+            app:layout_constraintBottom_toTopOf="@+id/btn_down"
+            app:layout_constraintEnd_toStartOf="@+id/gl_end"
+            app:layout_constraintTop_toTopOf="@+id/btn_left" />
+
+        <Button
+            android:id="@+id/btn_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="down"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_right" />
+
+        <Button
+            android:id="@+id/btn_zoom_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="zoom out"
+            app:layout_constraintStart_toEndOf="@+id/btn_zoom_in"
+            app:layout_constraintTop_toTopOf="@+id/btn_zoom_in" />
+
+        <Button
+            android:id="@+id/btn_zoom_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="zoom in"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/gl_start" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- this the navigation view which draws and shows the navigation drawer -->
     <!-- include the menu created in the menu folder -->
+
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"

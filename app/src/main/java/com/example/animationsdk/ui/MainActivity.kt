@@ -29,6 +29,8 @@ import com.rewheeldev.glsdk.sdk.api.util.OpenGLConfigurationInfoManager
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 import utils.Color
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class MainActivity : AppCompatActivity() {
@@ -157,6 +159,88 @@ class MainActivity : AppCompatActivity() {
         bgGreen()
         bgBlue()
         bgAlpha()
+
+        addControllers()
+    }
+
+    val cameraSpeed = 5f
+
+    fun addControllers() {
+        zoomIn()
+        zoomOut()
+
+        binding.btnDown.setOnClickListener {
+            camera.cameraPosition.x -= cameraSpeed * camera.cameraDirectionPoint.x
+            camera.cameraPosition.y -= cameraSpeed * camera.cameraDirectionPoint.y
+            camera.cameraPosition.z -= cameraSpeed * camera.cameraDirectionPoint.z
+            Log.d("TAG_1", "DOWN | cameraPosition: ${camera.cameraPosition}")
+        }
+        binding.btnUp.setOnClickListener {
+            camera.cameraPosition.x += cameraSpeed * camera.cameraDirectionPoint.x
+            camera.cameraPosition.y += cameraSpeed * camera.cameraDirectionPoint.y
+            camera.cameraPosition.z += cameraSpeed * camera.cameraDirectionPoint.z
+            Log.d("TAG_1", "UP | cameraPosition: ${camera.cameraPosition}")
+        }
+        binding.btnLeft.setOnClickListener {
+            //https://registry.khronos.org/OpenGL-Refpages/gl4/html/cross.xhtml
+            val resultCross = cross(
+                floatArrayOf(
+                    camera.cameraDirectionPoint.x,
+                    camera.cameraDirectionPoint.y,
+                    camera.cameraDirectionPoint.z
+                ),
+                floatArrayOf(
+                    camera.upVector.x,
+                    camera.upVector.y,
+                    camera.upVector.z
+                )
+            )
+            camera.cameraPosition.x -= cameraSpeed * resultCross[0]
+            camera.cameraPosition.y -= cameraSpeed * resultCross[1]
+            camera.cameraPosition.z -= cameraSpeed * resultCross[2]
+            Log.d("TAG_1", "LEFT | cameraPosition: ${camera.cameraPosition}")
+        }
+        binding.btnRight.setOnClickListener {
+            //https://registry.khronos.org/OpenGL-Refpages/gl4/html/cross.xhtml
+            val resultCross = cross(
+                floatArrayOf(
+                    camera.cameraDirectionPoint.x,
+                    camera.cameraDirectionPoint.y,
+                    camera.cameraDirectionPoint.z
+                ),
+                floatArrayOf(
+                    camera.upVector.x,
+                    camera.upVector.y,
+                    camera.upVector.z
+                )
+            )
+            camera.cameraPosition.x += cameraSpeed * resultCross[0]
+            camera.cameraPosition.y += cameraSpeed * resultCross[1]
+            camera.cameraPosition.z += cameraSpeed * resultCross[2]
+            Log.d("TAG_1", "RIGHT | cameraPosition: ${camera.cameraPosition}")
+        }
+
+    }
+
+    fun cross(x: FloatArray, y: FloatArray): FloatArray {
+        val resultX = x[1] * y[2] - y[1] * x[2]
+        val resultY = x[2] * y[0] - y[2] * x[0]
+        val resultZ = x[0] * y[1] - y[0] * x[1]
+        return floatArrayOf(resultX, resultY, resultZ)
+    }
+
+
+    fun zoomIn() {
+        binding.btnZoomIn.setOnClickListener {
+            //do nothing
+        }
+
+    }
+
+    fun zoomOut() {
+        binding.btnZoomOut.setOnClickListener {
+            //do nothing
+        }
     }
 
     private fun bgAlpha() {
@@ -330,7 +414,30 @@ class MainActivity : AppCompatActivity() {
             binding.mainLayout.getShapeController().add(triangle1)
             binding.mainLayout.getShapeController().add(triangle2)
             binding.mainLayout.getShapeController().add(triangle3)
+
+//            rotateCamera()
         }
+    }
+
+    val radius = 1.0
+
+    fun rotateCamera() {
+        Thread {
+            repeat(10_000) {
+                val camX = sin(System.currentTimeMillis() * radius) * 300
+                val camZ = cos(System.currentTimeMillis() * radius) * 300
+//                val camX = System.currentTimeMillis() * radius % 1000
+//                val camZ = System.currentTimeMillis() * radius % 1000
+                runOnUiThread {
+                    camera.cameraPosition.x = camX.toFloat()
+                    camera.cameraPosition.z = camZ.toFloat()
+                }
+                Log.d("TAG_1", "cameraPosition: ${camera.cameraPosition}")
+                Thread.sleep(600)
+            }
+
+        }.start()
+
     }
 
     private fun setCameraOnSeekBarChangeListeners() {
@@ -441,8 +548,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     val camera = CameraView(
-        cameraPosition = Coord(x = 0f, y = 5.94f, z = 196.26f),
-        cameraDirectionPoint = Coord(x = 2.55f, y = 99.409996f)
+//        cameraPosition = Coord(x = 0f, y = 5.94f, z = 196.26f),
+//        cameraDirectionPoint = Coord(x = 2.55f, y = 99.409996f)
+        cameraPosition = Coord(x = 0f, y = 0.0f, z = 196.26f),
+        cameraDirectionPoint = Coord(x = 0.0f, y = 0.0f, z = -1.0f),
+        upVector = Coord(x = 0.0f, y = 1.0f, z = 0.0f)
     )
 
 
