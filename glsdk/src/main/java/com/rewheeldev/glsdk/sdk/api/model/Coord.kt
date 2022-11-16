@@ -3,6 +3,7 @@ package com.rewheeldev.glsdk.sdk.api.model
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 import com.rewheeldev.glsdk.sdk.internal.asSortedFloatBuffer
 import java.nio.FloatBuffer
+import kotlin.math.sqrt
 
 class Coord(
     val coordsPerVertex: CoordsPerVertex = CoordsPerVertex.VERTEX_3D,
@@ -76,9 +77,50 @@ class Coord(
         else floatArrayOf(coordData[0], coordData[1], coordData[2])
     }
 
+    operator fun plus(coord: Coord): Coord {
+        return Coord(x + coord.x, y + coord.y, z + coord.z)
+    }
+
+    operator fun minus(coord: Coord): Coord {
+        return Coord(x - coord.x, y - coord.y, z - coord.z)
+    }
+
+    operator fun times(times: Float): Coord {
+        return Coord(x * times, y * times, z * times)
+    }
+
     override fun toString(): String {
         return "Coord(x=$x, y=$y, z=$z)"
     }
 
 
+}
+
+operator fun Float.times(coord: Coord): Coord {
+    return Coord(this * coord.x, this * coord.y, this * coord.z)
+}
+
+fun Coord.cross(second: Coord): Coord {
+    //https://registry.khronos.org/OpenGL-Refpages/gl4/html/cross.xhtml
+
+    val x = this.y * second.z - second.y * this.z
+    val y = this.z * second.x - second.z * this.x
+    val z = this.x * second.y - second.x * this.y
+    return Coord(x = x, y = y, z = z)
+}
+
+fun Coord.normalize(): Coord {
+    val length =
+        sqrt((this.x * this.x.toDouble()) + (this.y * this.y.toDouble()) + (this.z * this.z.toDouble()))
+
+    return Coord(x = (x / length).toFloat(), y = (y / length).toFloat(), z = (z / length).toFloat())
+}
+
+fun cross(x: FloatArray, y: FloatArray): FloatArray {
+    //https://registry.khronos.org/OpenGL-Refpages/gl4/html/cross.xhtml
+
+    val resultX = x[1] * y[2] - y[1] * x[2]
+    val resultY = x[2] * y[0] - y[2] * x[0]
+    val resultZ = x[0] * y[1] - y[0] * x[1]
+    return floatArrayOf(resultX, resultY, resultZ)
 }

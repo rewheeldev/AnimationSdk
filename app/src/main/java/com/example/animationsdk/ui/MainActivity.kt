@@ -6,7 +6,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -16,8 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.databinding.NavHeaderMainBinding
-import com.rewheeldev.glsdk.sdk.api.model.Coord
-import com.rewheeldev.glsdk.sdk.api.model.Coords
+import com.rewheeldev.glsdk.sdk.api.model.*
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
 import com.rewheeldev.glsdk.sdk.api.shape.line.LineParams
@@ -28,12 +29,14 @@ import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.util.OpenGLConfigurationInfoManager
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
+import com.rewheeldev.glsdk.sdk.internal.directionPoint3d
 import utils.Color
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.properties.Delegates
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnTouchListener {
     var _binding: ActivityMainBinding? = null
     val binding: ActivityMainBinding
         get() {
@@ -115,6 +118,9 @@ class MainActivity : AppCompatActivity() {
 
     val rectangleCoords = Coords(rectangleCoordsVertices, CoordsPerVertex.VERTEX_2D)
 
+    var lastX: Float = 400f
+    var lastY: Float = 300f
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,7 +130,6 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
-
         _binding = ActivityMainBinding.inflate(layoutInflater)
         val header = binding.navigationView.getHeaderView(0)
         _navHeaderMainBinding = NavHeaderMainBinding.bind(header)
@@ -163,6 +168,19 @@ class MainActivity : AppCompatActivity() {
         addControllers()
     }
 
+    var cameraDirectionPointObserver by Delegates.observable(Coord()) { property, oldValue, newValue ->
+        binding.tvCpointX.text =
+            resources.getString(R.string.x, newValue.x)
+        binding.sbCpointX.progress = newValue.x.toInt()
+
+        binding.tvCpointY.text =
+            resources.getString(R.string.y, newValue.y)
+        binding.sbCpointY.progress = newValue.y.toInt()
+
+        binding.tvCpointZ.text =
+            resources.getString(R.string.z, newValue.z)
+        binding.sbCpointZ.progress = newValue.z.toInt()
+    }
     val cameraSpeed = 5f
 
     fun addControllers() {
@@ -170,65 +188,25 @@ class MainActivity : AppCompatActivity() {
         zoomOut()
 
         binding.btnDown.setOnClickListener {
-            camera.cameraPosition.x -= cameraSpeed * camera.cameraDirectionPoint.x
-            camera.cameraPosition.y -= cameraSpeed * camera.cameraDirectionPoint.y
-            camera.cameraPosition.z -= cameraSpeed * camera.cameraDirectionPoint.z
-            Log.d("TAG_1", "DOWN | cameraPosition: ${camera.cameraPosition}")
+            camera.cameraPosition -= cameraSpeed * camera.cameraDirectionPoint
+            printDebugLog("DOWN | cameraPosition: ${camera.cameraPosition}")
         }
         binding.btnUp.setOnClickListener {
-            camera.cameraPosition.x += cameraSpeed * camera.cameraDirectionPoint.x
-            camera.cameraPosition.y += cameraSpeed * camera.cameraDirectionPoint.y
-            camera.cameraPosition.z += cameraSpeed * camera.cameraDirectionPoint.z
-            Log.d("TAG_1", "UP | cameraPosition: ${camera.cameraPosition}")
+            camera.cameraPosition += cameraSpeed * camera.cameraDirectionPoint
+            printDebugLog("UP | cameraPosition: ${camera.cameraPosition}")
         }
         binding.btnLeft.setOnClickListener {
             //https://registry.khronos.org/OpenGL-Refpages/gl4/html/cross.xhtml
-            val resultCross = cross(
-                floatArrayOf(
-                    camera.cameraDirectionPoint.x,
-                    camera.cameraDirectionPoint.y,
-                    camera.cameraDirectionPoint.z
-                ),
-                floatArrayOf(
-                    camera.upVector.x,
-                    camera.upVector.y,
-                    camera.upVector.z
-                )
-            )
-            camera.cameraPosition.x -= cameraSpeed * resultCross[0]
-            camera.cameraPosition.y -= cameraSpeed * resultCross[1]
-            camera.cameraPosition.z -= cameraSpeed * resultCross[2]
-            Log.d("TAG_1", "LEFT | cameraPosition: ${camera.cameraPosition}")
+            val resultCross = camera.cameraDirectionPoint.cross(camera.upVector)
+            camera.cameraPosition -= cameraSpeed * resultCross.normalize()
+            printDebugLog("LEFT | cameraPosition: ${camera.cameraPosition}")
         }
         binding.btnRight.setOnClickListener {
-            //https://registry.khronos.org/OpenGL-Refpages/gl4/html/cross.xhtml
-            val resultCross = cross(
-                floatArrayOf(
-                    camera.cameraDirectionPoint.x,
-                    camera.cameraDirectionPoint.y,
-                    camera.cameraDirectionPoint.z
-                ),
-                floatArrayOf(
-                    camera.upVector.x,
-                    camera.upVector.y,
-                    camera.upVector.z
-                )
-            )
-            camera.cameraPosition.x += cameraSpeed * resultCross[0]
-            camera.cameraPosition.y += cameraSpeed * resultCross[1]
-            camera.cameraPosition.z += cameraSpeed * resultCross[2]
-            Log.d("TAG_1", "RIGHT | cameraPosition: ${camera.cameraPosition}")
+            val resultCross = camera.cameraDirectionPoint.cross(camera.upVector)
+            camera.cameraPosition += cameraSpeed * resultCross.normalize()
+            printDebugLog("RIGHT | cameraPosition: ${camera.cameraPosition}")
         }
-
     }
-
-    fun cross(x: FloatArray, y: FloatArray): FloatArray {
-        val resultX = x[1] * y[2] - y[1] * x[2]
-        val resultY = x[2] * y[0] - y[2] * x[0]
-        val resultZ = x[0] * y[1] - y[0] * x[1]
-        return floatArrayOf(resultX, resultY, resultZ)
-    }
-
 
     fun zoomIn() {
         binding.btnZoomIn.setOnClickListener {
@@ -298,17 +276,14 @@ class MainActivity : AppCompatActivity() {
         startCameraValue: Float,
         valueTV: TextView,
         seekBar: SeekBar,
-        setValue: (Float) -> Unit
+        onProgressListener: (Int) -> Float
     ) {
-        val tmp = (startCameraValue * 10).toInt()
-        Log.d("TAG_1", "tmp: $tmp")
-        seekBar.progress = (startCameraValue * 10).toInt()
+        seekBar.progress = (startCameraValue).toInt()
         valueTV.text = resources.getString(stringResId, startCameraValue)
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val value = progress * MULTIPLIER
+                val value = onProgressListener(progress)
                 valueTV.text = resources.getString(stringResId, value)
-                setValue(value)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -351,6 +326,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initScreen() {
+        binding.mainLayout.setOnTouchListener(this)
         binding.mainLayout.initialize() {
             binding.mainLayout.bindCamera(camera)
             val shapeFactory = binding.mainLayout.getShapeFactory()
@@ -432,7 +408,7 @@ class MainActivity : AppCompatActivity() {
                     camera.cameraPosition.x = camX.toFloat()
                     camera.cameraPosition.z = camZ.toFloat()
                 }
-                Log.d("TAG_1", "cameraPosition: ${camera.cameraPosition}")
+                printDebugLog("camera: $camera")
                 Thread.sleep(600)
             }
 
@@ -449,8 +425,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvCpX,
             seekBar = binding.sbCpX,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.cameraPosition.x = value
+            value
         }
 
         cameraUI(
@@ -459,8 +437,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvCpY,
             seekBar = binding.sbCpY,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.cameraPosition.y = value
+            value
         }
 
         cameraUI(
@@ -469,8 +449,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvCpZ,
             seekBar = binding.sbCpZ,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.cameraPosition.z = value
+            value
         }
         //endregion
         //region cameraDirectionPoint
@@ -481,8 +463,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvCpointX,
             seekBar = binding.sbCpointX,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.cameraDirectionPoint.x = value
+            value
         }
 
         cameraUI(
@@ -491,8 +475,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvCpointY,
             seekBar = binding.sbCpointY,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.cameraDirectionPoint.y = value
+            value
         }
 
         cameraUI(
@@ -501,8 +487,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvCpointZ,
             seekBar = binding.sbCpointZ,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.cameraDirectionPoint.z = value
+            value
         }
         //endregion
         //region upVector
@@ -512,8 +500,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvVectorX,
             seekBar = binding.sbVectorX,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.upVector.x = value
+            value
         }
         cameraUI(
             stringResId = R.string.y,
@@ -521,8 +511,10 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvVectorY,
             seekBar = binding.sbVectorY,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.upVector.y = value
+            value
         }
         cameraUI(
             stringResId = R.string.z,
@@ -530,8 +522,51 @@ class MainActivity : AppCompatActivity() {
             valueTV = binding.tvVectorZ,
             seekBar = binding.sbVectorZ,
 
-            ) { value ->
+            ) { progress ->
+            val value = progress * MULTIPLIER
             camera.upVector.z = value
+            value
+        }
+        //endregion
+        //region Far vision
+        cameraUI(
+            stringResId = R.string.far_vision,
+            startCameraValue = camera.farVision,
+            valueTV = binding.tvFarVision,
+            seekBar = binding.sbFarVision,
+
+            ) { progress ->
+            val value = progress * MULTIPLIER
+            camera.farVision = value
+            value
+        }
+        //endregion
+        //region Near vision
+
+        cameraUI(
+            stringResId = R.string.near_vision,
+            startCameraValue = camera.nearVision,
+            valueTV = binding.tvNearVision,
+            seekBar = binding.sbNearVision,
+
+            ) { progress ->
+            val value = progress * MULTIPLIER
+            camera.nearVision = value
+            value
+        }
+        //endregion
+        //region FovY
+
+        cameraUI(
+            stringResId = R.string.fov_y,
+            startCameraValue = camera.fovY,
+            valueTV = binding.tvFovY,
+            seekBar = binding.sbFovY,
+
+            ) { progress ->
+            val value = progress * 0.1f
+            camera.fovY = value
+            value
         }
         //endregion
     }
@@ -555,6 +590,9 @@ class MainActivity : AppCompatActivity() {
         upVector = Coord(x = 0.0f, y = 1.0f, z = 0.0f)
     )
 
+    private fun printDebugLog(msg: String) {
+        Log.d("TAG_1", "Thread name: ${Thread.currentThread().name} | msg: $msg")
+    }
 
     override fun onPause() {
         super.onPause()
@@ -581,5 +619,56 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val MULTIPLIER = 0.01f
+        const val SENSITIVITY = 0.5f
+    }
+
+    var pitch: Float = 0f
+    var yaw: Float = 90f
+
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        v?.performClick()
+        super.onTouchEvent(event)
+        if (event == null) {
+            return false
+        }
+
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                lastX = event.x
+                lastY = event.y
+                printDebugLog("ACTION_DOWN event.x: ${event.x}, y: ${event.y}")
+            }
+            MotionEvent.ACTION_MOVE -> {
+                var xoffset: Float = event.x - lastX
+                var yoffset: Float =
+                    lastY - event.y // reversed since y-coordinates range from bottom to top
+
+                lastX = event.x
+                lastY = event.y
+
+                xoffset *= SENSITIVITY
+                yoffset *= SENSITIVITY
+
+                yaw += xoffset
+                pitch += yoffset
+                val newDirection = directionPoint3d(
+                    pitch = pitch,
+                    yaw = yaw
+                ).normalize()
+                printDebugLog("ACTION_MOVE newDirection.normalize(): ${newDirection.normalize()}")
+                camera.cameraDirectionPoint.x = newDirection.x
+                camera.cameraDirectionPoint.y = newDirection.y
+                camera.cameraDirectionPoint.z = newDirection.z
+                cameraDirectionPointObserver = camera.cameraDirectionPoint
+                printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
+            }
+            MotionEvent.ACTION_UP -> {
+                printDebugLog("ACTION_UP event.x: ${event.x}, y: ${event.y}")
+            }
+
+        }
+
+
+        return true
     }
 }

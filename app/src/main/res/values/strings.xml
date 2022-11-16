@@ -13,4 +13,8 @@
     <string name="x">x(%s)</string>
     <string name="y">y(%s)</string>
     <string name="z">z(%s)</string>
+
+    <string name="far_vision">far(%s)</string>
+    <string name="near_vision">near(%s)</string>
+    <string name="fov_y">fovY(%s)</string>
 </resources>

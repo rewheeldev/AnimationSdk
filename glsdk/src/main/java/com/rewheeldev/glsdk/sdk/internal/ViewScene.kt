@@ -152,3 +152,25 @@ fun directionPoint3d(
     val z = cameraPosition.z + radius * cos(angleZr)
     return Coord(x.toFloat(), y.toFloat(), z.toFloat())
 }
+
+fun directionPoint3d(
+    pitch: Float,
+    yaw: Float = 90f,
+): Coord {
+    //https://learnopengl.com/Getting-Started/Camera
+    var pitchLocal: Float = pitch
+    if (pitch > 89.0f) {
+        pitchLocal = 89.0f
+    }
+    if (pitch < -89.0f) {
+        pitchLocal = -89.0f
+    }
+    val direction = Coord()
+    direction.x =
+        (cos(Math.toRadians(yaw.toDouble())) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+    direction.y = sin(Math.toRadians(pitchLocal.toDouble())).toFloat()
+    direction.z =
+        sin(x = Math.toRadians(yaw.toDouble()) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+
+    return direction
+}

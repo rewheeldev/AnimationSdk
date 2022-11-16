@@ -2,4 +2,7 @@
 <resources>
     <integer name="camera_max_value">100000</integer>
     <integer name="camera_min_value">-100000</integer>
+
+    <integer name="fov_y_min_value">0</integer>
+    <integer name="fov_y_max_value">1000</integer>
 </resources>

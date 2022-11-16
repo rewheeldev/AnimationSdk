@@ -31,6 +31,8 @@
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:text="Camera position"
+            android:textColor="@color/category"
+            android:textSize="@dimen/category_text_size"
             app:layout_constraintStart_toStartOf="@+id/gl_start"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,8 +50,10 @@
                 android:id="@+id/tv_cp_x"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/x" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/x"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_cp_x"
@@ -76,8 +80,10 @@
                 android:id="@+id/tv_cp_y"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/y" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/y"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_cp_y"
@@ -104,8 +110,10 @@
                 android:id="@+id/tv_cp_z"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/z" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/z"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_cp_z"
@@ -129,6 +137,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Camera point direction"
+            android:textColor="@color/category"
+            android:textSize="@dimen/category_text_size"
             app:layout_constraintStart_toStartOf="@+id/ll_cp_z"
             app:layout_constraintTop_toBottomOf="@+id/ll_cp_z" />
 
@@ -147,8 +157,10 @@
                 android:id="@+id/tv_cpoint_x"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/x" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/x"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_cpoint_x"
@@ -175,8 +187,10 @@
                 android:id="@+id/tv_cpoint_y"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/y" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/y"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_cpoint_y"
@@ -203,8 +217,10 @@
                 android:id="@+id/tv_cpoint_z"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/z" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/z"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_cpoint_z"
@@ -225,6 +241,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Up Vector"
+            android:textColor="@color/category"
+            android:textSize="@dimen/category_text_size"
             app:layout_constraintStart_toStartOf="@+id/ll_cpoint_z"
             app:layout_constraintTop_toBottomOf="@+id/ll_cpoint_z" />
 
@@ -244,8 +262,10 @@
                 android:id="@+id/tv_vector_x"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/x" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/x"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_vector_x"
@@ -272,8 +292,10 @@
                 android:id="@+id/tv_vector_y"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/y" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/y"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_vector_y"
@@ -300,8 +322,10 @@
                 android:id="@+id/tv_vector_z"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="100dp"
-                android:text="@string/z" />
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/z"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
 
             <SeekBar
                 android:id="@+id/sb_vector_z"
@@ -315,12 +339,145 @@
 
         <!--        endregion-->
 
+        <!-- region Far vision      -->
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Far vision"
+            android:textColor="@color/category"
+            android:textSize="@dimen/category_text_size"
+            app:layout_constraintStart_toStartOf="@+id/ll_vector_z"
+            app:layout_constraintTop_toBottomOf="@+id/ll_vector_z" />
+
+
+        <LinearLayout
+            android:id="@+id/ll_far_vision"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="left"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toStartOf="@+id/gl_end"
+            app:layout_constraintStart_toStartOf="@+id/textView4"
+            app:layout_constraintTop_toBottomOf="@+id/textView4">
+
+            <TextView
+                android:id="@+id/tv_far_vision"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/far_vision"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
+
+            <SeekBar
+                android:id="@+id/sb_far_vision"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="@integer/camera_max_value"
+                android:min="@integer/camera_min_value"
+                android:progress="0"
+                android:visibility="gone" />
+
+        </LinearLayout>
+        <!-- endregion-->
+        <!-- region Near vision      -->
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Near vision"
+            android:textColor="@color/category"
+            android:textSize="@dimen/category_text_size"
+            app:layout_constraintStart_toStartOf="@+id/ll_far_vision"
+            app:layout_constraintTop_toBottomOf="@+id/ll_far_vision" />
+
+
+        <LinearLayout
+            android:id="@+id/ll_near_vision"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="left"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toStartOf="@+id/gl_end"
+            app:layout_constraintStart_toStartOf="@+id/textView5"
+            app:layout_constraintTop_toBottomOf="@+id/textView5">
+
+            <TextView
+                android:id="@+id/tv_near_vision"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/near_vision"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
+
+            <SeekBar
+                android:id="@+id/sb_near_vision"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="@integer/camera_max_value"
+                android:min="@integer/camera_min_value"
+                android:progress="0"
+                android:visibility="gone" />
+
+        </LinearLayout>
+        <!-- endregion-->
+        <!-- region Near vision      -->
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Fov Y"
+            android:textColor="@color/category"
+            android:textSize="@dimen/category_text_size"
+            app:layout_constraintStart_toStartOf="@+id/ll_near_vision"
+            app:layout_constraintTop_toBottomOf="@+id/ll_near_vision" />
+
+
+        <LinearLayout
+            android:id="@+id/ll_fov_y"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="left"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toStartOf="@+id/gl_end"
+            app:layout_constraintStart_toStartOf="@+id/textView6"
+            app:layout_constraintTop_toBottomOf="@+id/textView6">
+
+            <TextView
+                android:id="@+id/tv_fov_y"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="@dimen/value_text_width"
+                android:text="@string/fov_y"
+                android:textColor="@color/red"
+                android:textSize="@dimen/value_text_size" />
+
+            <SeekBar
+                android:id="@+id/sb_fov_y"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="@integer/fov_y_max_value"
+                android:min="@integer/fov_y_min_value"
+                android:progress="0"
+                android:visibility="gone" />
+
+        </LinearLayout>
+        <!-- endregion-->
+
         <androidx.constraintlayout.widget.Group
             android:id="@+id/group_camera_controllers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="ll_cpoint_y,ll_vector_z,textView2,ll_cp_z,ll_cp_y,ll_cpoint_x,textView,ll_cp_x,textView3,ll_vector_y,ll_cpoint_z,ll_vector_x"
+            app:constraint_referenced_ids="ll_cpoint_y,ll_vector_z,textView2,ll_cp_z,ll_cp_y,ll_cpoint_x,textView,ll_cp_x,textView3,ll_vector_y,ll_cpoint_z,ll_vector_x,ll_far_vision,ll_fov_y,textView5,textView4,ll_near_vision,textView6"
             tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -337,6 +494,7 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.96107054" />
 
+        <!--        region controllers-->
         <Button
             android:id="@+id/btn_up"
             android:layout_width="wrap_content"
@@ -389,7 +547,7 @@
             android:text="zoom in"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/gl_start" />
-
+        <!--        endregion-->
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- this the navigation view which draws and shows the navigation drawer -->
     <!-- include the menu created in the menu folder -->
