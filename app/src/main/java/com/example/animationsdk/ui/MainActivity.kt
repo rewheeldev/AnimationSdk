@@ -210,14 +210,18 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
     fun zoomIn() {
         binding.btnZoomIn.setOnClickListener {
-            //do nothing
+            camera.fovY -= 1
+            if (camera.fovY < 1.0f) camera.fovY = 1.0f
+            if (camera.fovY > 100.0f) camera.fovY = 100.0f
         }
 
     }
 
     fun zoomOut() {
         binding.btnZoomOut.setOnClickListener {
-            //do nothing
+            camera.fovY += 1
+            if (camera.fovY < 1.0f) camera.fovY = 1.0f
+            if (camera.fovY > 100.0f) camera.fovY = 100.0f
         }
     }
 

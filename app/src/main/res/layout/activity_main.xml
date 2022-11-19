@@ -467,7 +467,7 @@
                 android:max="@integer/fov_y_max_value"
                 android:min="@integer/fov_y_min_value"
                 android:progress="0"
-                android:visibility="gone" />
+                android:visibility="visible" />
 
         </LinearLayout>
         <!-- endregion-->

@@ -29,6 +29,12 @@ class ViewScene(var camera: CameraView = CameraView()) {
 //            camera.upVector.z
 //        )
 
+        //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
+        Matrix.perspectiveM(
+            projectionMatrix, 0, camera.fovY, lastWidth.toFloat()
+                    / lastHeight.toFloat(), camera.farVision, camera.nearVision
+        )
+
         //to show movement
         Matrix.setLookAtM(
             viewMatrix, 0,
@@ -53,7 +59,13 @@ class ViewScene(var camera: CameraView = CameraView()) {
         return lastResultMatrix
     }
 
+    var lastWidth: Int = 0
+    var lastHeight: Int = 0
+
     fun reInitScene(sceneWidth: Int, sceneHeight: Int) {
+        lastWidth = sceneWidth
+        lastHeight = sceneHeight
+
         GLES20.glViewport(0, 0, sceneWidth, sceneHeight)
         //region
         //todo: think about this part, it should be removed
@@ -87,10 +99,10 @@ class ViewScene(var camera: CameraView = CameraView()) {
         //earlier versions of Android.
 
         //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
-        Matrix.perspectiveM(
-            projectionMatrix, 0, camera.fovY, sceneWidth.toFloat()
-                    / sceneHeight.toFloat(), camera.farVision, camera.nearVision
-        )
+//        Matrix.perspectiveM(
+//            projectionMatrix, 0, camera.fovY, sceneWidth.toFloat()
+//                    / sceneHeight.toFloat(), camera.farVision, camera.nearVision
+//        )
     }
 }
 
