@@ -3,6 +3,7 @@ package com.rewheeldev.glsdk.sdk.internal
 import android.opengl.GLES20
 import android.opengl.Matrix
 import com.rewheeldev.glsdk.sdk.api.model.Coord
+import com.rewheeldev.glsdk.sdk.api.model.normalize
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -14,6 +15,13 @@ class ViewScene(var camera: CameraView = CameraView()) {
     private val viewMatrix = FloatArray(matrixSideSize * matrixSideSize)
 
     fun update(): FloatArray {
+
+        //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
+        Matrix.perspectiveM(
+            projectionMatrix, 0, camera.fovY, lastWidth.toFloat()
+                    / lastHeight.toFloat(), camera.farVision, camera.nearVision
+        )
+
         // Set the camera position (View matrix)
         //do not remove this part of code, it needs like an example
 //        Matrix.setLookAtM(
@@ -29,11 +37,20 @@ class ViewScene(var camera: CameraView = CameraView()) {
 //            camera.upVector.z
 //        )
 
-        //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
-        Matrix.perspectiveM(
-            projectionMatrix, 0, camera.fovY, lastWidth.toFloat()
-                    / lastHeight.toFloat(), camera.farVision, camera.nearVision
-        )
+
+        //to show movement
+//        Matrix.setLookAtM(
+//            viewMatrix, 0,
+//            camera.cameraPosition.x,
+//            camera.cameraPosition.y,
+//            camera.cameraPosition.z,
+//            camera.cameraPosition.x + camera.cameraDirectionPoint.x,
+//            camera.cameraPosition.y + camera.cameraDirectionPoint.y,
+//            camera.cameraPosition.z + camera.cameraDirectionPoint.z,
+//            camera.upVector.x,
+//            camera.upVector.y,
+//            camera.upVector.z
+//        )
 
         //to show movement
         Matrix.setLookAtM(
@@ -41,13 +58,14 @@ class ViewScene(var camera: CameraView = CameraView()) {
             camera.cameraPosition.x,
             camera.cameraPosition.y,
             camera.cameraPosition.z,
-            camera.cameraPosition.x + camera.cameraDirectionPoint.x,
-            camera.cameraPosition.y + camera.cameraDirectionPoint.y,
-            camera.cameraPosition.z + camera.cameraDirectionPoint.z,
-            camera.upVector.x,
-            camera.upVector.y,
-            camera.upVector.z
-        )
+            /*camera.cameraPosition.x +*/ camera.cameraDirectionPoint.x,
+            /*camera.cameraPosition.y +*/ camera.cameraDirectionPoint.y,
+            /*camera.cameraPosition.z +*/ camera.cameraDirectionPoint.z,
+            camera.cameraDirectionPoint.x,
+            camera.cameraDirectionPoint.y + 1,
+            camera.cameraDirectionPoint.z,
+
+            )
 
         // Calculate the projection and view transformation
         //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
@@ -166,23 +184,28 @@ fun directionPoint3d(
 }
 
 fun directionPoint3d(
-    pitch: Float,
-    yaw: Float = 90f,
+    coord: Coord,
+    cameraPosition: Coord = Coord(0f, 0f, 0f),
+    verticalAngle: Float,
+    horizontalAngle: Float = 90f,
 ): Coord {
     //https://learnopengl.com/Getting-Started/Camera
-    var pitchLocal: Float = pitch
-    if (pitch > 89.0f) {
+    var pitchLocal: Float = verticalAngle
+    if (verticalAngle > 89.0f) {
         pitchLocal = 89.0f
     }
-    if (pitch < -89.0f) {
+    if (verticalAngle < -89.0f) {
         pitchLocal = -89.0f
     }
     val direction = Coord()
-    direction.x =
-        (cos(Math.toRadians(yaw.toDouble())) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
-    direction.y = sin(Math.toRadians(pitchLocal.toDouble())).toFloat()
+    direction.y =
+        (cos(Math.toRadians(horizontalAngle.toDouble())) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+    direction.x = sin(Math.toRadians(pitchLocal.toDouble())).toFloat()
     direction.z =
-        sin(x = Math.toRadians(yaw.toDouble()) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
-
+        sin(x = Math.toRadians(horizontalAngle.toDouble()) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+    direction.normalize()
+    direction.x = cameraPosition.x + direction.x + coord.x
+    direction.y = cameraPosition.y + direction.y + coord.y
+    direction.z = cameraPosition.z + direction.z + coord.z
     return direction
 }

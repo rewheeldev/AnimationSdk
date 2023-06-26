@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.databinding.NavHeaderMainBinding
+import com.rewheeldev.glsdk.sdk.api.IShape
 import com.rewheeldev.glsdk.sdk.api.model.*
 import com.rewheeldev.glsdk.sdk.api.shape.border.Border
 import com.rewheeldev.glsdk.sdk.api.shape.grid.GridParams
@@ -169,16 +170,17 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
     }
 
     var cameraDirectionPointObserver by Delegates.observable(Coord()) { property, oldValue, newValue ->
+        printDebugLog("newValue: $newValue")
         binding.tvCpointX.text =
-            resources.getString(R.string.x, newValue.x)
+            resources.getString(R.string.x, "${newValue.x}")
         binding.sbCpointX.progress = newValue.x.toInt()
 
         binding.tvCpointY.text =
-            resources.getString(R.string.y, newValue.y)
+            resources.getString(R.string.y, "${newValue.y}")
         binding.sbCpointY.progress = newValue.y.toInt()
 
         binding.tvCpointZ.text =
-            resources.getString(R.string.z, newValue.z)
+            resources.getString(R.string.z, "${newValue.z}")
         binding.sbCpointZ.progress = newValue.z.toInt()
     }
     val cameraSpeed = 5f
@@ -208,20 +210,61 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         }
     }
 
+    val camera = CameraView(
+//        cameraPosition = Coord(x = 0f, y = 5.94f, z = 196.26f),
+//        cameraDirectionPoint = Coord(x = 2.55f, y = 99.409996f)
+        cameraPosition = Coord(x = 0f, y = 0.0f, z = 20f),
+        cameraDirectionPoint = Coord(x = 0.0f, y = 0.0f, z = -1.0f),
+        upVector = Coord(x = 0.0f, y = 1.0f, z = 0.0f)
+    )
+    var tmpDirectionX: Float = camera.cameraDirectionPoint.x
+    val north = Coord(x = 1.0f, y = 0.0f)
+    val sought = Coord(x = -1.0f, y = 0.0f)
+    val east = Coord(x = 0.0f, y = 1.0f)
+    val west = Coord(x = 0.0f, y = -1.0f)
+
+    var tmpCompass = 0
+    var direction = north
     fun zoomIn() {
         binding.btnZoomIn.setOnClickListener {
-            camera.fovY -= 1
-            if (camera.fovY < 1.0f) camera.fovY = 1.0f
-            if (camera.fovY > 100.0f) camera.fovY = 100.0f
+//            camera.fovY -= 1
+//            if (camera.fovY < 1.0f) camera.fovY = 1.0f
+//            if (camera.fovY > 100.0f) camera.fovY = 100.0f
+            tmpCompass++
+            if (tmpCompass > 3) {
+                tmpCompass = 0
+            }
+            direction =  when(tmpCompass){
+                0 ->{
+                    north
+                }
+                1 ->{
+                    west
+                }
+                2 ->{
+                    sought
+                }
+                3 ->{
+                    east
+                }
+               else -> {
+                   north
+               }
+            }
+            camera.cameraDirectionPoint.x = direction.x + camera.cameraPosition.x
+            camera.cameraDirectionPoint.y = direction.y + camera.cameraPosition.y
+
         }
 
     }
 
     fun zoomOut() {
         binding.btnZoomOut.setOnClickListener {
-            camera.fovY += 1
-            if (camera.fovY < 1.0f) camera.fovY = 1.0f
-            if (camera.fovY > 100.0f) camera.fovY = 100.0f
+//            camera.fovY += 1
+//            if (camera.fovY < 1.0f) camera.fovY = 1.0f
+//            if (camera.fovY > 100.0f) camera.fovY = 100.0f
+            tmpDirectionX -= 0.1f
+            camera.cameraDirectionPoint.x = tmpDirectionX
         }
     }
 
@@ -328,6 +371,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         })
     }
 
+    lateinit var point: IShape
 
     private fun initScreen() {
         binding.mainLayout.setOnTouchListener(this)
@@ -337,7 +381,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
             binding.mainLayout.backgroundColor
 
-            val triangleParams = TriangleParams(triangleCoords, Color.RED)
+            val triangleParams = TriangleParams(triangleCoords, Color.GOLD)
             val triangleParams1 = TriangleParams(triangleCoords1, Color.GREEN)
             val triangleParams2 = TriangleParams(triangleCoords2, Color.BLACK)
             val triangleParams3 = TriangleParams(triangleCoords3, Color.MAGENTA)
@@ -372,10 +416,12 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             val rectangle = shapeFactory.createRectangle(rectangleParams)
 
             val pointParams = PointParams(
-                x = -30, y = 20, coordsPerVertex = CoordsPerVertex.VERTEX_2D,
-                color = Color.GOLD
+                x = camera.cameraDirectionPoint.x.toInt(),
+                y = camera.cameraDirectionPoint.y.toInt(),
+                coordsPerVertex = CoordsPerVertex.VERTEX_2D,
+                color = Color.RED
             )
-            val point = shapeFactory.createPoint(pointParams)
+            point = shapeFactory.createPoint(pointParams)
 
             val lineParams = LineParams(
                 coords = Coords(lineCoordsVertices, CoordsPerVertex.VERTEX_2D),
@@ -383,17 +429,17 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
                 coordsPerVertex = CoordsPerVertex.VERTEX_3D,
             )
             val line = shapeFactory.createLine(lineParams)
-
+//
             binding.mainLayout.getShapeController().add(grid2)
-            binding.mainLayout.getShapeController().add(grid)
-            binding.mainLayout.getShapeController().add(point)
-            binding.mainLayout.getShapeController().add(line)
-
-            binding.mainLayout.getShapeController().add(rectangle)
+//            binding.mainLayout.getShapeController().add(grid)
+//            binding.mainLayout.getShapeController().add(line)
+//
+//            binding.mainLayout.getShapeController().add(rectangle)
             binding.mainLayout.getShapeController().add(triangle)
             binding.mainLayout.getShapeController().add(triangle1)
             binding.mainLayout.getShapeController().add(triangle2)
             binding.mainLayout.getShapeController().add(triangle3)
+            binding.mainLayout.getShapeController().add(point)
 
 //            rotateCamera()
         }
@@ -470,6 +516,8 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             ) { progress ->
             val value = progress * MULTIPLIER
             camera.cameraDirectionPoint.x = value
+//            point.coords.array[0].x = value
+            printDebugLog("camera.cameraDirectionPoint.x: ${camera.cameraDirectionPoint.x}")
             value
         }
 
@@ -482,6 +530,8 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             ) { progress ->
             val value = progress * MULTIPLIER
             camera.cameraDirectionPoint.y = value
+            point.coords.array[0].y = value
+            printDebugLog("camera.cameraDirectionPoint.y: ${camera.cameraDirectionPoint.y}")
             value
         }
 
@@ -494,6 +544,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             ) { progress ->
             val value = progress * MULTIPLIER
             camera.cameraDirectionPoint.z = value
+            printDebugLog("camera.cameraDirectionPoint.z: ${camera.cameraDirectionPoint.z}")
             value
         }
         //endregion
@@ -586,13 +637,6 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         } else super.onOptionsItemSelected(item)
     }
 
-    val camera = CameraView(
-//        cameraPosition = Coord(x = 0f, y = 5.94f, z = 196.26f),
-//        cameraDirectionPoint = Coord(x = 2.55f, y = 99.409996f)
-        cameraPosition = Coord(x = 0f, y = 0.0f, z = 196.26f),
-        cameraDirectionPoint = Coord(x = 0.0f, y = 0.0f, z = -1.0f),
-        upVector = Coord(x = 0.0f, y = 1.0f, z = 0.0f)
-    )
 
     private fun printDebugLog(msg: String) {
         Log.d("TAG_1", "Thread name: ${Thread.currentThread().name} | msg: $msg")
@@ -623,11 +667,11 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
     companion object {
         const val MULTIPLIER = 0.01f
-        const val SENSITIVITY = 0.5f
+        const val SENSITIVITY = 0.10f
     }
 
-    var pitch: Float = 0f
-    var yaw: Float = 90f
+    var verticalAngle: Float = 0f
+    var horizontalAngle: Float = 90f
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
         v?.performClick()
@@ -644,26 +688,37 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             }
             MotionEvent.ACTION_MOVE -> {
                 var xoffset: Float = event.x - lastX
-                var yoffset: Float =
-                    lastY - event.y // reversed since y-coordinates range from bottom to top
-
+                var yoffset: Float = lastY - event.y // reversed since y-coordinates range from bottom to top
+                printDebugLog("STEP 1 lastX: $lastX, lastY: $lastY, xoffset: $xoffset, yoffset: $yoffset")
                 lastX = event.x
                 lastY = event.y
-
+                printDebugLog("STEP 2 lastX: $lastX, lastY: $lastY")
                 xoffset *= SENSITIVITY
                 yoffset *= SENSITIVITY
+                printDebugLog("STEP 3 xoffset: $xoffset, xoffset: $yoffset, horizontalAngle: $horizontalAngle, verticalAngle: $verticalAngle")
+                val offsetResult = normalize(xoffset+ horizontalAngle, yoffset+ verticalAngle)
+                horizontalAngle = offsetResult.first
+                verticalAngle = offsetResult.second
+                printDebugLog("STEP 4 horizontalAngle: $horizontalAngle, verticalAngle: $verticalAngle")
 
-                yaw += xoffset
-                pitch += yoffset
+//                val newDirection = directionPoint3d(
+//                    camera.cameraPosition,
+//                    pitch = pitch,
+//                    yaw = yaw
+//                ).normalize()
                 val newDirection = directionPoint3d(
-                    pitch = pitch,
-                    yaw = yaw
-                ).normalize()
-                printDebugLog("ACTION_MOVE newDirection.normalize(): ${newDirection.normalize()}")
+                    direction,
+                    camera.cameraPosition,
+                    verticalAngle = verticalAngle,
+                    horizontalAngle = horizontalAngle
+                )
+//                printDebugLog("ACTION_MOVE newDirection.normalize(): ${newDirection.normalize()}")
                 camera.cameraDirectionPoint.x = newDirection.x
                 camera.cameraDirectionPoint.y = newDirection.y
                 camera.cameraDirectionPoint.z = newDirection.z
                 cameraDirectionPointObserver = camera.cameraDirectionPoint
+//                point.coords.array[0].x = camera.cameraPosition.x
+//                point.coords.array[0].y = camera.cameraPosition.y
                 printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
             }
             MotionEvent.ACTION_UP -> {
@@ -674,5 +729,11 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
 
         return true
+    }
+
+    fun normalize(xoffset: Float, yoffset: Float) : Pair<Float, Float>{
+        val x = xoffset % 360
+        val y = yoffset % 360
+        return Pair(x, y)
     }
 }
