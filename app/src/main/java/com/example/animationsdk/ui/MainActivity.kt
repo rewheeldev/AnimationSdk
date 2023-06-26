@@ -689,36 +689,20 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             MotionEvent.ACTION_MOVE -> {
                 var xoffset: Float = event.x - lastX
                 var yoffset: Float = lastY - event.y // reversed since y-coordinates range from bottom to top
-                printDebugLog("STEP 1 lastX: $lastX, lastY: $lastY, xoffset: $xoffset, yoffset: $yoffset")
                 lastX = event.x
                 lastY = event.y
-                printDebugLog("STEP 2 lastX: $lastX, lastY: $lastY")
-                xoffset *= SENSITIVITY
-                yoffset *= SENSITIVITY
-                printDebugLog("STEP 3 xoffset: $xoffset, xoffset: $yoffset, horizontalAngle: $horizontalAngle, verticalAngle: $verticalAngle")
-                val offsetResult = normalize(xoffset+ horizontalAngle, yoffset+ verticalAngle)
-                horizontalAngle = offsetResult.first
-                verticalAngle = offsetResult.second
-                printDebugLog("STEP 4 horizontalAngle: $horizontalAngle, verticalAngle: $verticalAngle")
 
-//                val newDirection = directionPoint3d(
-//                    camera.cameraPosition,
-//                    pitch = pitch,
-//                    yaw = yaw
-//                ).normalize()
-                val newDirection = directionPoint3d(
-                    direction,
+                Tilt.offsetAngle(xoffset,yoffset)
+
+                val newDirectionPoint = Tilt.directionPoint3d(
                     camera.cameraPosition,
-                    verticalAngle = verticalAngle,
-                    horizontalAngle = horizontalAngle
+                    verticalAngle = Tilt.currentVerticalAngle,
+                    horizontalAngle = Tilt.currentHorizontalAngle
                 )
-//                printDebugLog("ACTION_MOVE newDirection.normalize(): ${newDirection.normalize()}")
-                camera.cameraDirectionPoint.x = newDirection.x
-                camera.cameraDirectionPoint.y = newDirection.y
-                camera.cameraDirectionPoint.z = newDirection.z
+                camera.cameraDirectionPoint.x = newDirectionPoint.x
+                camera.cameraDirectionPoint.y = newDirectionPoint.y
+                camera.cameraDirectionPoint.z = newDirectionPoint.z
                 cameraDirectionPointObserver = camera.cameraDirectionPoint
-//                point.coords.array[0].x = camera.cameraPosition.x
-//                point.coords.array[0].y = camera.cameraPosition.y
                 printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
             }
             MotionEvent.ACTION_UP -> {
@@ -731,9 +715,47 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         return true
     }
 
-    fun normalize(xoffset: Float, yoffset: Float) : Pair<Float, Float>{
-        val x = xoffset % 360
-        val y = yoffset % 360
-        return Pair(x, y)
+}
+
+object Tilt{
+    var currentHorizontalAngle = 90f
+    var currentVerticalAngle = 90f
+    const val SENSITIVITY = 0.10f
+
+
+    fun offsetAngle(sensorOffsetX:Float, sensorOffsetY: Float, sens:Float = SENSITIVITY){
+        val offsetAngleX = sensorOffsetX* MainActivity.SENSITIVITY
+        val offsetAngleY = sensorOffsetY * MainActivity.SENSITIVITY
+
+        currentHorizontalAngle = normalizeAngle( currentHorizontalAngle + offsetAngleX)
+        currentVerticalAngle = normalizeAngle( currentVerticalAngle + offsetAngleY)
+    }
+
+    fun normalizeAngle(value: Float) = if (value < 0) 360 + value else value % 360
+
+    fun directionPoint3d(
+        cameraPosition: Coord = Coord(0f, 0f, 0f),
+        verticalAngle: Float = 90f,
+        horizontalAngle: Float = 90f,
+    ): Coord {
+        //https://learnopengl.com/Getting-Started/Camera
+        var pitchLocal: Float = verticalAngle
+        if (verticalAngle > 89.0f) {
+            pitchLocal = 89.0f
+        }
+        if (verticalAngle < -89.0f) {
+            pitchLocal = -89.0f
+        }
+        val direction = Coord()
+        direction.y =
+            (cos(Math.toRadians(horizontalAngle.toDouble())) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+        direction.x = sin(Math.toRadians(pitchLocal.toDouble())).toFloat()
+        direction.z =
+            sin(x = Math.toRadians(horizontalAngle.toDouble()) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+        direction.normalize()
+        direction.x = cameraPosition.x + direction.x
+        direction.y = cameraPosition.y + direction.y
+        direction.z = cameraPosition.z + direction.z
+        return direction
     }
 }
