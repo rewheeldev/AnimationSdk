@@ -30,7 +30,6 @@ import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.util.OpenGLConfigurationInfoManager
 import com.rewheeldev.glsdk.sdk.internal.CameraView
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
-import com.rewheeldev.glsdk.sdk.internal.directionPoint3d
 import utils.Color
 import kotlin.math.cos
 import kotlin.math.sin
@@ -170,7 +169,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
     }
 
     var cameraDirectionPointObserver by Delegates.observable(Coord()) { property, oldValue, newValue ->
-        printDebugLog("newValue: $newValue")
+//        printDebugLog("newValue: $newValue")
         binding.tvCpointX.text =
             resources.getString(R.string.x, "${newValue.x}")
         binding.sbCpointX.progress = newValue.x.toInt()
@@ -227,35 +226,27 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
     var direction = north
     fun zoomIn() {
         binding.btnZoomIn.setOnClickListener {
+
 //            camera.fovY -= 1
 //            if (camera.fovY < 1.0f) camera.fovY = 1.0f
 //            if (camera.fovY > 100.0f) camera.fovY = 100.0f
-            tmpCompass++
-            if (tmpCompass > 3) {
-                tmpCompass = 0
-            }
-            direction =  when(tmpCompass){
-                0 ->{
-                    north
-                }
-                1 ->{
-                    west
-                }
-                2 ->{
-                    sought
-                }
-                3 ->{
-                    east
-                }
-               else -> {
-                   north
-               }
-            }
-            camera.cameraDirectionPoint.x = direction.x + camera.cameraPosition.x
-            camera.cameraDirectionPoint.y = direction.y + camera.cameraPosition.y
-
+            //region tmpCompass
+//            tmpCompass++
+//            if (tmpCompass > 3) { tmpCompass = 0 }
+//            direction = when (tmpCompass) {
+//                0 -> north
+//                1 -> west
+//                2 -> sought
+//                3 -> east
+//                else -> north
+//            }
+//            camera.cameraDirectionPoint.x = direction.x + camera.cameraPosition.x
+//            camera.cameraDirectionPoint.y = direction.y + camera.cameraPosition.y
+            //endregion
+            //region autoRotate
+            rotateCameraHorizontal()
+            //endregion
         }
-
     }
 
     fun zoomOut() {
@@ -263,8 +254,13 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 //            camera.fovY += 1
 //            if (camera.fovY < 1.0f) camera.fovY = 1.0f
 //            if (camera.fovY > 100.0f) camera.fovY = 100.0f
-            tmpDirectionX -= 0.1f
-            camera.cameraDirectionPoint.x = tmpDirectionX
+
+//            tmpDirectionX -= 0.1f
+//            camera.cameraDirectionPoint.x = tmpDirectionX
+
+            //region autoRotate
+            rotateCameraVertical()
+            //endregion
         }
     }
 
@@ -280,7 +276,6 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             }
         )
     }
-
 
     private fun bgBlue() {
         bgColorUI(
@@ -463,7 +458,30 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             }
 
         }.start()
+    }
 
+    fun rotateCameraHorizontal() {
+        Tilt.currentHorizontalAngle = -100f
+        Thread {
+            repeat(459) {
+                Tilt.currentHorizontalAngle += 1f
+                Tilt.currentVerticalAngle = 90f
+                setNewDirection()
+                Thread.sleep(60)
+            }
+        }.start()
+    }
+
+    fun rotateCameraVertical() {
+        Tilt.currentVerticalAngle = -100f
+        Thread {
+            repeat(279) {
+                Tilt.currentHorizontalAngle = 65f
+                Tilt.currentVerticalAngle += 1f
+                setNewDirection()
+                Thread.sleep(60)
+            }
+        }.start()
     }
 
     private fun setCameraOnSeekBarChangeListeners() {
@@ -686,25 +704,18 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
                 lastY = event.y
                 printDebugLog("ACTION_DOWN event.x: ${event.x}, y: ${event.y}")
             }
+
             MotionEvent.ACTION_MOVE -> {
                 var xoffset: Float = event.x - lastX
-                var yoffset: Float = lastY - event.y // reversed since y-coordinates range from bottom to top
+                var yoffset: Float =
+                    lastY - event.y // reversed since y-coordinates range from bottom to top
                 lastX = event.x
                 lastY = event.y
 
-                Tilt.offsetAngle(xoffset,yoffset)
-
-                val newDirectionPoint = Tilt.directionPoint3d(
-                    camera.cameraPosition,
-                    verticalAngle = Tilt.currentVerticalAngle,
-                    horizontalAngle = Tilt.currentHorizontalAngle
-                )
-                camera.cameraDirectionPoint.x = newDirectionPoint.x
-                camera.cameraDirectionPoint.y = newDirectionPoint.y
-                camera.cameraDirectionPoint.z = newDirectionPoint.z
-                cameraDirectionPointObserver = camera.cameraDirectionPoint
-                printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
+                Tilt.offsetAngle(xoffset, yoffset)
+                setNewDirection()
             }
+
             MotionEvent.ACTION_UP -> {
                 printDebugLog("ACTION_UP event.x: ${event.x}, y: ${event.y}")
             }
@@ -715,43 +726,101 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         return true
     }
 
+    fun setNewDirection() {
+        val newDirectionPoint = Tilt.directionPoint3d2(
+            camera.cameraPosition,
+            Tilt.currentVerticalAngle,
+            Tilt.currentHorizontalAngle
+        )
+        camera.cameraDirectionPoint.x = newDirectionPoint.x
+        camera.cameraDirectionPoint.y = newDirectionPoint.y
+        camera.cameraDirectionPoint.z = newDirectionPoint.z
+        cameraDirectionPointObserver = camera.cameraDirectionPoint
+
+        printDebugLog("setNewDirection verticalAnglePitch: ${Tilt.currentVerticalAngle}, horizontalAngleYaw: ${Tilt.currentHorizontalAngle}")
+    }
 }
 
-object Tilt{
+object Tilt {
     var currentHorizontalAngle = 90f
     var currentVerticalAngle = 90f
-    const val SENSITIVITY = 0.10f
+    const val SENSITIVITY = 0.1f
 
 
-    fun offsetAngle(sensorOffsetX:Float, sensorOffsetY: Float, sens:Float = SENSITIVITY){
-        val offsetAngleX = sensorOffsetX* MainActivity.SENSITIVITY
-        val offsetAngleY = sensorOffsetY * MainActivity.SENSITIVITY
+    fun offsetAngle(sensorOffsetX: Float, sensorOffsetY: Float, sens: Float = SENSITIVITY) {
+        val offsetAngleX = sensorOffsetX * sens
+        val offsetAngleY = sensorOffsetY * sens
 
-        currentHorizontalAngle = normalizeAngle( currentHorizontalAngle + offsetAngleX)
-        currentVerticalAngle = normalizeAngle( currentVerticalAngle + offsetAngleY)
+//        currentHorizontalAngle = normalizeAngle(currentHorizontalAngle + offsetAngleX)
+//        currentVerticalAngle = normalizeAngle(currentVerticalAngle + offsetAngleY)
+        currentHorizontalAngle = currentHorizontalAngle + offsetAngleX
+        currentVerticalAngle = currentVerticalAngle + offsetAngleY
     }
 
     fun normalizeAngle(value: Float) = if (value < 0) 360 + value else value % 360
 
+    fun directionPoint3d2(
+        cameraPosition: Coord,
+        /**
+         * должен быть больше 0f
+         */
+        radius: Float = 20f,
+        /**
+         * должен быть в пределах от 0 до 179
+         */
+        verticalAnglePitch: Float = 45f,
+        /**
+         * должен быть в пределах от 0 до 359
+         */
+        horizontalAngleYaw: Float = 90f,
+    ): Coord {
+//        val ver = (Math.PI - verticalAnglePitch)
+        val ver = Math.toRadians(verticalAnglePitch.toDouble())
+        val hor = Math.toRadians(horizontalAngleYaw.toDouble())
+        val z = radius * sin(ver) * cos(hor)
+        val x = radius * cos(ver)
+        val y = radius * sin(ver) * sin(hor)
+
+//        return Coord(
+//            cameraPosition.x + x.toFloat(),
+//            cameraPosition.y + y.toFloat(),
+//            cameraPosition.z + z.toFloat()
+//        )
+
+        val direction = Coord(
+            x.toFloat(),
+            y.toFloat(),
+            z.toFloat()
+        )
+        direction.normalize()
+        direction.x = cameraPosition.x + direction.x
+        direction.y = cameraPosition.y + direction.y
+        direction.z = cameraPosition.z + direction.z
+        return direction
+    }
+
     fun directionPoint3d(
-        cameraPosition: Coord = Coord(0f, 0f, 0f),
+        cameraPosition: Coord,
         verticalAngle: Float = 90f,
         horizontalAngle: Float = 90f,
     ): Coord {
         //https://learnopengl.com/Getting-Started/Camera
-        var pitchLocal: Float = verticalAngle
-        if (verticalAngle > 89.0f) {
-            pitchLocal = 89.0f
-        }
-        if (verticalAngle < -89.0f) {
-            pitchLocal = -89.0f
-        }
+        var verticalAngleLocal: Float = verticalAngle
+//        if (verticalAngle > 89.0f) {
+//            verticalAngleLocal = 89.0f
+//        }
+//        if (verticalAngle < -89.0f) {
+//            verticalAngleLocal = -89.0f
+//        }
         val direction = Coord()
         direction.y =
-            (cos(Math.toRadians(horizontalAngle.toDouble())) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
-        direction.x = sin(Math.toRadians(pitchLocal.toDouble())).toFloat()
-        direction.z =
-            sin(x = Math.toRadians(horizontalAngle.toDouble()) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+            (cos(Math.toRadians(horizontalAngle.toDouble())) * cos(Math.toRadians(verticalAngleLocal.toDouble()))).toFloat()
+        direction.x = sin(Math.toRadians(verticalAngleLocal.toDouble())).toFloat()
+        direction.z = sin(
+            x = Math.toRadians(horizontalAngle.toDouble()) * cos(
+                Math.toRadians(verticalAngleLocal.toDouble())
+            )
+        ).toFloat()
         direction.normalize()
         direction.x = cameraPosition.x + direction.x
         direction.y = cameraPosition.y + direction.y
