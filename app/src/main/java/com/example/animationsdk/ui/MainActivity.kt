@@ -27,9 +27,8 @@ import com.rewheeldev.glsdk.sdk.api.shape.point.PointParams
 import com.rewheeldev.glsdk.sdk.api.shape.rectangle.RectangleParams
 import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.util.OpenGLConfigurationInfoManager
-import com.rewheeldev.glsdk.sdk.internal.CameraView
+import com.rewheeldev.glsdk.sdk.internal.CameraProperties
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
-import com.rewheeldev.glsdk.sdk.internal.directionPoint3d
 import utils.Color
 import kotlin.math.cos
 import kotlin.math.sin
@@ -170,15 +169,15 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
     var cameraDirectionPointObserver by Delegates.observable(Coord()) { property, oldValue, newValue ->
         binding.tvCpointX.text =
-            resources.getString(R.string.x, newValue.x)
+            resources.getString(R.string.x, newValue.x.toString())
         binding.sbCpointX.progress = newValue.x.toInt()
 
         binding.tvCpointY.text =
-            resources.getString(R.string.y, newValue.y)
+            resources.getString(R.string.y, newValue.y.toString())
         binding.sbCpointY.progress = newValue.y.toInt()
 
         binding.tvCpointZ.text =
-            resources.getString(R.string.z, newValue.z)
+            resources.getString(R.string.z, newValue.z.toString())
         binding.sbCpointZ.progress = newValue.z.toInt()
     }
     val cameraSpeed = 5f
@@ -586,12 +585,12 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         } else super.onOptionsItemSelected(item)
     }
 
-    val camera = CameraView(
+    val camera = CameraProperties(
 //        cameraPosition = Coord(x = 0f, y = 5.94f, z = 196.26f),
 //        cameraDirectionPoint = Coord(x = 2.55f, y = 99.409996f)
         cameraPosition = Coord(x = 0f, y = 0.0f, z = 196.26f),
-        cameraDirectionPoint = Coord(x = 0.0f, y = 0.0f, z = -1.0f),
-        upVector = Coord(x = 0.0f, y = 1.0f, z = 0.0f)
+//        cameraDirectionPoint = Coord(x = 0.0f, y = 0.0f, z = -1.0f),
+//        upVector = Coord(x = 0.0f, y = 1.0f, z = 0.0f)
     )
 
     private fun printDebugLog(msg: String) {
@@ -645,8 +644,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
             MotionEvent.ACTION_MOVE -> {
                 var xoffset: Float = event.x - lastX
-                var yoffset: Float =
-                    lastY - event.y // reversed since y-coordinates range from bottom to top
+                var yoffset: Float = lastY - event.y // reversed since y-coordinates range from bottom to top
 
                 lastX = event.x
                 lastY = event.y
@@ -656,14 +654,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
                 yaw += xoffset
                 pitch += yoffset
-                val newDirection = directionPoint3d(
-                    pitch = pitch,
-                    yaw = yaw
-                ).normalize()
-                printDebugLog("ACTION_MOVE newDirection.normalize(): ${newDirection.normalize()}")
-                camera.cameraDirectionPoint.x = newDirection.x
-                camera.cameraDirectionPoint.y = newDirection.y
-                camera.cameraDirectionPoint.z = newDirection.z
+                camera.setDirectionAsAngel(pitch, yaw)
                 cameraDirectionPointObserver = camera.cameraDirectionPoint
                 printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
             }

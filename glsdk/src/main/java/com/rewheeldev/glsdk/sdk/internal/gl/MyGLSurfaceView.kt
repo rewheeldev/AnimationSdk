@@ -3,7 +3,7 @@ package com.rewheeldev.glsdk.sdk.internal.gl
 import android.content.Context
 import android.opengl.GLSurfaceView
 import com.rewheeldev.glsdk.sdk.api.constants.OPEN_GL_VERSION_3
-import com.rewheeldev.glsdk.sdk.internal.CameraView
+import com.rewheeldev.glsdk.sdk.internal.CameraProperties
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
 import utils.Color
 
@@ -29,7 +29,7 @@ class MyGLSurfaceView(
 //        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 
-    fun bindCamera(camera: CameraView) {
+    fun bindCamera(camera: CameraProperties) {
         renderer.bindCamera(camera)
     }
 }

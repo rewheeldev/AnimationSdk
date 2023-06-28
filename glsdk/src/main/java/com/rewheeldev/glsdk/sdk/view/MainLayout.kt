@@ -7,7 +7,7 @@ import com.rewheeldev.glsdk.sdk.api.IDraw
 import com.rewheeldev.glsdk.sdk.api.IShapeController
 import com.rewheeldev.glsdk.sdk.api.constants.OPEN_GL_VERSION_3
 import com.rewheeldev.glsdk.sdk.api.factories.IShapeFactory
-import com.rewheeldev.glsdk.sdk.internal.CameraView
+import com.rewheeldev.glsdk.sdk.internal.CameraProperties
 import com.rewheeldev.glsdk.sdk.internal.ShapeFactory
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
 import com.rewheeldev.glsdk.sdk.internal.draw.RwDraw
@@ -63,7 +63,7 @@ class MainLayout @JvmOverloads constructor(
         addView(mainView)
     }
 
-    fun bindCamera(camera: CameraView) {
+    fun bindCamera(camera: CameraProperties) {
         checkRenderSet {
             mainView.bindCamera(camera)
         }

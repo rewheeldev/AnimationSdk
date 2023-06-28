@@ -2,7 +2,7 @@ package com.rewheeldev.glsdk.sdk.internal.gl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import com.rewheeldev.glsdk.sdk.internal.CameraView
+import com.rewheeldev.glsdk.sdk.internal.CameraProperties
 import com.rewheeldev.glsdk.sdk.internal.ViewScene
 import com.rewheeldev.glsdk.sdk.internal.controllers.ShapeController
 import com.rewheeldev.glsdk.sdk.internal.util.FigureShader.FRAGMENT_SHADER_CODE
@@ -109,7 +109,7 @@ class MyGLRenderer(
         scene.reInitScene(width, height)
     }
 
-    fun bindCamera(camera: CameraView) {
+    fun bindCamera(camera: CameraProperties) {
         scene.camera = camera
     }
 }

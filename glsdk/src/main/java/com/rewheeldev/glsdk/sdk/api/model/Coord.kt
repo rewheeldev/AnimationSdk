@@ -3,6 +3,9 @@ package com.rewheeldev.glsdk.sdk.api.model
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 import com.rewheeldev.glsdk.sdk.internal.asSortedFloatBuffer
 import java.nio.FloatBuffer
+import kotlin.math.absoluteValue
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 class Coord(
@@ -81,6 +84,12 @@ class Coord(
         return Coord(x + coord.x, y + coord.y, z + coord.z)
     }
 
+    fun join(coord: Coord) {
+        x += coord.x
+        y += coord.y
+        z += coord.z
+    }
+
     operator fun minus(coord: Coord): Coord {
         return Coord(x - coord.x, y - coord.y, z - coord.z)
     }
@@ -94,6 +103,36 @@ class Coord(
     }
 
 
+    fun limiteAngle(value: Float) = if (value < 0) 360 + value % 360 else value % 360
+
+    fun fromAngle(
+        /**
+         * точка из которой выходит луч
+         */
+        rayInitialPoint: Coord,
+
+        /**
+         * угол откланения по вертикали (тангаж или наклонение)
+         * принимает число в градусах (degree)
+         * должен быть в пределах от 0 до 179
+         */
+        verticalAnglePitch: Float = 45f,
+        /**
+         * должен быть в пределах от 0 до 359
+         */
+        horizontalAngleYaw: Float = 90f
+    ): Coord {
+        //https://learnopengl.com/Getting-Started/Camera
+        val radPitch = Math.toRadians(limiteAngle(verticalAnglePitch).toDouble())
+        val radYaw = Math.toRadians(limiteAngle(horizontalAngleYaw).toDouble())
+        return Coord().apply {
+            x = (cos(radYaw) * cos(radPitch)).toFloat()
+            y = sin(radPitch).toFloat()
+            z = sin(x = radYaw * cos(radPitch)).toFloat()
+            normalize()
+            join(rayInitialPoint)
+        }
+    }
 }
 
 operator fun Float.times(coord: Coord): Coord {
@@ -110,8 +149,7 @@ fun Coord.cross(second: Coord): Coord {
 }
 
 fun Coord.normalize(): Coord {
-    val length =
-        sqrt((this.x * this.x.toDouble()) + (this.y * this.y.toDouble()) + (this.z * this.z.toDouble()))
+    val length = sqrt((this.x * this.x.toDouble()) + (this.y * this.y.toDouble()) + (this.z * this.z.toDouble())).absoluteValue
 
     return Coord(x = (x / length).toFloat(), y = (y / length).toFloat(), z = (z / length).toFloat())
 }
