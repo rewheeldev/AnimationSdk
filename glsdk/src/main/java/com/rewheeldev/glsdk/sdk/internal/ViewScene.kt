@@ -14,21 +14,6 @@ class ViewScene(var camera: CameraView = CameraView()) {
     private val viewMatrix = FloatArray(matrixSideSize * matrixSideSize)
 
     fun update(): FloatArray {
-        // Set the camera position (View matrix)
-        //do not remove this part of code, it needs like an example
-//        Matrix.setLookAtM(
-//            viewMatrix, 0,
-//            camera.cameraPosition.x,
-//            camera.cameraPosition.y,
-//            camera.cameraPosition.z,
-//            camera.cameraDirectionPoint.x,
-//            camera.cameraDirectionPoint.y,
-//            camera.cameraDirectionPoint.z,
-//            camera.upVector.x,
-//            camera.upVector.y,
-//            camera.upVector.z
-//        )
-
         //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
         Matrix.perspectiveM(
             projectionMatrix, 0, camera.fovY, lastWidth.toFloat()
@@ -65,44 +50,7 @@ class ViewScene(var camera: CameraView = CameraView()) {
     fun reInitScene(sceneWidth: Int, sceneHeight: Int) {
         lastWidth = sceneWidth
         lastHeight = sceneHeight
-
         GLES20.glViewport(0, 0, sceneWidth, sceneHeight)
-        //region
-        //todo: think about this part, it should be removed
-        var ratio = 1f
-        var left = -1f
-        var right = 1f
-        var bottom = -1f
-        var top = 1f
-        if (sceneWidth > sceneHeight) {
-            ratio = sceneWidth.toFloat() / sceneHeight
-            left *= ratio
-            right *= ratio
-
-        } else {
-            ratio = sceneHeight.toFloat() / sceneWidth
-            bottom *= ratio
-            top *= ratio
-        }
-        //endregion
-
-        // this projection matrix is applied to object coordinates
-        // in the onDrawFrame() method
-//        Matrix.frustumM(
-//            projectionMatrix, 0,
-//            left, right, bottom, top,
-//            camera.nearVision, camera.farVision
-//        )
-        //Unfortunately,
-        //frustumM() has a bug that affects some types of projections, and perspectiveM()
-        //was only introduced in Android Ice Cream Sandwich and is not available on
-        //earlier versions of Android.
-
-        //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
-//        Matrix.perspectiveM(
-//            projectionMatrix, 0, camera.fovY, sceneWidth.toFloat()
-//                    / sceneHeight.toFloat(), camera.farVision, camera.nearVision
-//        )
     }
 }
 
@@ -178,11 +126,11 @@ fun directionPoint3d(
         pitchLocal = -89.0f
     }
     val direction = Coord()
-    direction.x =
-        (cos(Math.toRadians(yaw.toDouble())) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
-    direction.y = sin(Math.toRadians(pitchLocal.toDouble())).toFloat()
-    direction.z =
-        sin(x = Math.toRadians(yaw.toDouble()) * cos(Math.toRadians(pitchLocal.toDouble()))).toFloat()
+    val radPitch = Math.toRadians(pitchLocal.toDouble())
+    val radYaw = Math.toRadians(yaw.toDouble())
+    direction.x = (cos(radYaw) * cos(radPitch)).toFloat()
+    direction.y = sin(radPitch).toFloat()
+    direction.z = sin(x = radYaw * cos(radPitch)).toFloat()
 
     return direction
 }

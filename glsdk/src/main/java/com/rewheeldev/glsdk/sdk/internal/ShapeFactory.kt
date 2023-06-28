@@ -27,7 +27,7 @@ class ShapeFactory : IShapeFactory {
     override fun createGrid(params: GridParams): IShape {
         return Shape(
             with(params) {
-                Shape.prepareCoordsForGrid(
+                Shape.prepareCoordsForGridXZ(
                     x = x,
                     y = y,
                     z = z,

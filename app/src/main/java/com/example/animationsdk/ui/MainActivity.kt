@@ -623,7 +623,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
     companion object {
         const val MULTIPLIER = 0.01f
-        const val SENSITIVITY = 0.5f
+        const val SENSITIVITY = 0.25f
     }
 
     var pitch: Float = 0f
@@ -642,6 +642,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
                 lastY = event.y
                 printDebugLog("ACTION_DOWN event.x: ${event.x}, y: ${event.y}")
             }
+
             MotionEvent.ACTION_MOVE -> {
                 var xoffset: Float = event.x - lastX
                 var yoffset: Float =
@@ -666,6 +667,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
                 cameraDirectionPointObserver = camera.cameraDirectionPoint
                 printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
             }
+
             MotionEvent.ACTION_UP -> {
                 printDebugLog("ACTION_UP event.x: ${event.x}, y: ${event.y}")
             }

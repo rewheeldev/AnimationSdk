@@ -54,6 +54,43 @@ internal class Shape(
             }
             return resultCoords
         }
+
+        /**
+         * измененная функция для создания сетки на плоскости xz
+         * для правильного отображения кординаты сетки должны
+         * быть созданы с [borderType] = [LinkLineTypes.Strip]
+         */
+        fun prepareCoordsForGridXZ(
+            x: Float = 0f, y: Float = 0f, z: Float = 0f,
+            columns: Int = 10, rows: Int = 10,
+            stepSize: Float = 10f
+        ): Coords {
+            val squareExample = Coords(
+                floatArrayOf(
+                    x, z,
+                    x, z + stepSize,
+                    x + stepSize, z + stepSize,
+                    x + stepSize, z,
+                    x, z,
+                ),
+                CoordsPerVertex.VERTEX_2D
+            )
+            val resultCoords = Coords(coordsPerVertex = CoordsPerVertex.VERTEX_3D)
+
+            (0 until rows).forEach { zi ->
+                val offsetZ = zi.toFloat() * stepSize
+                (0 until columns).forEach { xi ->
+                    val offsetX = xi.toFloat() * stepSize
+                    squareExample.array.forEach {
+                        val coord = Coord(offsetX + it.x, y, offsetZ + it.y)
+                        resultCoords.array.add(coord)
+                    }
+                }
+                //добавление последней дополнительной точки для переноса соединение на линию вверх
+                resultCoords.array.add(resultCoords.array[resultCoords.array.lastIndex - 3])
+            }
+            return resultCoords
+        }
     }
 
     override fun equals(other: Any?): Boolean {
