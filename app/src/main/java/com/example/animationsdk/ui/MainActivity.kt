@@ -187,22 +187,26 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         zoomOut()
 
         binding.btnDown.setOnClickListener {
-            camera.cameraPosition -= cameraSpeed * camera.cameraDirectionPoint
+            camera.cameraPosition -= cameraSpeed * (camera.cameraDirectionPoint - camera.cameraPosition)
             printDebugLog("DOWN | cameraPosition: ${camera.cameraPosition}")
+            cameraDirectionPointObserver = camera.cameraDirectionPoint
         }
         binding.btnUp.setOnClickListener {
-            camera.cameraPosition += cameraSpeed * camera.cameraDirectionPoint
+            camera.cameraPosition += cameraSpeed * (camera.cameraDirectionPoint - camera.cameraPosition)
             printDebugLog("UP | cameraPosition: ${camera.cameraPosition}")
+            cameraDirectionPointObserver = camera.cameraDirectionPoint
         }
         binding.btnLeft.setOnClickListener {
             //https://registry.khronos.org/OpenGL-Refpages/gl4/html/cross.xhtml
             val resultCross = camera.cameraDirectionPoint.cross(camera.upVector)
-            camera.cameraPosition -= cameraSpeed * resultCross.normalize()
+            resultCross.normalize()
+            camera.cameraPosition -= cameraSpeed * resultCross
             printDebugLog("LEFT | cameraPosition: ${camera.cameraPosition}")
         }
         binding.btnRight.setOnClickListener {
             val resultCross = camera.cameraDirectionPoint.cross(camera.upVector)
-            camera.cameraPosition += cameraSpeed * resultCross.normalize()
+            resultCross.normalize()
+            camera.cameraPosition += cameraSpeed * resultCross
             printDebugLog("RIGHT | cameraPosition: ${camera.cameraPosition}")
         }
     }
@@ -385,7 +389,6 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
             binding.mainLayout.getShapeController().add(grid2)
             binding.mainLayout.getShapeController().add(grid)
-            binding.mainLayout.getShapeController().add(point)
             binding.mainLayout.getShapeController().add(line)
 
             binding.mainLayout.getShapeController().add(rectangle)
@@ -393,6 +396,10 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             binding.mainLayout.getShapeController().add(triangle1)
             binding.mainLayout.getShapeController().add(triangle2)
             binding.mainLayout.getShapeController().add(triangle3)
+            binding.mainLayout.getShapeController().add(point)
+
+            draw360Points(shapeFactory, binding.mainLayout.getShapeController())
+            draw360PointsYaw(shapeFactory, binding.mainLayout.getShapeController())
 
 //            rotateCamera()
         }
@@ -656,6 +663,10 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
                 pitch += yoffset
                 camera.setDirectionAsAngel(pitch, yaw)
                 cameraDirectionPointObserver = camera.cameraDirectionPoint
+//                val v = anglesToAxes(Vector3(pitch.toDouble(), yaw.toDouble(),0.0))
+//                camera.cameraPosition = v.first.toCoord()
+//                camera.cameraDirectionPoint = v.first.toCoord()
+//                camera.upVector = v.second.toCoord()
                 printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
             }
 

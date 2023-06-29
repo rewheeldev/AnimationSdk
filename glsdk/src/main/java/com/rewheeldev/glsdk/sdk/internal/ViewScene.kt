@@ -3,10 +3,8 @@ package com.rewheeldev.glsdk.sdk.internal
 import android.opengl.GLES20
 import android.opengl.Matrix
 import com.rewheeldev.glsdk.sdk.api.model.Coord
-import com.rewheeldev.glsdk.sdk.internal.util.Math.pointFromAngle
+import com.rewheeldev.glsdk.sdk.internal.util.Math3d.pointFromAngle
 import kotlin.math.atan
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 const val matrixSideSize: Int = 4
@@ -31,7 +29,7 @@ class ViewScene(var camera: CameraProperties = CameraProperties()) {
             camera.cameraPosition.z,
             /*camera.cameraPosition.x +*/ camera.cameraDirectionPoint.x,
             /*camera.cameraPosition.y +*/ camera.cameraDirectionPoint.y,
-            /*camera.cameraPosition.z + */camera.cameraDirectionPoint.z,
+            /*camera.cameraPosition.z +*/ camera.cameraDirectionPoint.z,
             camera.upVector.x,
             camera.upVector.y,
             camera.upVector.z
@@ -144,40 +142,3 @@ class CameraProperties(
         verticalAnglePitch += offsetVerticalAngle
     }
 }
-
-fun convertToCartesian(sphericalCoords: SphericalCoordinates): Coord {
-    val x = sphericalCoords.r * sin(sphericalCoords.theta) * cos(sphericalCoords.phi)
-    val y = sphericalCoords.r * sin(sphericalCoords.theta) * sin(sphericalCoords.phi)
-    val z = sphericalCoords.r * cos(sphericalCoords.theta)
-    return Coord(x.toFloat(), y.toFloat(), z.toFloat())
-}
-
-data class SphericalCoordinates(val r: Double, val theta: Double, val phi: Double)
-fun convertToSpherical(cartesianCoords: Coord): SphericalCoordinates {
-    val r = sqrt(cartesianCoords.x * cartesianCoords.x + cartesianCoords.y * cartesianCoords.y + cartesianCoords.z * cartesianCoords.z)
-    val theta = Math.acos(cartesianCoords.z.toDouble() / r)
-    val phi = Math.atan2(cartesianCoords.y.toDouble(), cartesianCoords.x.toDouble())
-    return SphericalCoordinates(r.toDouble(), theta, phi)
-}
-
-//fun directionPoint3d(
-//    pitch: Float,
-//    yaw: Float = 90f,
-//): Coord {
-//    //https://learnopengl.com/Getting-Started/Camera
-//    var pitchLocal: Float = pitch
-//    if (pitch > 89.0f) {
-//        pitchLocal = 89.0f
-//    }
-//    if (pitch < -89.0f) {
-//        pitchLocal = -89.0f
-//    }
-//    val direction = Coord()
-//    val radPitch = Math.toRadians(pitchLocal.toDouble())
-//    val radYaw = Math.toRadians(yaw.toDouble())
-//    direction.x = (cos(radYaw) * cos(radPitch)).toFloat()
-//    direction.y = sin(radPitch).toFloat()
-//    direction.z = sin(x = radYaw * cos(radPitch)).toFloat()
-//
-//    return direction
-//}

@@ -2,93 +2,96 @@ package com.rewheeldev.glsdk.sdk.api.model
 
 import kotlin.math.*
 
-data class Angles(val verticalAnglePitch: Float, val horizontalAngleYaw: Float)
-
-fun pointFromAngle(rayInitialPoint: Coord = Coord(0f, 0f, 0f), verticalAnglePitch: Float = 45f, horizontalAngleYaw: Float = 90f): Coord {
-    val radPitch = Math.toRadians(limiteAngle(verticalAnglePitch).toDouble())
-    val radYaw = Math.toRadians(limiteAngle(horizontalAngleYaw).toDouble())
-    return Coord().apply {
-        x = (cos(radYaw) * cos(radPitch)).toFloat()
-        y = sin(radPitch).toFloat()
-//        z = (cos(radPitch) * sin(radYaw)).toFloat()
-        z = sin(x = radYaw * cos(radPitch)).toFloat()
-        normalize()
-        join(rayInitialPoint)
-    }
+data class Vector3(var x: Double = 0.0, var y: Double = 0.0, var z: Double = 0.0) {
+    fun toCoord() = Coord(x.toFloat(), y.toFloat(), z.toFloat())
 }
 
-fun anglesFromPoint(point: Coord): Angles {
-    val radVertical = atan2(point.y.toDouble(), sqrt(point.x.toDouble().pow(2) + point.z.toDouble().pow(2)))
-    val radHorizontal = atan2(point.z.toDouble(), point.x.toDouble())
-    val verticalAngle = Math.toDegrees(radVertical).toFloat()
-    val horizontalAngle = Math.toDegrees(radHorizontal).toFloat()
-    return Angles(verticalAnglePitch = verticalAngle, horizontalAngleYaw = horizontalAngle)
+fun Double.toRadians():Double{
+    val DEG2RAD = acos(-1.0) / 180.0 // PI/180
+    return this * DEG2RAD
 }
-fun limiteAngle(value: Float) = if (value < 0) 360 + value % 360 else value % 360
 
-fun main() {
-    val initialPoint = Coord(0f, 0f, 0f)
-//    val verticalAngle = 45f
-//    val horizontalAngle = 90f
-//    val verticalAngle = 112f
-//    val horizontalAngle = 112f
-    val verticalAnglePitch = 111f
-    val horizontalAngleYaw = 43f
+fun radiansToDegrees(radians: Double): Double {
+    val RAD2DEG = 180.0 / acos(-1.0) // 180/PI
+    return radians * RAD2DEG
+}
 
-    val point = pointFromAngle(initialPoint, verticalAnglePitch, horizontalAngleYaw)
-    val angles = anglesFromPoint(point)
+fun anglesToAxes(angles: Vector3): Triple<Vector3, Vector3, Vector3> {
 
-    println("Input:")
-    println("Initial Point: $initialPoint")
-    println("verticalAnglePitch: $verticalAnglePitch degrees")
-    println("Horizontal Angle: $horizontalAngleYaw degrees")
+    var sx: Double
+    var sy: Double
+    var sz: Double
+    var cx: Double
+    var cy: Double
+    var cz: Double
+    var theta: Double
 
-    println("\nOutput:")
-    println("Point from Angles: $point")
-    println("Angles from Point: $angles")
+    // rotation angle about X-axis (pitch)
+    theta = angles.x.toRadians()
+    sx = sin(theta)
+    cx = cos(theta)
 
-    println("====================")
+    // rotation angle about Y-axis (yaw)
+    theta = angles.y.toRadians()
+    sy = sin(theta)
+    cy = cos(theta)
 
-    val sphericalCoords = SphericalCoordinates(r = 1.0,
-        theta = Math.toRadians(verticalAnglePitch.toDouble()),
-        phi = Math.toRadians(horizontalAngleYaw.toDouble())
+    // rotation angle about Z-axis (roll)
+    theta = angles.z.toRadians()
+    sz = sin(theta)
+    cz = cos(theta)
+
+    // determine left axis
+    val left = Vector3(
+        cy * cz,
+        sx * sy * cz + cx * sz,
+        -cx * sy * cz + sx * sz
     )
-    val cartesianCoords = convertToCartesian(sphericalCoords)
-    println(cartesianCoords)
 
-    val angle = convertToSpherical(cartesianCoords)
-    println("pitch = ${Math.toDegrees(angle.theta)}| yaw = ${Math.toDegrees(angle.phi)}")
+    // determine up axis
+    val up = Vector3(
+        -cy * sz,
+        -sx * sy * sz + cx * cz,
+        cx * sy * sz + sx * cz
+    )
 
-    var p = 0.0
-//    var yaw = 0.0
-    repeat(360){
+    // determine forward axis
+    val forward = Vector3(
+        sy,
+        -sx * cy,
+        cx * cy
+    )
 
-        val sphericalCoords = SphericalCoordinates(r = 1.0,
-            theta = Math.toRadians(p++),
-            phi = Math.toRadians(77.0)
-        )
-        val cartesianCoords = convertToCartesian(sphericalCoords)
-        println(cartesianCoords)
-        val angle = convertToSpherical(cartesianCoords)
-        println("pitch = ${Math.toDegrees(angle.theta)}| yaw = ${Math.toDegrees(angle.phi)}")
-
-    }
-
+    return Triple(left, up, forward)
 }
 
-fun convertToSpherical(cartesianCoords: CartesianCoordinates): SphericalCoordinates {
-    val r = sqrt(cartesianCoords.x * cartesianCoords.x + cartesianCoords.y * cartesianCoords.y + cartesianCoords.z * cartesianCoords.z)
-    val theta = acos(cartesianCoords.z / r)
-    val phi = atan2(cartesianCoords.y, cartesianCoords.x)
-    return SphericalCoordinates(r, theta, phi)
+fun axesToAngles(left: Vector3, up: Vector3, forward: Vector3): Vector3 {
+    val pitch = asin(forward.y)
+    val yaw = atan2(forward.x, forward.z)
+
+    val pitchDegrees = Math.toDegrees(pitch.toDouble())
+    val yawDegrees = Math.toDegrees(yaw.toDouble())
+
+    return Vector3(pitchDegrees, yawDegrees, 0.0)
 }
-data class SphericalCoordinates(val r: Double, val theta: Double, val phi: Double)
 
-data class CartesianCoordinates(val x: Double, val y: Double, val z: Double)
 
-fun convertToCartesian(sphericalCoords: SphericalCoordinates): CartesianCoordinates {
-    val x = sphericalCoords.r * sin(sphericalCoords.theta) * cos(sphericalCoords.phi)
-    val y = sphericalCoords.r * sin(sphericalCoords.theta) * sin(sphericalCoords.phi)
-    val z = sphericalCoords.r * cos(sphericalCoords.theta)
-    return CartesianCoordinates(x, y, z)
+fun axesToAngles2(left: Vector3, up: Vector3, forward: Vector3): Vector3 {
+    val angles = Vector3()
+
+    // Calculate pitch (X-axis rotation)
+    angles.x = atan2(forward.y, sqrt(left.y * left.y + up.y * up.y)).toDouble()
+
+    // Calculate yaw (Y-axis rotation)
+    angles.y = atan2(-left.z, sqrt(left.x * left.x + left.y * left.y + up.z * up.z)).toDouble()
+
+    // Calculate roll (Z-axis rotation)
+    angles.z = atan2(left.y, up.y).toDouble()
+
+    // Convert angles to degrees
+//    angles.x = radiansToDegrees(angles.x)
+//    angles.y = radiansToDegrees(angles.y)
+//    angles.z = radiansToDegrees(angles.z)
+
+    return angles
 }

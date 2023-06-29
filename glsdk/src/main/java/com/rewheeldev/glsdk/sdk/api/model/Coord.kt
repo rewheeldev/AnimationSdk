@@ -2,10 +2,8 @@ package com.rewheeldev.glsdk.sdk.api.model
 
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
 import com.rewheeldev.glsdk.sdk.internal.asSortedFloatBuffer
+import com.rewheeldev.glsdk.sdk.internal.util.Math3d
 import java.nio.FloatBuffer
-import kotlin.math.absoluteValue
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 class Coord(
@@ -102,36 +100,41 @@ class Coord(
         return "Coord(x=$x, y=$y, z=$z)"
     }
 
+    fun calculateVectorLength(): Float {
+        return sqrt(x * x + y * y + z * z)
+    }
 
-    fun limiteAngle(value: Float) = if (value < 0) 360 + value % 360 else value % 360
+    /**
+     * нормализирует длину вектора направления на 1
+     */
+    fun normalize() {
+        val length = calculateVectorLength()//.absoluteValue
+        x = (x / length)
+        y = (y / length)
+        z = (z / length)
+    }
+
+    fun multiply(multiply: Float) {
+        x = (x * multiply)
+        y = (y * multiply)
+        z = (z * multiply)
+    }
 
     fun fromAngle(
-        /**
-         * точка из которой выходит луч
-         */
         rayInitialPoint: Coord,
-
-        /**
-         * угол откланения по вертикали (тангаж или наклонение)
-         * принимает число в градусах (degree)
-         * должен быть в пределах от 0 до 179
-         */
         verticalAnglePitch: Float = 45f,
-        /**
-         * должен быть в пределах от 0 до 359
-         */
-        horizontalAngleYaw: Float = 90f
-    ): Coord {
-        //https://learnopengl.com/Getting-Started/Camera
-        val radPitch = Math.toRadians(limiteAngle(verticalAnglePitch).toDouble())
-        val radYaw = Math.toRadians(limiteAngle(horizontalAngleYaw).toDouble())
-        return Coord().apply {
-            x = (cos(radYaw) * cos(radPitch)).toFloat()
-            y = sin(radPitch).toFloat()
-            z = sin(x = radYaw * cos(radPitch)).toFloat()
-            normalize()
-            join(rayInitialPoint)
-        }
+        horizontalAngleYaw: Float = 90f,
+        length: Float = 1f
+    ) {
+        val resultPoint = Math3d.pointFromAngle(
+            verticalAnglePitch,
+            horizontalAngleYaw,
+            rayInitialPoint,
+            length
+        )
+        x = resultPoint.x
+        y = resultPoint.y
+        z = resultPoint.z
     }
 }
 
@@ -146,12 +149,6 @@ fun Coord.cross(second: Coord): Coord {
     val y = this.z * second.x - second.z * this.x
     val z = this.x * second.y - second.x * this.y
     return Coord(x = x, y = y, z = z)
-}
-
-fun Coord.normalize(): Coord {
-    val length = sqrt((this.x * this.x.toDouble()) + (this.y * this.y.toDouble()) + (this.z * this.z.toDouble())).absoluteValue
-
-    return Coord(x = (x / length).toFloat(), y = (y / length).toFloat(), z = (z / length).toFloat())
 }
 
 fun cross(x: FloatArray, y: FloatArray): FloatArray {
