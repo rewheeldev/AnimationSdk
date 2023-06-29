@@ -1,20 +1,26 @@
 package com.example.animationsdk.ui
 
+import android.app.Activity
 import android.app.ActivityManager
+import android.content.Context
 import android.content.pm.ConfigurationInfo
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import com.example.animationsdk.R
 import com.example.animationsdk.databinding.ActivityMainBinding
 import com.example.animationsdk.databinding.NavHeaderMainBinding
@@ -152,7 +158,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
         // to make the Navigation drawer icon always appear on the action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        //region camera position
+        //region setCameraOnSeekBarChangeListeners
         setCameraOnSeekBarChangeListeners()
         //endregion
         openGLConfigurationInfoManager.initActivityManager(this)
@@ -166,19 +172,136 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         bgAlpha()
 
         addControllers()
+
+        //region camera position
+        navHeaderMainBinding.etCpX.text = camera.cameraPosition.x.toString().toEditable()
+        navHeaderMainBinding.etCpY.text = camera.cameraPosition.y.toString().toEditable()
+        navHeaderMainBinding.etCpZ.text = camera.cameraPosition.z.toString().toEditable()
+
+        navHeaderMainBinding.etCpX.disableShowSoftInputOnFocus()
+        navHeaderMainBinding.etCpY.disableShowSoftInputOnFocus()
+        navHeaderMainBinding.etCpZ.disableShowSoftInputOnFocus()
+
+
+        navHeaderMainBinding.etCpX.afterTextChanged { newText ->
+            camera.cameraPosition.x = newText.toFloatOrNull() ?: 0f
+        }
+
+        navHeaderMainBinding.etCpY.afterTextChanged { newText ->
+            camera.cameraPosition.y = newText.toFloatOrNull() ?: 0f
+        }
+        navHeaderMainBinding.etCpZ.afterTextChanged { newText ->
+            camera.cameraPosition.z = newText.toFloatOrNull() ?: 0f
+        }
+        //endregion
+
+        //region camera pointer direction
+        navHeaderMainBinding.etCpointX.text = camera.cameraDirectionPoint.x.toString().toEditable()
+        navHeaderMainBinding.etCpointY.text = camera.cameraDirectionPoint.y.toString().toEditable()
+        navHeaderMainBinding.etCpointZ.text = camera.cameraDirectionPoint.z.toString().toEditable()
+
+
+        navHeaderMainBinding.etCpointX.afterTextChanged { newText ->
+            camera.cameraDirectionPoint.x = newText.toFloatOrNull() ?: 0f
+        }
+        navHeaderMainBinding.etCpointY.afterTextChanged { newText ->
+            camera.cameraDirectionPoint.y = newText.toFloatOrNull() ?: 0f
+        }
+        navHeaderMainBinding.etCpointZ.afterTextChanged { newText ->
+            camera.cameraDirectionPoint.z = newText.toFloatOrNull() ?: 0f
+        }
+
+
+        navHeaderMainBinding.etCpointX.disableShowSoftInputOnFocus()
+        navHeaderMainBinding.etCpointY.disableShowSoftInputOnFocus()
+        navHeaderMainBinding.etCpointZ.disableShowSoftInputOnFocus()
+
+        //endregion
+
+        //region camera up vectors
+        navHeaderMainBinding.etVectorX.text = camera.upVector.x.toString().toEditable()
+        navHeaderMainBinding.etVectorY.text = camera.upVector.y.toString().toEditable()
+        navHeaderMainBinding.etVectorZ.text = camera.upVector.z.toString().toEditable()
+
+
+
+        navHeaderMainBinding.etVectorX.afterTextChanged { newText ->
+            camera.upVector.x = newText.toFloatOrNull() ?: 0f
+        }
+        navHeaderMainBinding.etVectorY.afterTextChanged { newText ->
+            camera.upVector.y = newText.toFloatOrNull() ?: 0f
+        }
+        navHeaderMainBinding.etVectorZ.afterTextChanged { newText ->
+            camera.upVector.z = newText.toFloatOrNull() ?: 0f
+        }
+
+
+        navHeaderMainBinding.etVectorX.disableShowSoftInputOnFocus()
+        navHeaderMainBinding.etVectorY.disableShowSoftInputOnFocus()
+        navHeaderMainBinding.etVectorZ.disableShowSoftInputOnFocus()
+        //endregion
+
+        //region camera Far Vision
+        navHeaderMainBinding.etFar.text = camera.farVision.toString().toEditable()
+
+        navHeaderMainBinding.etFar.afterTextChanged { newText ->
+            camera.farVision = newText.toFloatOrNull() ?: 0f
+        }
+
+        navHeaderMainBinding.etFar.disableShowSoftInputOnFocus()
+        //endregion
+
+        //region camera Near vision
+        navHeaderMainBinding.etNear.text = camera.nearVision.toString().toEditable()
+
+        navHeaderMainBinding.etNear.afterTextChanged { newText ->
+            camera.nearVision = newText.toFloatOrNull() ?: 0f
+        }
+
+        navHeaderMainBinding.etNear.disableShowSoftInputOnFocus()
+        //endregion
+
+        //region camera Fov Y
+        navHeaderMainBinding.etFovY.text = camera.fovY.toString().toEditable()
+
+        navHeaderMainBinding.etFovY.afterTextChanged { newText ->
+            camera.fovY = newText.toFloatOrNull() ?: 0f
+        }
+
+        navHeaderMainBinding.etFovY.disableShowSoftInputOnFocus()
+        //endregion
+
+        navHeaderMainBinding.swKeyboard.setOnCheckedChangeListener { buttonView, isChecked ->
+
+            navHeaderMainBinding.etCpX.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etCpY.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etCpZ.showSoftInputOnFocus = isChecked
+
+            navHeaderMainBinding.etCpointX.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etCpointY.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etCpointZ.showSoftInputOnFocus = isChecked
+
+            navHeaderMainBinding.etVectorX.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etVectorY.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etVectorZ.showSoftInputOnFocus = isChecked
+
+            navHeaderMainBinding.etFar.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etNear.showSoftInputOnFocus = isChecked
+            navHeaderMainBinding.etFovY.showSoftInputOnFocus = isChecked
+        }
     }
 
     var cameraDirectionPointObserver by Delegates.observable(Coord()) { property, oldValue, newValue ->
         binding.tvCpointX.text =
-            resources.getString(R.string.x, newValue.x)
+            resources.getString(R.string.x, newValue.x.toString())
         binding.sbCpointX.progress = newValue.x.toInt()
 
         binding.tvCpointY.text =
-            resources.getString(R.string.y, newValue.y)
+            resources.getString(R.string.y, newValue.y.toString())
         binding.sbCpointY.progress = newValue.y.toInt()
 
         binding.tvCpointZ.text =
-            resources.getString(R.string.z, newValue.z)
+            resources.getString(R.string.z, newValue.z.toString())
         binding.sbCpointZ.progress = newValue.z.toInt()
     }
     val cameraSpeed = 5f
@@ -677,4 +800,33 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
         return true
     }
+}
+
+fun String.toEditable(): Editable = Editable.Factory.getInstance().newEditable(this)
+
+fun Activity.hideKeyboard() {
+    val activity = this
+    val inputMethodManager =
+        activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    val currentFocusView = activity.currentFocus
+    if (currentFocusView != null) {
+        inputMethodManager.hideSoftInputFromWindow(currentFocusView.windowToken, 0)
+    }
+}
+
+fun EditText.afterTextChanged(block: (String) -> Unit) {
+    addTextChangedListener(afterTextChanged = label@{ s ->
+        val newText = s.toString()
+        if (newText.isEmpty()) return@label
+        block(newText)
+    })
+}
+
+
+fun EditText.disableShowSoftInputOnFocus() {
+    showSoftInputOnFocus = false
+}
+
+fun EditText.enableShowSoftInputOnFocus() {
+    showSoftInputOnFocus = true
 }
