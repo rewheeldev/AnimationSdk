@@ -27,9 +27,9 @@ class ViewScene(var camera: CameraProperties = CameraProperties()) {
             camera.cameraPosition.x,
             camera.cameraPosition.y,
             camera.cameraPosition.z,
-            /*camera.cameraPosition.x +*/ camera.cameraDirectionPoint.x,
-            /*camera.cameraPosition.y +*/ camera.cameraDirectionPoint.y,
-            /*camera.cameraPosition.z +*/ camera.cameraDirectionPoint.z,
+            camera.cameraPosition.x + camera.cameraDirectionPoint.x,
+            camera.cameraPosition.y + camera.cameraDirectionPoint.y,
+            camera.cameraPosition.z + camera.cameraDirectionPoint.z,
             camera.upVector.x,
             camera.upVector.y,
             camera.upVector.z

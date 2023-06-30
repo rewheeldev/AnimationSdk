@@ -1,6 +1,8 @@
 package com.rewheeldev.glsdk.sdk.internal.util
 
 import com.rewheeldev.glsdk.sdk.api.model.Coord
+import com.rewheeldev.glsdk.sdk.api.model.Vector3
+import com.rewheeldev.glsdk.sdk.api.model.anglesToAxes
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -41,12 +43,17 @@ object Math3d {
         val radPitch = Math.toRadians(limiteAngle(verticalAnglePitch).toDouble())
         val radYaw = Math.toRadians(limiteAngle(horizontalAngleYaw).toDouble())
         return Coord().apply {
-            x = (cos(radYaw) * cos(radPitch)).toFloat()
-            y = sin(radPitch).toFloat()
-            z = sin(x = radYaw * cos(radPitch)).toFloat()
+//            x = (cos(radYaw) * cos(radPitch)).toFloat()
+//            y = sin(radPitch).toFloat()
+//            z = sin(x = radYaw * cos(radPitch)).toFloat()
+            val result = anglesToAxes(Vector3(limiteAngle(verticalAnglePitch).toDouble(),
+                limiteAngle(horizontalAngleYaw).toDouble(),0.0)).first
+            x = Math.toDegrees(result.x).toFloat()
+            y = Math.toDegrees(result.y).toFloat()
+            z = Math.toDegrees(result.z).toFloat()
             normalize()
             multiply(length)
-            join(rayInitialPoint)
+//            join(rayInitialPoint)
         }
     }
 

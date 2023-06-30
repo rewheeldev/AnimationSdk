@@ -187,12 +187,16 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         zoomOut()
 
         binding.btnDown.setOnClickListener {
-            camera.cameraPosition -= cameraSpeed * (camera.cameraDirectionPoint - camera.cameraPosition)
+//            camera.cameraPosition -= cameraSpeed * (camera.cameraDirectionPoint - camera.cameraPosition)
+            camera.cameraPosition -= cameraSpeed * camera.cameraDirectionPoint
+
             printDebugLog("DOWN | cameraPosition: ${camera.cameraPosition}")
             cameraDirectionPointObserver = camera.cameraDirectionPoint
         }
         binding.btnUp.setOnClickListener {
-            camera.cameraPosition += cameraSpeed * (camera.cameraDirectionPoint - camera.cameraPosition)
+//            camera.cameraPosition += cameraSpeed * (camera.cameraDirectionPoint - camera.cameraPosition)
+            camera.cameraPosition += cameraSpeed * camera.cameraDirectionPoint
+
             printDebugLog("UP | cameraPosition: ${camera.cameraPosition}")
             cameraDirectionPointObserver = camera.cameraDirectionPoint
         }

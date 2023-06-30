@@ -11,10 +11,10 @@ fun draw360Points(
     factory: IShapeFactory,
     controller: IShapeController,
     centerPoint: Coord = Coord(40f, 50f, 70f),
-    radius: Float = 30f
+    radius: Float = 50f
 ) {
-    repeat(180) {
-        val newAnglePoint = pointFromAngle(it.toFloat() * 2, 90f, centerPoint, radius)
+    repeat(360) {
+        val newAnglePoint = pointFromAngle(it.toFloat() * 1f, 23f, centerPoint, radius)
         val pointParams = PointParams(
             Coords(
                 floatArrayOf(newAnglePoint.x, newAnglePoint.y, newAnglePoint.z),
@@ -32,10 +32,10 @@ fun draw360PointsYaw(
     factory: IShapeFactory,
     controller: IShapeController,
     centerPoint: Coord = Coord(40f, 50f, 70f),
-    radius: Float = 30f
+    radius: Float = 50f
 ) {
-    repeat(180) {
-        val newAnglePoint = pointFromAngle(70f, it.toFloat() * 2, centerPoint, radius)
+    repeat(360) {
+        val newAnglePoint = pointFromAngle(43f, it.toFloat() * 1f, centerPoint, radius)
         val pointParams = PointParams(
             Coords(
                 floatArrayOf(newAnglePoint.x, newAnglePoint.y, newAnglePoint.z),
