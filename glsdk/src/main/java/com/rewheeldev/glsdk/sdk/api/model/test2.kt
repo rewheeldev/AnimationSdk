@@ -20,8 +20,7 @@ fun main() {
     val verticalAnglePitchNew = angles.first
     val horizontalAngleYawNew = angles.second
 
-    val v = anglesToAxes(Vector3(verticalAnglePitch.toDouble(),
-        horizontalAngleYaw.toDouble(),0.0))
+    val v = anglesToAxes(verticalAnglePitch.toDouble(), horizontalAngleYaw.toDouble())
     val anglesFromV = axesToAngles(v.first, v.second,v.third)
     val anglesFromV2 = axesToAngles2(v.first, v.second,v.third)
 
@@ -40,7 +39,7 @@ fun main() {
             )
         }"
     )
-    print("\n${verticalAnglePitch.toDouble().toRadians()} | ${anglesFromV.x} " +
+    print("\n${verticalAnglePitch.toDouble().degreesToRadians()} | ${anglesFromV.x} " +
             "| ${anglesFromV2.x} | " +
             "\n")
     print(
@@ -58,7 +57,7 @@ fun main() {
             )
         }"
     )
-    println("\n${horizontalAngleYaw.toDouble().toRadians()} | ${anglesFromV.y}" +
+    println("\n${horizontalAngleYaw.toDouble().degreesToRadians()} | ${anglesFromV.y}" +
             "| ${anglesFromV2.y} | " +
             "\n" )
 }

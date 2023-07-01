@@ -1,8 +1,6 @@
 package com.rewheeldev.glsdk.sdk.internal.util
 
 import com.rewheeldev.glsdk.sdk.api.model.Coord
-import com.rewheeldev.glsdk.sdk.api.model.Vector3
-import com.rewheeldev.glsdk.sdk.api.model.anglesToAxes
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -10,7 +8,9 @@ import kotlin.math.sin
 
 object Math3d {
 
-    fun limiteAngle(value: Float) = if (value < 0) 360 + value % 360 else value % 360
+    fun limitAngle(value: Float) = if (value < 0) 360 + value % 360 else value % 360
+    fun limitVerticalAngle(value: Float) =
+        if (value < 89f) 89f else if (value > 269f) 269f else value
 
     /**
      * Функция вычисляет координаты точки в трехмерном пространстве, которая
@@ -38,19 +38,23 @@ object Math3d {
         /**
          *
          */
-        length: Float = 1f
+        length: Float = 5f
     ): Coord {
-        val radPitch = Math.toRadians(limiteAngle(verticalAnglePitch).toDouble())
-        val radYaw = Math.toRadians(limiteAngle(horizontalAngleYaw).toDouble())
+        val radPitch = Math.toRadians(limitAngle(verticalAnglePitch).toDouble())
+        val radYaw = Math.toRadians(limitAngle(horizontalAngleYaw).toDouble())
+        val radRoll = 0.0
+
         return Coord().apply {
-//            x = (cos(radYaw) * cos(radPitch)).toFloat()
-//            y = sin(radPitch).toFloat()
-//            z = sin(x = radYaw * cos(radPitch)).toFloat()
-            val result = anglesToAxes(Vector3(limiteAngle(verticalAnglePitch).toDouble(),
-                limiteAngle(horizontalAngleYaw).toDouble(),0.0)).first
-            x = Math.toDegrees(result.x).toFloat()
-            y = Math.toDegrees(result.y).toFloat()
-            z = Math.toDegrees(result.z).toFloat()
+            val sx = sin(radPitch)
+            val cx = cos(radPitch)
+            val sy = sin(radYaw)
+            val cy = cos(radYaw)
+            val sz = sin(radRoll)
+            val cz = cos(radRoll)
+
+            x = (cy * cz).toFloat()
+            y = (sx * sy * cz + cx * sz).toFloat()
+            z = (-cx * sy * cz + sx * sz).toFloat()
             normalize()
             multiply(length)
 //            join(rayInitialPoint)

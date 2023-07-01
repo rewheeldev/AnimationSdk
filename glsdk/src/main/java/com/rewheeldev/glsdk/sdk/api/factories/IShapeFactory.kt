@@ -32,7 +32,14 @@ interface IShapeFactory {
      *
      * @param params GridParams
      */
-    fun createGrid(params: GridParams): IShape
+    fun createGridXZ(params: GridParams): IShape
+
+    /**
+     * Create a grid with the given parameters.
+     *
+     * @param params GridParams
+     */
+    fun createGridXY(params: GridParams): IShape
 
     /**
      * Create a point with the given parameters.

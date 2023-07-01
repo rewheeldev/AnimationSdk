@@ -29,9 +29,8 @@ import com.rewheeldev.glsdk.sdk.api.shape.triangle.TriangleParams
 import com.rewheeldev.glsdk.sdk.api.util.OpenGLConfigurationInfoManager
 import com.rewheeldev.glsdk.sdk.internal.CameraProperties
 import com.rewheeldev.glsdk.sdk.internal.CoordsPerVertex
+import com.rewheeldev.glsdk.sdk.internal.util.Math3d.limitVerticalAngle
 import utils.Color
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.properties.Delegates
 
 
@@ -197,6 +196,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 //            camera.cameraPosition += cameraSpeed * (camera.cameraDirectionPoint - camera.cameraPosition)
             camera.cameraPosition += cameraSpeed * camera.cameraDirectionPoint
 
+
             printDebugLog("UP | cameraPosition: ${camera.cameraPosition}")
             cameraDirectionPointObserver = camera.cameraDirectionPoint
         }
@@ -354,25 +354,34 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             val triangle2 = shapeFactory.createTriangle(triangleParams2)
             val triangle3 = shapeFactory.createTriangle(triangleParams3)
 
-            val gridBorder = Border(
+            val xyGridBorder = Border(
                 width = 0.0000000000000001f, color = Color.GREEN, type = LinkLineTypes.Strip
             )
-            val gridParams = GridParams(
-                columns = 5, rows = 10, stepSize = 6f, border = gridBorder
+            val xyGridParams = GridParams(
+//                x = 0f, y = 0f, z = 0f,
+                columns = 30, rows = 30,
+                stepSize = 30f, border = xyGridBorder
             )
-            val grid = shapeFactory.createGrid(gridParams)
+            val xyGrid = shapeFactory.createGridXY(xyGridParams)
 
-            val grid2Border = Border(width = 0.00000000001f, type = LinkLineTypes.Strip)
-            val grid2Params = GridParams(
-                x = -170f,
-                y = -170f,
-                z = 0.0003f,
-                columns = 60,
-                rows = 60,
-                stepSize = 10f,
-                border = grid2Border
+            val xzGridBorder = Border(width = 0.00000000001f, type = LinkLineTypes.Strip)
+            val xzGridParams = GridParams(
+//                x = -170f, y = -170f, z = 0.0003f,
+                columns = 30, rows = 30,
+                stepSize = 30f,
+                border = xzGridBorder
             )
-            val grid2 = shapeFactory.createGrid(grid2Params)
+            val xzGrid = shapeFactory.createGridXZ(xzGridParams)
+            val xzUpGridBorder = Border(
+                width = 0.00000000001f, type = LinkLineTypes.Strip, color = Color.BLUE
+            )
+            val xzUpGridParams = GridParams(
+                y = 900f,
+                columns = 30, rows = 30,
+                stepSize = 30f,
+                border = xzUpGridBorder
+            )
+            val xzUpGrid = shapeFactory.createGridXZ(xzUpGridParams)
 
             val rectangleParams = RectangleParams(x = -30, y = 30, width = 30, height = -30)
             rectangleParams.color = Color(0f, 0.34f, 0.34f, 1f)
@@ -391,43 +400,22 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             )
             val line = shapeFactory.createLine(lineParams)
 
-            binding.mainLayout.getShapeController().add(grid2)
-            binding.mainLayout.getShapeController().add(grid)
-            binding.mainLayout.getShapeController().add(line)
+//            binding.mainLayout.getShapeController().add(line)
+//            binding.mainLayout.getShapeController().add(point)
+
+            binding.mainLayout.getShapeController().add(xzGrid)
+            binding.mainLayout.getShapeController().add(xzUpGrid)
+            binding.mainLayout.getShapeController().add(xyGrid)
 
             binding.mainLayout.getShapeController().add(rectangle)
             binding.mainLayout.getShapeController().add(triangle)
             binding.mainLayout.getShapeController().add(triangle1)
             binding.mainLayout.getShapeController().add(triangle2)
             binding.mainLayout.getShapeController().add(triangle3)
-            binding.mainLayout.getShapeController().add(point)
 
             draw360Points(shapeFactory, binding.mainLayout.getShapeController())
             draw360PointsYaw(shapeFactory, binding.mainLayout.getShapeController())
-
-//            rotateCamera()
         }
-    }
-
-    val radius = 1.0
-
-    fun rotateCamera() {
-        Thread {
-            repeat(10_000) {
-                val camX = sin(System.currentTimeMillis() * radius) * 300
-                val camZ = cos(System.currentTimeMillis() * radius) * 300
-//                val camX = System.currentTimeMillis() * radius % 1000
-//                val camZ = System.currentTimeMillis() * radius % 1000
-                runOnUiThread {
-                    camera.cameraPosition.x = camX.toFloat()
-                    camera.cameraPosition.z = camZ.toFloat()
-                }
-                printDebugLog("camera: $camera")
-                Thread.sleep(600)
-            }
-
-        }.start()
-
     }
 
     private fun setCameraOnSeekBarChangeListeners() {
@@ -599,7 +587,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
     val camera = CameraProperties(
 //        cameraPosition = Coord(x = 0f, y = 5.94f, z = 196.26f),
 //        cameraDirectionPoint = Coord(x = 2.55f, y = 99.409996f)
-        cameraPosition = Coord(x = 0f, y = 0.0f, z = 196.26f),
+        cameraPosition = Coord(x = 400f, y = 400f, z = 400f),
 //        cameraDirectionPoint = Coord(x = 0.0f, y = 0.0f, z = -1.0f),
 //        upVector = Coord(x = 0.0f, y = 1.0f, z = 0.0f)
     )
@@ -636,7 +624,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
         const val SENSITIVITY = 0.25f
     }
 
-    var pitch: Float = 0f
+    var pitch: Float = 190f
     var yaw: Float = 90f
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
@@ -655,7 +643,8 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
             MotionEvent.ACTION_MOVE -> {
                 var xoffset: Float = event.x - lastX
-                var yoffset: Float = lastY - event.y // reversed since y-coordinates range from bottom to top
+                var yoffset: Float =
+                    lastY - event.y // reversed since y-coordinates range from bottom to top
 
                 lastX = event.x
                 lastY = event.y
@@ -665,12 +654,8 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
                 yaw += xoffset
                 pitch += yoffset
-                camera.setDirectionAsAngel(pitch, yaw)
+                camera.setDirectionAsAngel(limitVerticalAngle(pitch), yaw)
                 cameraDirectionPointObserver = camera.cameraDirectionPoint
-//                val v = anglesToAxes(Vector3(pitch.toDouble(), yaw.toDouble(),0.0))
-//                camera.cameraPosition = v.first.toCoord()
-//                camera.cameraDirectionPoint = v.first.toCoord()
-//                camera.upVector = v.second.toCoord()
                 printDebugLog("ACTION_MOVE event.x: ${event.x}, y: ${event.y} | camera.cameraDirectionPoint: ${camera.cameraDirectionPoint}")
             }
 

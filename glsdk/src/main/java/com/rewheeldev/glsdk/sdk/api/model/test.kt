@@ -6,40 +6,48 @@ data class Vector3(var x: Double = 0.0, var y: Double = 0.0, var z: Double = 0.0
     fun toCoord() = Coord(x.toFloat(), y.toFloat(), z.toFloat())
 }
 
-fun Double.toRadians():Double{
+fun Double.degreesToRadians():Double{
     val DEG2RAD = acos(-1.0) / 180.0 // PI/180
     return this * DEG2RAD
 }
 
-fun radiansToDegrees(radians: Double): Double {
+fun Double.radiansToDegrees(): Double {
     val RAD2DEG = 180.0 / acos(-1.0) // 180/PI
-    return radians * RAD2DEG
+    return this * RAD2DEG
 }
 
-fun anglesToAxes(angles: Vector3): Triple<Vector3, Vector3, Vector3> {
+fun main(){
+    fun aaa(a: Double){
+    val math = Math.toRadians(a)
+    val own = a.degreesToRadians()
+    print("own = $own" +
+            " | math = $math | ")
+    print("own = ${own.radiansToDegrees()}" +
+            " | math = ${Math.toDegrees(math)}\n")
+    }
 
-    var sx: Double
-    var sy: Double
-    var sz: Double
-    var cx: Double
-    var cy: Double
-    var cz: Double
-    var theta: Double
+    repeat(360){aaa(it.toDouble())}
+}
 
+fun anglesToAxes(
+    pitch:Double,
+    yaw:Double,
+    roll:Double = 0.0
+): Triple<Vector3, Vector3, Vector3> {
     // rotation angle about X-axis (pitch)
-    theta = angles.x.toRadians()
-    sx = sin(theta)
-    cx = cos(theta)
+    val radPitch = pitch.degreesToRadians()
+    val sx = sin(radPitch)
+    val cx = cos(radPitch)
 
     // rotation angle about Y-axis (yaw)
-    theta = angles.y.toRadians()
-    sy = sin(theta)
-    cy = cos(theta)
+    val radYaw = yaw.degreesToRadians()
+    val sy = sin(radYaw)
+    val cy = cos(radYaw)
 
     // rotation angle about Z-axis (roll)
-    theta = angles.z.toRadians()
-    sz = sin(theta)
-    cz = cos(theta)
+    val radRoll = roll.degreesToRadians()
+    val sz = sin(radRoll)
+    val cz = cos(radRoll)
 
     // determine left axis
     val left = Vector3(

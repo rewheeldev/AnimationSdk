@@ -23,7 +23,7 @@ internal class Shape(
          * для правильного отображения кординаты сетки должны
          * быть созданы с [borderType] = [LinkLineTypes.Strip]
          */
-        fun prepareCoordsForGrid(
+        fun prepareCoordsForGridXY(
             x: Float = 0f, y: Float = 0f, z: Float = 0f,
             columns: Int = 10, rows: Int = 10,
             stepSize: Float = 10f

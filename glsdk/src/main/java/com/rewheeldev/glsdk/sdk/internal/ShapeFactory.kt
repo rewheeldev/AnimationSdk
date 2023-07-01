@@ -24,10 +24,26 @@ class ShapeFactory : IShapeFactory {
         return Shape(coords = params.coords, colors = Colors(params.color), border = params.border)
     }
 
-    override fun createGrid(params: GridParams): IShape {
+    override fun createGridXZ(params: GridParams): IShape {
         return Shape(
             with(params) {
                 Shape.prepareCoordsForGridXZ(
+                    x = x,
+                    y = y,
+                    z = z,
+                    columns = columns,
+                    rows = rows,
+                    stepSize = stepSize,
+                )
+            },
+            border = params.border
+        )
+    }
+
+    override fun createGridXY(params: GridParams): IShape {
+        return Shape(
+            with(params) {
+                Shape.prepareCoordsForGridXY(
                     x = x,
                     y = y,
                     z = z,
